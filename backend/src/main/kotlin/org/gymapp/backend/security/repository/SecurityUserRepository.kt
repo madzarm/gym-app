@@ -9,4 +9,6 @@ import java.util.Optional
 interface SecurityUserRepository: JpaRepository<SecurityUser, String> {
 
     fun findByUsername(username: String): Optional<SecurityUser>
+
+    fun existsByUsername(username: String): Boolean
 }

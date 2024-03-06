@@ -12,6 +12,7 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/backend/pom.xml" />
+        <option value="$PROJECT_DIR$/Library/pom.xml" />
       </list>
     </option>
   </component>
