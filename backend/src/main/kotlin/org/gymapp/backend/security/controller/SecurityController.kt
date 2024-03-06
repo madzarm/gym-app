@@ -18,15 +18,15 @@ class SecurityController(
 
     @PostMapping("/login")
     fun login(
-        @RequestParam email: String,
+        @RequestParam username: String,
         @RequestParam password: String
-    ) = securityService.login(email, password)
+    ) = securityService.login(username, password)
 
     @PatchMapping("/update-roles")
     fun updateRoles(
-        @RequestParam email: String,
+        @RequestParam username: String,
         @RequestParam role: String
-    ) = securityService.updateRoles(email, role)
+    ) = securityService.updateRoles(username, role)
 
     @GetMapping("/users/current")
     fun getCurrentUser(@AuthenticationPrincipal securityUser: SecurityUser) =
