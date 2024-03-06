@@ -23,6 +23,7 @@ class WebConfig(
             csrf { disable() }
             authorizeHttpRequests {
                 authorize("/greetings/**", hasAuthority("ROLE_ADMIN"))
+                authorize("/test/**", hasAuthority("ROLE_ADMIN"))
                 authorize("/**", permitAll)
             }
             apply {
