@@ -1,4 +1,4 @@
-package com.example.gym_app
+package com.example.gym_app.api
 
 import org.gymapp.library.request.CreateAccountRequest
 import retrofit2.Response

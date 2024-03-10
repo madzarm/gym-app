@@ -1,4 +1,4 @@
-package com.example.gym_app
+package com.example.gym_app.api
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
