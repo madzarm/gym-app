@@ -63,7 +63,7 @@ fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
           Text(text = "Login", fontSize = TextUnit(4F, TextUnitType.Em))
         }
         OutlinedButton(
-            onClick = { navController.navigate("signIn") },
+            onClick = { navController.navigate("SignupRoleSelectionScreen") },
             modifier = modifier.fillMaxWidth().padding(bottom = 32.dp),
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary)) {
               Text(text = "Sign Up", fontSize = 4.em)
