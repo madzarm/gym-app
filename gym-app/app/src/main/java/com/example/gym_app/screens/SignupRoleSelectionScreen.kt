@@ -1,5 +1,6 @@
 package com.example.gym_app.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,12 +42,12 @@ import com.example.gym_app.common.Role
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.UserViewModel
 
+@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun SignupRoleSelectionScreen(
-    navController: NavController,
-    modifier: Modifier = Modifier,
-    viewModel: UserViewModel = viewModel()
-) {
+fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier = Modifier) {
+    val navBackStackEntry =
+        remember(navController) { navController.getBackStackEntry(AppRoutes.WELCOME_SCREEN) }
+    val viewModel: UserViewModel = viewModel(navBackStackEntry)
   Column(
       modifier =
           modifier
@@ -86,6 +88,7 @@ fun SignupRoleSelectionScreen(
                   text = "Gym Owner",
                   onClick = {
                     viewModel.updateUserState { copy(role = Role.OWNER) }
+                      println("Here -> " + viewModel.userState.value)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               SelectionOption(

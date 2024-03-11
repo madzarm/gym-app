@@ -55,4 +55,5 @@ dependencies {
   implementation("com.squareup.retrofit2:converter-gson:2.9.0")
   implementation("org.gymapp:Library:1.0-SNAPSHOT")
   implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
+  implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
 }
