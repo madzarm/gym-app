@@ -22,8 +22,8 @@ class UserViewModel : ViewModel() {
   private var _userState = MutableStateFlow(UserState())
   val userState = _userState.asStateFlow()
 
-    private var _error = MutableStateFlow(false)
-    val error = _error.asStateFlow()
+  private var _error = MutableStateFlow(false)
+  val error = _error.asStateFlow()
 
   private var passwordConfirmationCheckJob: Job? = null
 
@@ -41,33 +41,4 @@ class UserViewModel : ViewModel() {
           _error.value = !passwordMatch
         }
   }
-
-  //  private fun checkPasswordsMatch() {
-  //    confirmPasswordError.value =
-  //        if (userState.value.password != userState.value.confirmPassword &&
-  //            userState.value.confirmPassword.isNotEmpty()) {
-  //          "Passwords do not match"
-  //        } else {
-  //          ""
-  //        }
-  //  }
-
-  //  fun setConfirmPassword(confirmPassword: String) {
-  //    // passwordCheckJob?.cancel()
-  //
-  //    // passwordCheckJob = CoroutineScope(Dispatchers.Default).launch { delay(500) }
-  //
-  //    viewModelScope.launch {
-  //      println("Launching with pass: ${confirmPassword}...")
-  //      delay(500)
-  //      updateState(confirmPassword = confirmPassword)
-  //    }
-  //  }
 }
-// updateState(confirmPassword = confirmPassword)
-// confirmPasswordError.value = if (userState.value.password != confirmPassword &&
-// confirmPassword.isNotEmpty()) {
-//    "Passwords do not match"
-// } else {
-//    ""
-// }
