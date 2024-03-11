@@ -85,7 +85,7 @@ fun SignupRoleSelectionScreen(
                   painter = R.drawable.businessman,
                   text = "Gym Owner",
                   onClick = {
-                    viewModel.setRole(Role.OWNER)
+                    viewModel.updateState(role = Role.OWNER)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               SelectionOption(
@@ -93,7 +93,7 @@ fun SignupRoleSelectionScreen(
                   painter = R.drawable.trainer,
                   text = "Trainer",
                   onClick = {
-                    viewModel.setRole(Role.TRAINER)
+                    viewModel.updateState(role = Role.TRAINER)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               SelectionOption(
@@ -101,7 +101,7 @@ fun SignupRoleSelectionScreen(
                   painter = R.drawable.member,
                   text = "Member",
                   onClick = {
-                    viewModel.setRole(Role.MEMBER)
+                    viewModel.updateState(role = Role.MEMBER)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               Spacer(modifier = Modifier.weight(1f))
