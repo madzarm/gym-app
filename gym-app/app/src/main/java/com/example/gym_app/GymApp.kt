@@ -5,6 +5,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
+import com.example.gym_app.screens.CreateAccountScreen
 import com.example.gym_app.screens.SignupRoleSelectionScreen
 import com.example.gym_app.screens.WelcomeScreen
 
@@ -16,5 +17,6 @@ fun GymApp() {
     composable(AppRoutes.SIGNUP_ROLE_SELECTION_SCREEN) {
       SignupRoleSelectionScreen(navController = navController)
     }
+    composable(AppRoutes.CREATE_ACCOUNT_SCREEN) { CreateAccountScreen(navController = navController) }
   }
 }
