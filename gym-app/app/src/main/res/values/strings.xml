@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">gym-app</string>
+    <string name="com_auth0_domain">dev-jj2awpllib7dacna.us.auth0.com</string>
+    <string name="com_auth0_scheme">demo</string>
 </resources>

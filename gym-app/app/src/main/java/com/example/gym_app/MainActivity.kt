@@ -3,13 +3,18 @@ package com.example.gym_app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import com.example.gym_app.ui.theme.GymappTheme
 import com.auth0.android.Auth0
+import com.auth0.android.authentication.AuthenticationException
 import com.auth0.android.provider.WebAuthProvider
+import com.auth0.android.result.Credentials
+import com.auth0.android.callback.Callback
+import com.example.gym_app.viewModels.AuthViewModel
 
 class MainActivity : ComponentActivity() {
 
@@ -21,12 +26,33 @@ class MainActivity : ComponentActivity() {
       "Ro2WqbNVwQMZIIYVNVX5POPqHK0EIcGH",
       "dev-jj2awpllib7dacna.us.auth0.com"
     )
+
+    val authViewModel: AuthViewModel by viewModels()
+
     setContent {
       GymappTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          GymApp()
+          GymApp(onLoginWithAuthClicked = { loginWithBrowser(authViewModel) })
         }
       }
     }
   }
+
+  private fun loginWithBrowser(authViewModel: AuthViewModel) {
+    WebAuthProvider.login(account)
+      .withScheme("demo")
+      .withScope("openid profile email")
+      .start(this, object : Callback<Credentials, AuthenticationException> {
+        override fun onFailure(exception: AuthenticationException) {
+        }
+
+        override fun onSuccess(credentials: Credentials) {
+          val accessToken = credentials.accessToken
+          authViewModel.setToken(accessToken)
+          println("token is: ${authViewModel.token.value}")
+        }
+      })
+  }
 }
+
+

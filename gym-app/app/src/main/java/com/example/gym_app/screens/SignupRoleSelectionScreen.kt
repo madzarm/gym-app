@@ -27,12 +27,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -40,7 +42,9 @@ import com.example.gym_app.R
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.Role
 import com.example.gym_app.ui.theme.GymappTheme
+import com.example.gym_app.viewModels.AuthViewModel
 import com.example.gym_app.viewModels.UserViewModel
+
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
@@ -48,6 +52,11 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
     val navBackStackEntry =
         remember(navController) { navController.getBackStackEntry(AppRoutes.WELCOME_SCREEN) }
     val viewModel: UserViewModel = viewModel(navBackStackEntry)
+
+    val viewModelStoreOwner = LocalContext.current as? ViewModelStoreOwner ?: return
+    val authViewModel: AuthViewModel = viewModel(viewModelStoreOwner)
+
+    println(authViewModel.token.value)
   Column(
       modifier =
           modifier

@@ -31,8 +31,11 @@ import com.example.gym_app.R
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.ui.theme.logam
 
+
+
+
 @Composable
-fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier, onLoginWithAuthClicked: () -> Unit) {
   Column(
       modifier = modifier.fillMaxSize().padding(16.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -43,10 +46,7 @@ fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
             modifier = modifier.padding(bottom = 32.dp))
         Text(
             text = "Welcome to",
-            style =
-                TextStyle(
-                    fontSize = 10.em,
-                    color = MaterialTheme.colorScheme.primary),
+            style = TextStyle(fontSize = 10.em, color = MaterialTheme.colorScheme.primary),
         )
 
         Text(
@@ -73,7 +73,10 @@ fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
             color = Color.Gray,
             fontSize = 3.em,
             modifier = modifier.padding(bottom = 10.dp))
-        Row(
+      Button(onClick = onLoginWithAuthClicked) {
+          Text(text = "Login with Auth")
+      }
+       Row(
             modifier = modifier.fillMaxWidth(0.5f),
             horizontalArrangement = Arrangement.SpaceBetween) {
               Image(
@@ -89,8 +92,11 @@ fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier) {
       }
 }
 
+
+
+
 @Composable
 @Preview
 fun WelcomeScreenPreview() {
-  GymappTheme { Surface { WelcomeScreen(navController = rememberNavController()) } }
+  GymappTheme { Surface { WelcomeScreen(navController = rememberNavController(), onLoginWithAuthClicked = {}) } }
 }

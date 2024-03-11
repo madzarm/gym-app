@@ -8,6 +8,8 @@ android {
   compileSdk = 34
 
   defaultConfig {
+    manifestPlaceholders["auth0Domain"] = "@string/com_auth0_domain"
+    manifestPlaceholders["auth0Scheme"] = "demo"
     applicationId = "com.example.gym_app"
     minSdk = 24
     targetSdk = 34
@@ -56,4 +58,5 @@ dependencies {
   implementation("org.gymapp:Library:1.0-SNAPSHOT")
   implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
   implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
+  implementation("com.auth0.android:auth0:2.+")
 }
