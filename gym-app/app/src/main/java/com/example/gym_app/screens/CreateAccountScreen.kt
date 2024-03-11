@@ -92,28 +92,24 @@ fun CreateAccountScreen(
               TextField(
                   value = useState.firstName,
                   label = "First name",
-                  onValueChange = { userViewModel.updateState(firstName = it) })
+                  onValueChange = { userViewModel.updateUserState { copy(firstName = it) } })
               TextField(
                   value = useState.lastName,
                   label = "Last name",
-                  onValueChange = { userViewModel.updateState(lastName = it) })
+                  onValueChange = { userViewModel.updateUserState { copy(lastName = it) } })
               TextField(
                   value = useState.email,
                   label = "Last name",
-                  onValueChange = { userViewModel.updateState(email = it) })
+                  onValueChange = { userViewModel.updateUserState { copy(email = it) } })
               PasswordTextField(
                   value = useState.password,
-                  onValueChange = { userViewModel.updateState(password = it) })
+                  onValueChange = { userViewModel.updateUserState { copy(password = it) } })
             val userState by userViewModel.userState.collectAsState()
-
+            val error by userViewModel.error.collectAsState()
             PasswordConfirmationTextField(
                 value = userState.confirmPassword,
-                onValueChange = { newPassword ->
-                    userViewModel.confirmPasswordDelayed({ password, confirmPassword ->
-                        password == confirmPassword
-                    }, newPassword)
-                },
-                error = if (userState.isError) "Passwords do not match" else ""
+                onValueChange = {userViewModel.confirmPasswordDelayed(it)},
+                error = if (error) "Passwords do not match" else ""
             )
               Button(onClick = { /*TODO*/}) { Text(text = "Create", fontSize = 6.em) }
               Spacer(modifier = Modifier.weight(1f))

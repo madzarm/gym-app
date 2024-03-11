@@ -16,59 +16,41 @@ data class UserState(
     val password: String = "",
     val confirmPassword: String = "",
     val role: Role? = null,
-    val isError: Boolean = false
 )
 
 class UserViewModel : ViewModel() {
   private var _userState = MutableStateFlow(UserState())
-
   val userState = _userState.asStateFlow()
+
+    private var _error = MutableStateFlow(false)
+    val error = _error.asStateFlow()
 
   private var passwordConfirmationCheckJob: Job? = null
 
   fun updateUserState(update: UserState.() -> UserState) {
     _userState.value = update(_userState.value)
   }
-    fun updateState(
-        firstName: String? = null,
-        lastName: String? = null,
-        email: String? = null,
-        password: String? = null,
-        confirmPassword: String? = null,
-        role: Role? = null
-    ) {
-      _userState.value =
-          _userState.value.copy(
-              firstName = firstName ?: _userState.value.firstName,
-              lastName = lastName ?: _userState.value.lastName,
-              email = email ?: _userState.value.email,
-              password = password ?: _userState.value.password,
-              confirmPassword = confirmPassword ?: _userState.value.confirmPassword,
-              role = role ?: _userState.value.role)
 
-      //checkPasswordsMatch()
-    }
-
-  fun confirmPasswordDelayed(check: (String, String) -> Boolean, confirmPassword: String) {
+  fun confirmPasswordDelayed(confirmPassword: String) {
     passwordConfirmationCheckJob?.cancel()
     passwordConfirmationCheckJob =
         viewModelScope.launch {
-            updateUserState { copy(confirmPassword = confirmPassword) }
+          updateUserState { copy(confirmPassword = confirmPassword) }
           delay(500)
-          val passwordMatch = check(_userState.value.password, confirmPassword)
-          updateUserState { copy(isError = !passwordMatch) }
+          val passwordMatch = _userState.value.password == confirmPassword
+          _error.value = !passwordMatch
         }
   }
 
-//  private fun checkPasswordsMatch() {
-//    confirmPasswordError.value =
-//        if (userState.value.password != userState.value.confirmPassword &&
-//            userState.value.confirmPassword.isNotEmpty()) {
-//          "Passwords do not match"
-//        } else {
-//          ""
-//        }
-//  }
+  //  private fun checkPasswordsMatch() {
+  //    confirmPasswordError.value =
+  //        if (userState.value.password != userState.value.confirmPassword &&
+  //            userState.value.confirmPassword.isNotEmpty()) {
+  //          "Passwords do not match"
+  //        } else {
+  //          ""
+  //        }
+  //  }
 
   //  fun setConfirmPassword(confirmPassword: String) {
   //    // passwordCheckJob?.cancel()
