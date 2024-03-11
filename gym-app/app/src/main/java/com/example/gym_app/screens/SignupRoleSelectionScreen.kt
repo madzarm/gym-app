@@ -31,13 +31,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.R
+import com.example.gym_app.common.AppRoutes
+import com.example.gym_app.common.Role
 import com.example.gym_app.ui.theme.GymappTheme
+import com.example.gym_app.viewModels.UserViewModel
 
 @Composable
-fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun SignupRoleSelectionScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    viewModel: UserViewModel = viewModel()
+) {
   Column(
       modifier =
           modifier
@@ -73,47 +81,63 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
             verticalArrangement = Arrangement.Center) {
               Spacer(modifier = Modifier.weight(1f))
               SelectionOption(
-                  modifier = modifier, painter = R.drawable.businessman, text = "Gym Owner")
-              SelectionOption(modifier = modifier, painter = R.drawable.trainer, text = "Trainer")
-              SelectionOption(modifier = modifier, painter = R.drawable.member, text = "Member")
-
+                  modifier = modifier,
+                  painter = R.drawable.businessman,
+                  text = "Gym Owner",
+                  onClick = {
+                    viewModel.setRole(Role.OWNER)
+                    navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
+                  })
+              SelectionOption(
+                  modifier = modifier,
+                  painter = R.drawable.trainer,
+                  text = "Trainer",
+                  onClick = {
+                    viewModel.setRole(Role.TRAINER)
+                    navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
+                  })
+              SelectionOption(
+                  modifier = modifier,
+                  painter = R.drawable.member,
+                  text = "Member",
+                  onClick = {
+                    viewModel.setRole(Role.MEMBER)
+                    navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
+                  })
               Spacer(modifier = Modifier.weight(1f))
             }
       }
 }
 
 @Composable
-private fun SelectionOption(modifier: Modifier, painter: Int, text: String) {
-  TextButton(onClick = { /*TODO*/},
-
-      modifier = modifier.background(Color.Transparent)) {
-      Row(
-          modifier = modifier.fillMaxWidth(0.84F).padding(bottom = 18.dp),
-          verticalAlignment = Alignment.CenterVertically,
-          horizontalArrangement = Arrangement.SpaceBetween,
-      ) {
-          Box(
-              modifier =
+private fun SelectionOption(modifier: Modifier, painter: Int, text: String, onClick: () -> Unit) {
+  TextButton(onClick = onClick, modifier = modifier.background(Color.Transparent)) {
+    Row(
+        modifier = modifier.fillMaxWidth(0.84F).padding(bottom = 18.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+      Box(
+          modifier =
               Modifier.size(100.dp)
                   .clip(CircleShape)
                   .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
-          ) {
-              Image(
-                  painter = painterResource(id = painter),
-                  contentDescription = "Descriptive Text",
-                  modifier = Modifier.padding(end = 10.dp).size(120.dp))
-          }
-          Row(modifier = modifier.fillMaxWidth()) {
-              Text(
-                  modifier = modifier.padding(start = 16.dp),
-                  text = text,
-                  color = MaterialTheme.colorScheme.primary,
-                  fontSize = 35.sp,
-              )
-          }
+      ) {
+        Image(
+            painter = painterResource(id = painter),
+            contentDescription = "$text icon",
+            modifier = Modifier.padding(end = 10.dp).size(120.dp))
       }
+      Row(modifier = modifier.fillMaxWidth()) {
+        Text(
+            modifier = modifier.padding(start = 16.dp),
+            text = text,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 35.sp,
+        )
+      }
+    }
   }
-
 }
 
 @Composable
