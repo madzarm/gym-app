@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 
 class AuthViewModel : ViewModel() {
 
-
     private val _token = mutableStateOf("")
     val token = _token
 
