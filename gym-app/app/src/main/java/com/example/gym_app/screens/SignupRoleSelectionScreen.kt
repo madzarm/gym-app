@@ -51,12 +51,11 @@ import com.example.gym_app.viewModels.UserViewModel
 fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier = Modifier) {
     val navBackStackEntry =
         remember(navController) { navController.getBackStackEntry(AppRoutes.WELCOME_SCREEN) }
-    val viewModel: UserViewModel = viewModel(navBackStackEntry)
-
     val viewModelStoreOwner = LocalContext.current as? ViewModelStoreOwner ?: return
+
+    val viewModel: UserViewModel = viewModel(navBackStackEntry)
     val authViewModel: AuthViewModel = viewModel(viewModelStoreOwner)
 
-    println(authViewModel.token.value)
   Column(
       modifier =
           modifier
