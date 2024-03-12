@@ -1,5 +1,6 @@
 package org.gymapp.backend.security.service.impl
 
+import org.gymapp.backend.security.exception.UserAlreadyRegisteredException
 import org.gymapp.backend.security.exception.UserNotFoundException
 import org.gymapp.backend.security.model.SecurityUser
 import org.gymapp.backend.security.repository.SecurityUserRepository
@@ -24,7 +25,7 @@ class SecurityServiceImpl(
 
     override fun register(request: CreateAccountRequest): ResponseEntity<Void> {
         if (securityUserRepository.existsByUsername(request.username)) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build()
+            throw UserAlreadyRegisteredException("User is already registered!")
         }
 
         val securityUser = SecurityUser(
