@@ -2,6 +2,7 @@ package org.gymapp.backend.service
 
 import org.gymapp.backend.mapper.UserMapper
 import org.gymapp.backend.repository.UserRepository
+import org.gymapp.backend.security.exception.UserAlreadyRegisteredException
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.UserDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,6 +15,9 @@ class UserService(
 ) {
 
     fun createUser(request: CreateUserRequest): UserDto {
+        if (userRepository.existsById(request.id)) {
+            throw UserAlreadyRegisteredException("User already exists!")
+        }
         val user = userMapper.createUserRequestToUser(request)
         userRepository.save(user)
         return userMapper.userToUserDto(user)
