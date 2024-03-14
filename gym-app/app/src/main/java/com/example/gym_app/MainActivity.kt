@@ -14,8 +14,13 @@ import com.auth0.android.callback.Callback
 import com.auth0.android.jwt.JWT
 import com.auth0.android.provider.WebAuthProvider
 import com.auth0.android.result.Credentials
+import com.example.gym_app.api.ApiClient
+import com.example.gym_app.common.TokenManager
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.AuthViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateUserRequest
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +36,7 @@ class MainActivity : ComponentActivity() {
     setContent {
       GymappTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-          GymApp(onLoginWithAuthClicked = { loginWithBrowser(authViewModel) })
+          GymApp(onLoginWithAuthClicked = { loginWithBrowser(authViewModel) }, viewModel = authViewModel)
         }
       }
     }
@@ -55,23 +60,37 @@ class MainActivity : ComponentActivity() {
                 println("access token is: ${authViewModel.accessToken.value}")
                 println("id token is: $idToken")
 
-                val jwt = JWT(idToken)
+//                TokenManager.saveAccessToken(
+//                    applicationContext, credentials.accessToken, credentials.expiresAt.time)
 
-                val userId = jwt.getClaim("sub").asString()?.split("|")?.get(1).orEmpty()
-                val email = jwt.getClaim("email").asString().orEmpty()
-                val firstName = jwt.getClaim("given_name").asString().orEmpty()
-                val lastName = jwt.getClaim("family_name").asString().orEmpty()
-                val profilePicUrl = jwt.getClaim("picture").asString().orEmpty()
+                  val jwt = JWT(idToken)
 
-                val createUserRequest =
-                    CreateUserRequest(
-                        id = userId,
-                        email = email,
-                        firstName = firstName,
-                        lastName = lastName,
-                        profilePicUrl = profilePicUrl)
+                  val userId = jwt.getClaim("sub").asString()?.split("|")?.get(1).orEmpty()
+                  val email = jwt.getClaim("email").asString().orEmpty()
+                  val firstName = jwt.getClaim("given_name").asString().orEmpty()
+                  val lastName = jwt.getClaim("family_name").asString().orEmpty()
+                  val profilePicUrl = jwt.getClaim("picture").asString().orEmpty()
 
-                authViewModel.createUser(createUserRequest)
+                  val createUserRequest =
+                      CreateUserRequest(
+                          id = userId,
+                          email = email,
+                          firstName = firstName,
+                          lastName = lastName,
+                          profilePicUrl = profilePicUrl)
+
+                  CoroutineScope(Dispatchers.IO).launch {
+                      try {
+                          val response = ApiClient.apiService.createUser(createUserRequest, "Bearer $accessToken")
+                          if (response.isSuccessful) {
+                              println("Successful! $response")
+                          } else {
+                              println("Not successful! $response")
+                          }
+                      } catch (e: Exception) {
+                          println("Error! ${e.message}")
+                      }
+                  }
               }
             })
   }
