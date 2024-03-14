@@ -84,10 +84,10 @@ fun WelcomeScreen(
                     contentDescription = "Google logo")
                 Image(
                     painter = painterResource(id = R.drawable.meta_icon),
-                    contentDescription = "Google logo")
+                    contentDescription = "Meta logo")
                 Image(
                     painter = painterResource(id = R.drawable.twitter_icon),
-                    contentDescription = "Google logo")
+                    contentDescription = "Twitter logo")
             }
         }
       }
