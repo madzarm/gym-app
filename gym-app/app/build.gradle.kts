@@ -60,4 +60,5 @@ dependencies {
   implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
   implementation("com.auth0.android:auth0:2.+")
   implementation("com.auth0.android:jwtdecode:2.0.0")
+  implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
 }
