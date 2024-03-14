@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,12 +40,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.gym_app.MainActivity
 import com.example.gym_app.R
-import com.example.gym_app.common.AppRoutes
+import com.example.gym_app.common.TokenManager
 import com.example.gym_app.ui.theme.GymappTheme
+import com.example.gym_app.viewModels.AuthViewModel
 import com.example.gym_app.viewModels.UserViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -54,10 +57,8 @@ fun CreateAccountScreen(
     navController: NavController,
     modifier: Modifier = Modifier,
 ) {
-  val navBackStackEntry =
-      remember(navController) { navController.getBackStackEntry(AppRoutes.WELCOME_SCREEN) }
-  val userViewModel: UserViewModel = viewModel(navBackStackEntry)
-  println(userViewModel.userState.collectAsState().value)
+  val userViewModel: UserViewModel = viewModel()
+    TokenManager.removeToken(LocalContext.current)
   Column(
       modifier =
           modifier
