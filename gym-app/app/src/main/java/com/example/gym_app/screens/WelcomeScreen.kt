@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,11 +32,12 @@ import com.example.gym_app.R
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.ui.theme.logam
 
-
-
-
 @Composable
-fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier, onLoginWithAuthClicked: () -> Unit) {
+fun WelcomeScreen(
+    navController: NavController,
+    modifier: Modifier = Modifier,
+    onLoginWithAuthClicked: () -> Unit
+) {
   Column(
       modifier = modifier.fillMaxSize().padding(16.dp),
       horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,30 +75,28 @@ fun WelcomeScreen(navController: NavController, modifier: Modifier = Modifier, o
             color = Color.Gray,
             fontSize = 3.em,
             modifier = modifier.padding(bottom = 10.dp))
-      Button(onClick = onLoginWithAuthClicked) {
-          Text(text = "Login with Auth")
-      }
-       Row(
-            modifier = modifier.fillMaxWidth(0.5f),
-            horizontalArrangement = Arrangement.SpaceBetween) {
-              Image(
-                  painter = painterResource(id = R.drawable.google_icon),
-                  contentDescription = "Google logo")
-              Image(
-                  painter = painterResource(id = R.drawable.meta_icon),
-                  contentDescription = "Google logo")
-              Image(
-                  painter = painterResource(id = R.drawable.twitter_icon),
-                  contentDescription = "Google logo")
+        TextButton(onClick = onLoginWithAuthClicked) {
+            Row(
+                modifier = modifier.fillMaxWidth(0.5f),
+                horizontalArrangement = Arrangement.SpaceBetween) {
+                Image(
+                    painter = painterResource(id = R.drawable.google_icon),
+                    contentDescription = "Google logo")
+                Image(
+                    painter = painterResource(id = R.drawable.meta_icon),
+                    contentDescription = "Google logo")
+                Image(
+                    painter = painterResource(id = R.drawable.twitter_icon),
+                    contentDescription = "Google logo")
             }
+        }
       }
 }
-
-
-
 
 @Composable
 @Preview
 fun WelcomeScreenPreview() {
-  GymappTheme { Surface { WelcomeScreen(navController = rememberNavController(), onLoginWithAuthClicked = {}) } }
+  GymappTheme {
+    Surface { WelcomeScreen(navController = rememberNavController(), onLoginWithAuthClicked = {}) }
+  }
 }
