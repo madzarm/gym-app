@@ -59,4 +59,5 @@ dependencies {
   implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
   implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
   implementation("com.auth0.android:auth0:2.+")
+  implementation("com.auth0.android:jwtdecode:2.0.0")
 }
