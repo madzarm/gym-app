@@ -4,9 +4,7 @@ import org.gymapp.backend.model.GymUser
 import org.gymapp.backend.model.User
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.UserDto
-import org.mapstruct.Mapper
-import org.mapstruct.Mapping
-import org.mapstruct.Mappings
+import org.mapstruct.*
 import org.mapstruct.factory.Mappers
 
 @Mapper(componentModel = "spring")
@@ -17,12 +15,11 @@ interface UserMapper {
     }
 
     @Mappings(
-        // Assuming direct mapping for most fields, only need to specify special cases
         Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())"),
         Mapping(target = "updatedAt", ignore = true),
         Mapping(target = "gymUsers", ignore = true)
     )
-    fun createUserRequestToUser(createUserRequest: CreateUserRequest): User
+    fun requestToUser(createUserRequest: CreateUserRequest): User
 
     @Mapping(source = "gymUsers", target = "gymUserIds")
     fun userToUserDto(user: User): UserDto
