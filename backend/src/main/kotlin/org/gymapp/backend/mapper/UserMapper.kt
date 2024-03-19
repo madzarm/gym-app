@@ -21,12 +21,11 @@ interface UserMapper {
     )
     fun requestToUser(createUserRequest: CreateUserRequest): User
 
-    @Mapping(source = "gymUsers", target = "gymUserIds")
+    @Mapping(source = "gymUsers", target = "gymUsersIds")
     fun userToUserDto(user: User): UserDto
 
     fun usersToUserDtos(users: List<User>): List<UserDto>
 
-    // MapStruct will use this method for each element in the collection
     fun mapGymUserToId(gymUser: GymUser): String {
         return gymUser.id
     }

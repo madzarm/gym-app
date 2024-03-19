@@ -1,20 +1,19 @@
 package org.gymapp.backend.controller
 
-import org.gymapp.backend.service.CreateGymRequest
+import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
+import org.gymapp.library.request.CreateGymRequest
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/gyms")
 class GymController(
-    @Autowired private val gymService: GymService
+    @Autowired private val gymService: GymService,
+    @Autowired private val common: Common
 ) {
 
     @PostMapping
@@ -23,6 +22,11 @@ class GymController(
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<*> {
         return ResponseEntity.status(201).body(gymService.createGym(request, jwt))
+    }
+
+    @GetMapping
+    fun findUserGyms(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<*> {
+        return ResponseEntity.ok(gymService.findUserGyms(common.getCurrentUser(jwt)))
     }
 
 }
