@@ -22,8 +22,8 @@ class WebConfig(
         http.invoke {
             csrf { disable() }
             authorizeHttpRequests {
-                authorize("/user", authenticated)
-                authorize("/gym", authenticated)
+                authorize("/users", authenticated)
+                authorize("/gyms", authenticated)
             }
             apply {
                 oauth2ResourceServer {

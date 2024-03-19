@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-@RequestMapping("/gym")
+@RequestMapping("/gyms")
 class GymController(
     @Autowired private val gymService: GymService
 ) {
