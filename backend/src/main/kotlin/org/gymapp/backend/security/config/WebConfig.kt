@@ -53,14 +53,3 @@ class JwtDecoderConfig {
         return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build()
     }
 }
-
-//class CustomJwtAuthenticationConverter(
-//    private val userDetailsService: CustomUserDetailsService
-//) : Converter<Jwt, AbstractAuthenticationToken> {
-//
-//    override fun convert(jwt: Jwt): AbstractAuthenticationToken {
-//        val user = userDetailsService.loadUserByUsername(jwt.claimAsString("email")) // Assuming 'email' is a claim
-//        val authorities = user.roles.map { SimpleGrantedAuthority("ROLE_${it.name}") } // Customize this based on your role structure
-//        return UsernamePasswordAuthenticationToken(user, jwt, authorities)
-//    }
-//}
