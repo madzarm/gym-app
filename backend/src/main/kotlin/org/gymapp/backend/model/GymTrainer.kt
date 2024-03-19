@@ -5,7 +5,7 @@ import jakarta.persistence.Entity
 @Entity(name = "gym_trainers")
 class GymTrainer (
     id: String,
-    roles: Set<Role>,
+    roles: MutableSet<Role>,
     gym: Gym,
     user: User,
 ) : GymUser(id, roles, user, gym) {

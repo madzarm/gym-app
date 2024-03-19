@@ -12,9 +12,9 @@ open class GymUser(
         joinColumns = [JoinColumn(name = "gym_user_id")],
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
-    var roles: Set<Role>,
-    @ManyToOne var user: User,
-    @ManyToOne var gym: Gym
+    var roles: MutableSet<Role>,
+    @ManyToOne(cascade = [CascadeType.ALL]) var user: User,
+    @ManyToOne(cascade = [CascadeType.ALL]) var gym: Gym?
 ) {
 
 }
