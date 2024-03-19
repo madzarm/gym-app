@@ -23,6 +23,7 @@ class WebConfig(
             csrf { disable() }
             authorizeHttpRequests {
                 authorize("/user", authenticated)
+                authorize("/gym", authenticated)
             }
             apply {
                 oauth2ResourceServer {
