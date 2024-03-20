@@ -95,7 +95,7 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
                   painter = R.drawable.businessman,
                   text = "Gym Owner",
                   onClick = {
-                    viewModel.updateUserState { copy(role = Role.OWNER) }
+                    viewModel.updateUserState { copy(role = Role.ROLE_OWNER) }
                       println("Here -> " + viewModel.userState.value)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
@@ -104,7 +104,7 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
                   painter = R.drawable.trainer,
                   text = "Trainer",
                   onClick = {
-                    viewModel.updateUserState { copy(role = Role.TRAINER) }
+                    viewModel.updateUserState { copy(role = Role.ROLE_TRAINER) }
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               SelectionOption(
@@ -112,7 +112,7 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
                   painter = R.drawable.member,
                   text = "Member",
                   onClick = {
-                    viewModel.updateUserState { copy(role = Role.MEMBER) }
+                    viewModel.updateUserState { copy(role = Role.ROLE_MEMBER) }
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
               Spacer(modifier = Modifier.weight(1f))

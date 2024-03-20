@@ -50,129 +50,143 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.base64StringToImageBitmap
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.HomeViewModel
+import com.example.gym_app.viewModels.SharedViewModel
 import org.gymapp.library.response.GymUserDto
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HomeScreen(navController: NavController, modifier: Modifier = Modifier) {
+fun HomeScreen(
+  navController: NavController,
+  modifier: Modifier = Modifier,
+  onAddGymClicked: () -> Unit,
+) {
   val homeViewModel: HomeViewModel = viewModel()
   homeViewModel.loadItems(LocalContext.current)
   val gymUserDtos = homeViewModel.gymUserDtos.collectAsState()
   val currentUser = homeViewModel.currentUser.collectAsState()
 
+  val sharedViewModel: SharedViewModel = viewModel()
+
   Column(
+    modifier =
+      modifier
+        .fillMaxSize()
+        .background(
+          brush = Brush.horizontalGradient(colors = listOf(Color(0xFF00d4ff), Color(0xFF0051bf)))
+        ),
+    horizontalAlignment = Alignment.CenterHorizontally,
+    verticalArrangement = Arrangement.Center,
+  ) {
+    Box(
       modifier =
-          modifier
-              .fillMaxSize()
-              .background(
-                  brush =
-                      Brush.horizontalGradient(
-                          colors =
-                              listOf(
-                                  Color(0xFF00d4ff),
-                                  Color(0xFF0051bf),
-                              ))),
-      horizontalAlignment = Alignment.CenterHorizontally,
-      verticalArrangement = Arrangement.Center) {
-        Box(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .fillMaxWidth()
-                    .padding(end = 10.dp, start = 10.dp, top = 10.dp),
-        ) {
-          Text(
-              text = "Your gyms",
-              fontSize = 32.sp,
-              fontWeight = FontWeight.Bold,
-              color = Color.White,
-              modifier = Modifier.align(Alignment.Center),
-              textAlign = TextAlign.Center,
-              lineHeight = 30.sp)
-            val painter =
-                rememberAsyncImagePainter(
-                    ImageRequest.Builder(LocalContext.current)
-                        .data(data = currentUser.value?.profilePicUrl ?: "")
-                        .apply(
-                            block =
-                            fun ImageRequest.Builder.() {
-                                crossfade(true)
-                            })
-                        .build())
-
-            Image(painter = painter, modifier = Modifier.align(Alignment.CenterEnd).clip(CircleShape).size(50.dp), contentDescription = "Profile image")
-        }
-        val listState = rememberLazyListState()
-        val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
-
-        Scaffold(
-            modifier =
-                modifier
-                    .padding(top = 10.dp)
-                    .clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
-            floatingActionButton = {
-              ExtendedFloatingActionButton(
-                  onClick = { /* do something */},
-                  expanded = expandedFab,
-                  icon = { Icon(Icons.Filled.Add, "Add a gym button") },
-                  text = { Text(text = "Add a gym") },
-              )
-            },
-            floatingActionButtonPosition = FabPosition.End,
-        ) {
-          LazyColumn(
-              state = listState,
-              modifier = Modifier.fillMaxSize(),
-              horizontalAlignment = Alignment.CenterHorizontally) {
-                items(gymUserDtos.value) { gymUserDto -> GymItem(gymUserDto) }
-              }
-        }
-      }
-}
-
-@Composable
-fun GymItem(gymUserDto: GymUserDto) {
-  TextButton(onClick = { /*TODO*/}) {
-    Row(
-        modifier = Modifier.fillMaxWidth(0.84F).padding(bottom = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        Modifier.fillMaxWidth().fillMaxWidth().padding(end = 10.dp, start = 10.dp, top = 10.dp)
     ) {
-      Box(
-          modifier =
-              Modifier.size(100.dp)
-                  .clip(CircleShape)
-                  .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape),
-      ) {
-        val imageBitmap = base64StringToImageBitmap(gymUserDto.gym?.picture ?: "")
-        Image(
-            bitmap = imageBitmap,
-            contentDescription = "Gym image",
-            modifier = Modifier.size(120.dp))
-      }
-      Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = gymUserDto.gym?.name ?: "Unknown",
-            color = MaterialTheme.colorScheme.primary,
-            fontSize = 35.sp,
+      Text(
+        text = "Your gyms",
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold,
+        color = Color.White,
+        modifier = Modifier.align(Alignment.Center),
+        textAlign = TextAlign.Center,
+        lineHeight = 30.sp,
+      )
+      val painter =
+        rememberAsyncImagePainter(
+          ImageRequest.Builder(LocalContext.current)
+            .data(data = currentUser.value?.profilePicUrl ?: "")
+            .apply(
+              block =
+                fun ImageRequest.Builder.() {
+                  crossfade(true)
+                }
+            )
+            .build()
         )
-        Column(
-            modifier = Modifier.fillMaxSize().fillMaxHeight(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-              gymUserDto.roles?.forEach { role -> Text(text = role.split("_")[1]) }
-            }
+
+      Image(
+        painter = painter,
+        modifier = Modifier.align(Alignment.CenterEnd).clip(CircleShape).size(50.dp),
+        contentDescription = "Profile image",
+      )
+    }
+    val listState = rememberLazyListState()
+    val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
+    Scaffold(
+      modifier =
+        modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
+      floatingActionButton = {
+        ExtendedFloatingActionButton(
+          onClick = {},
+          expanded = expandedFab,
+          icon = { Icon(Icons.Filled.Add, "Add a gym button") },
+          text = { Text(text = "Add a gym") },
+        )
+      },
+      floatingActionButtonPosition = FabPosition.End,
+    ) {
+      LazyColumn(
+        state = listState,
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+      ) {
+        items(gymUserDtos.value) { gymUserDto ->
+          GymItem(gymUserDto) {
+            sharedViewModel.selectGym(gymUserDto)
+            navController.navigate(AppRoutes.GYM_HOME_SCREEN)
+          }
+        }
       }
     }
   }
 }
 
+@Composable
+fun GymItem(gymUserDto: GymUserDto, onClick: () -> Unit) {
+  TextButton(onClick = onClick) {
+    Row(
+      modifier = Modifier.fillMaxWidth(0.84F).padding(bottom = 18.dp),
+      verticalAlignment = Alignment.CenterVertically,
+      horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+      Box(
+        modifier =
+          Modifier.size(100.dp)
+            .clip(CircleShape)
+            .border(BorderStroke(2.dp, MaterialTheme.colorScheme.primary), CircleShape)
+      ) {
+        val imageBitmap = base64StringToImageBitmap(gymUserDto.gym?.picture ?: "")
+        Image(
+          bitmap = imageBitmap,
+          contentDescription = "Gym image",
+          modifier = Modifier.size(120.dp),
+        )
+      }
+      Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+          modifier = Modifier.padding(start = 16.dp),
+          text = gymUserDto.gym?.name ?: "Unknown",
+          color = MaterialTheme.colorScheme.primary,
+          fontSize = 35.sp,
+        )
+        Column(
+          modifier = Modifier.fillMaxSize().fillMaxHeight(),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          gymUserDto.roles?.forEach { role -> Text(text = role.split("_")[1]) }
+        }
+      }
+    }
+  }
+}
 
 @Composable
 @Preview
 fun HomeScreenPreview() {
-  GymappTheme { Surface { HomeScreen(navController = rememberNavController()) } }
+  GymappTheme { Surface { HomeScreen(navController = rememberNavController(), onAddGymClicked = {}) } }
 }

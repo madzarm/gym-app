@@ -2,7 +2,7 @@ package com.example.gym_app.common
 
 
 enum class Role {
-    OWNER, MEMBER, TRAINER
+    ROLE_OWNER, ROLE_MEMBER, ROLE_TRAINER
 }
 
 object AppRoutes {
@@ -10,4 +10,13 @@ object AppRoutes {
     const val SIGNUP_ROLE_SELECTION_SCREEN = "SignupRoleSelectionScreen"
     const val CREATE_ACCOUNT_SCREEN = "CreateAccountScreen"
     const val HOME_SCREEN = "HomePageScreen"
+    const val GYM_HOME_SCREEN = "GymHomeScreen"
+    const val GROUP_TRAININGS_SCREEN = "GroupTrainingScreen"
+    const val LIVE_STATUS_SCREEN = "LiveStatusScreen"
+    const val MANAGE_CLASSES_SCREEN = "ManageClassesScreen"
+    const val ROLE_SELECTION_SCREEN = "RoleSelectionScreen"
+    const val ENTER_GYM_CODE_SCREEN = "EnterGymCodeScreen"
+    const val ENTER_TRAINER_ACCESS_CODE_SCREEN = "EnterTrainerAccessCodeScreen"
+    const val CREATE_GYM_SCREEN = "CreateGymScreen"
+    const val HOME = "home"
 }
