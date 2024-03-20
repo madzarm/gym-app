@@ -41,14 +41,14 @@ class GymService(
         val role = roleRepository.findByName(Common.Roles.ROLE_ADMIN.name).get()
         val gymUser = GymUser(
             id = UUID.randomUUID().toString(),
-            roles = mutableSetOf(role),
+            roles = mutableListOf(role),
             user = user,
             gym = gym
         )
         gym.owner = gymUser
         gymUserRepository.save(gymUser)
 
-        return GymDto(name = gym.name, picture = gym.picture, code = gym.code)
+        return GymDto(name = gym.name, picture = gym.picture, code = gym.code, id = gym.id)
     }
 
     fun findUserGyms(user: User): List<GymDto> {

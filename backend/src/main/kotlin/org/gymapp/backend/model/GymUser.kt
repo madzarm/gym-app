@@ -6,13 +6,13 @@ import jakarta.persistence.*
 @Inheritance(strategy = InheritanceType.JOINED)
 open class GymUser(
     @Id var id: String,
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "gym_user_roles",
         joinColumns = [JoinColumn(name = "gym_user_id")],
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
-    var roles: MutableSet<Role>,
+    var roles: MutableList<Role>,
     @ManyToOne(cascade = [CascadeType.ALL]) var user: User,
     @ManyToOne(cascade = [CascadeType.ALL]) var gym: Gym?
 ) {

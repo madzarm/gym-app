@@ -22,9 +22,9 @@ interface UserMapper {
     fun requestToUser(createUserRequest: CreateUserRequest): User
 
     @Mapping(source = "gymUsers", target = "gymUsersIds")
-    fun userToUserDto(user: User): UserDto
+    fun modelToDto(user: User): UserDto
 
-    fun usersToUserDtos(users: List<User>): List<UserDto>
+    fun modelsToDtos(users: List<User>): List<UserDto>
 
     fun mapGymUserToId(gymUser: GymUser): String {
         return gymUser.id
