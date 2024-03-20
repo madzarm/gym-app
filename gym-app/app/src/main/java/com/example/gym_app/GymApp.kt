@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -21,6 +22,8 @@ import com.example.gym_app.screens.RoleSelectionScreen
 import com.example.gym_app.screens.SignupRoleSelectionScreen
 import com.example.gym_app.screens.WelcomeScreen
 import com.example.gym_app.viewModels.AuthViewModel
+import com.example.gym_app.viewModels.HomeViewModel
+import com.example.gym_app.viewModels.HomeViewModelFactory
 
 @Composable
 fun GymApp(
@@ -28,6 +31,7 @@ fun GymApp(
   viewModel: AuthViewModel,
   onLoginWithAuthClicked: () -> Unit,
 ) {
+  val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(LocalContext.current))
   val viewModelStoreOwner =
     checkNotNull(LocalViewModelStoreOwner.current) {
       "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
@@ -51,10 +55,12 @@ fun GymApp(
       }
     }
     navigation(startDestination = AppRoutes.HOME_SCREEN, route = AppRoutes.HOME) {
+
       composable(AppRoutes.HOME_SCREEN) {
         HomeScreen(
           navController = navController,
           onAddGymClicked = { navController.navigate(AppRoutes.ROLE_SELECTION_SCREEN) },
+          homeViewModel = homeViewModel
         )
       }
       composable(AppRoutes.ROLE_SELECTION_SCREEN) {
@@ -89,6 +95,7 @@ fun GymApp(
       composable(AppRoutes.CREATE_GYM_SCREEN) {
         CreateGymScreen(
           navController = navController,
+          homeViewModel = homeViewModel,
           onSubmit = {
             navController.navigate(AppRoutes.HOME_SCREEN) {
               popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }

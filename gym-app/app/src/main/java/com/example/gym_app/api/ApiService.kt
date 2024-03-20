@@ -1,5 +1,6 @@
 package com.example.gym_app.api
 
+import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
@@ -21,5 +22,8 @@ interface ApiService {
     suspend fun getUserGyms(@Header("Authorization") authHeader: String): Response<List<GymUserDto>>
 
     @POST("/users/join-as-member")
-    suspend fun joinGymAsMember(@Header("Authorization") authHeader: String, @Query("code") code: String): Any
+    suspend fun joinGymAsMember(@Header("Authorization") authHeader: String, @Query("code") code: String): GymUserDto
+
+    @POST("/gyms")
+    suspend fun createGym(@Header("Authorization") authHeader: String, @Body request: CreateGymRequest): GymUserDto
 }

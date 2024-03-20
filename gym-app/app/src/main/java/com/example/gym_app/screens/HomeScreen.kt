@@ -30,6 +30,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -54,6 +55,7 @@ import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.base64StringToImageBitmap
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.HomeViewModel
+import com.example.gym_app.viewModels.HomeViewModelFactory
 import com.example.gym_app.viewModels.SharedViewModel
 import org.gymapp.library.response.GymUserDto
 
@@ -63,13 +65,13 @@ fun HomeScreen(
   navController: NavController,
   modifier: Modifier = Modifier,
   onAddGymClicked: () -> Unit,
+  homeViewModel: HomeViewModel
 ) {
-  val homeViewModel: HomeViewModel = viewModel()
-  homeViewModel.loadItems(LocalContext.current)
-  val gymUserDtos = homeViewModel.gymUserDtos.collectAsState()
-  val currentUser = homeViewModel.currentUser.collectAsState()
 
   val sharedViewModel: SharedViewModel = viewModel()
+
+  val gymUserDtos by homeViewModel.gymUserDtos.collectAsState()
+  val currentUser by homeViewModel.currentUser.collectAsState()
 
   Column(
     modifier =
@@ -97,7 +99,7 @@ fun HomeScreen(
       val painter =
         rememberAsyncImagePainter(
           ImageRequest.Builder(LocalContext.current)
-            .data(data = currentUser.value?.profilePicUrl ?: "")
+            .data(data = currentUser?.profilePicUrl ?: "")
             .apply(
               block =
                 fun ImageRequest.Builder.() {
@@ -134,7 +136,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
-        items(gymUserDtos.value) { gymUserDto ->
+        items(gymUserDtos) { gymUserDto ->
           GymItem(gymUserDto) {
             sharedViewModel.selectGym(gymUserDto)
             navController.navigate(AppRoutes.GYM_HOME_SCREEN)
@@ -183,10 +185,4 @@ fun GymItem(gymUserDto: GymUserDto, onClick: () -> Unit) {
       }
     }
   }
-}
-
-@Composable
-@Preview
-fun HomeScreenPreview() {
-  GymappTheme { Surface { HomeScreen(navController = rememberNavController(), onAddGymClicked = {}) } }
 }
