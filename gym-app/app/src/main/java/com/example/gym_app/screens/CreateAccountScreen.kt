@@ -40,15 +40,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.gym_app.MainActivity
 import com.example.gym_app.R
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.ui.theme.GymappTheme
-import com.example.gym_app.viewModels.AuthViewModel
 import com.example.gym_app.viewModels.UserViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
@@ -58,7 +55,7 @@ fun CreateAccountScreen(
     modifier: Modifier = Modifier,
 ) {
   val userViewModel: UserViewModel = viewModel()
-    TokenManager.removeToken(LocalContext.current)
+  TokenManager.removeToken(LocalContext.current)
   Column(
       modifier =
           modifier

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationException
 import com.auth0.android.callback.Callback
@@ -57,11 +58,8 @@ class MainActivity : ComponentActivity() {
                 val idToken = credentials.idToken
                 authViewModel.setToken(accessToken)
 
-                println("access token is: ${authViewModel.accessToken.value}")
-                println("id token is: $idToken")
-
-//                TokenManager.saveAccessToken(
-//                    applicationContext, credentials.accessToken, credentials.expiresAt.time)
+                TokenManager.saveAccessToken(
+                    applicationContext, credentials.accessToken, credentials.expiresAt.time)
 
                   val jwt = JWT(idToken)
 
@@ -91,6 +89,7 @@ class MainActivity : ComponentActivity() {
                           println("Error! ${e.message}")
                       }
                   }
+
               }
             })
   }

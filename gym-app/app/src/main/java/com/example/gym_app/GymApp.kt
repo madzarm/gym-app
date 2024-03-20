@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.screens.CreateAccountScreen
+import com.example.gym_app.screens.HomeScreen
 import com.example.gym_app.screens.SignupRoleSelectionScreen
 import com.example.gym_app.screens.WelcomeScreen
 import com.example.gym_app.viewModels.AuthViewModel
@@ -29,8 +30,9 @@ fun GymApp(
       navController = navController,
       startDestination =
           if (TokenManager.isTokenActive(LocalContext.current)) {
-            AppRoutes.CREATE_ACCOUNT_SCREEN
+            AppRoutes.HOME_SCREEN
           } else {
+            TokenManager.removeToken(LocalContext.current)
             AppRoutes.WELCOME_SCREEN
           }) {
         composable(AppRoutes.WELCOME_SCREEN) {
@@ -39,7 +41,7 @@ fun GymApp(
                 navController = navController, onLoginWithAuthClicked = onLoginWithAuthClicked)
           }
         }
-
+        composable(AppRoutes.HOME_SCREEN) { HomeScreen(navController = navController) }
         composable(AppRoutes.SIGNUP_ROLE_SELECTION_SCREEN) {
           SignupRoleSelectionScreen(navController = navController)
         }
