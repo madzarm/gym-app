@@ -5,5 +5,5 @@ import androidx.navigation.NavHostController
 
 @Composable
 fun EnterTrainerAccessCodeScreen(navController: NavHostController, onSubmit: () -> Unit) {
-
+    TODO("Not yet implemented")
 }
