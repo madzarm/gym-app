@@ -8,6 +8,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface ApiService {
     @POST("/users")
@@ -18,4 +19,7 @@ interface ApiService {
 
    @GET("/users/gyms")
     suspend fun getUserGyms(@Header("Authorization") authHeader: String): Response<List<GymUserDto>>
+
+    @POST("/users/join-as-member")
+    suspend fun joinGymAsMember(@Header("Authorization") authHeader: String, @Query("code") code: String): Any
 }

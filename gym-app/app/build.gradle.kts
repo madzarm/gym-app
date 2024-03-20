@@ -66,6 +66,8 @@ dependencies {
   implementation("androidx.compose.ui:ui:1.+")
   implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
   implementation("io.coil-kt:coil-compose:2.1.0")
+  implementation("com.squareup.moshi:moshi:1.12.0")
+  implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
 //  implementation("androidx.hilt:hilt-navigation-fragment:1.2.0")
 //  implementation("com.google.dagger:hilt-android:2.49")
 //  kapt("com.google.dagger:hilt-android-compiler:2.44")

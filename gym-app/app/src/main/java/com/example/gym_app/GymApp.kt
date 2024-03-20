@@ -59,7 +59,6 @@ fun GymApp(
       }
       composable(AppRoutes.ROLE_SELECTION_SCREEN) {
         RoleSelectionScreen(
-          navController = navController,
           onMemberSelection = { navController.navigate(AppRoutes.ENTER_GYM_CODE_SCREEN) },
           onTrainerSelection = {
             navController.navigate(AppRoutes.ENTER_TRAINER_ACCESS_CODE_SCREEN)

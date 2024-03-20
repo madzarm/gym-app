@@ -121,7 +121,7 @@ fun HomeScreen(
         modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
       floatingActionButton = {
         ExtendedFloatingActionButton(
-          onClick = {},
+          onClick = onAddGymClicked,
           expanded = expandedFab,
           icon = { Icon(Icons.Filled.Add, "Add a gym button") },
           text = { Text(text = "Add a gym") },
