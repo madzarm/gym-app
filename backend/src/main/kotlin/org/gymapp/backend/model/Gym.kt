@@ -7,6 +7,7 @@ class Gym(
     @Id var id: String,
     var name: String?,
     var code: String?,
+    @Column(columnDefinition = "LONGTEXT")
     var picture: String?,
     @OneToMany(mappedBy = "gym",cascade = [CascadeType.ALL]) val members: MutableList<GymUser>?,
     @OneToOne var owner: GymUser?
