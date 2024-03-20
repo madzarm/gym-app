@@ -3,6 +3,7 @@ package org.gymapp.backend.controller
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.UserService
 import org.gymapp.library.request.CreateUserRequest
+import org.gymapp.library.response.ActionResponse
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
@@ -45,9 +46,9 @@ class UserController(
     }
 
     @PostMapping("/join-as-member")
-    fun joinGymAsMember(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<*> {
+    fun joinGymAsMember(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<ActionResponse> {
         userService.joinGymAsMember(common.getCurrentUser(jwt), code)
-        return ResponseEntity.ok("Successfully joined gym as member!")
+        return ResponseEntity.ok(ActionResponse("Joined gym as member", true))
     }
 
 }
