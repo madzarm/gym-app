@@ -56,7 +56,7 @@ class UserService(
     }
 
     fun joinGymAsMember(currentUser: User, code: String): Unit {
-        val gym = gymRepository.findByCode(code) ?: throw IllegalArgumentException("Gym not found!")
+        val gym = gymService.findGymByCode(code) ?: throw IllegalArgumentException("Gym not found!")
 
         currentUser.gymUsers?.let {
             if (it.any { gymUser -> gymUser.gym?.code == code }) {
