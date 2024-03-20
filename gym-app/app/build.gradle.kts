@@ -61,4 +61,7 @@ dependencies {
   implementation("com.auth0.android:auth0:2.+")
   implementation("com.auth0.android:jwtdecode:2.0.0")
   implementation("androidx.security:security-crypto-ktx:1.1.0-alpha06")
+  implementation("androidx.compose.ui:ui:1.+")
+  implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
+  implementation("io.coil-kt:coil-compose:2.1.0")
 }
