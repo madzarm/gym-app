@@ -14,6 +14,15 @@ data class ExceptionResult(val message: String, val exception: String)
 @RestControllerAdvice
 class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
 
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgument(ex: IllegalArgumentException): ResponseEntity<ExceptionResult> {
+        val body = ExceptionResult(
+            ex.message ?: "Illegal argument!",
+            ex::class.simpleName ?: "IllegalArgumentException"
+        )
+        return ResponseEntity(body, HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(UserNotFoundException::class)
     fun handleUserNotFound(ex: UserNotFoundException): ResponseEntity<ExceptionResult> {
         val body = ExceptionResult(

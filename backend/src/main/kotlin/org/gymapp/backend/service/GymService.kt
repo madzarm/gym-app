@@ -56,4 +56,8 @@ class GymService(
         val gyms = gymUsers.map { it.gym }
         return gymMapper.modelsToDtos(gyms)
     }
+
+    fun findGymByCode(code: String): Gym? {
+        return gymRepository.findByCode(code)
+    }
 }

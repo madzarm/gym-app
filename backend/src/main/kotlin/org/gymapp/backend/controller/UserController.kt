@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
@@ -41,6 +42,12 @@ class UserController(
     @GetMapping("/current")
     fun getCurrentUser(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<UserDto> {
         return ResponseEntity.ok(userService.getCurrentUser(common.getCurrentUser(jwt)))
+    }
+
+    @PostMapping("/join-as-member")
+    fun joinGymAsMember(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<*> {
+        userService.joinGymAsMember(common.getCurrentUser(jwt), code)
+        return ResponseEntity.ok("Successfully joined gym as member!")
     }
 
 }
