@@ -10,9 +10,17 @@ data class SecurityUserDto(
 )
 
 data class GymDto(
-    val name: String?,
-    val picture: String?,
-    val code: String?
+        val id: String?,
+        val name: String?,
+        val picture: String?,
+        val code: String?
+    )
+
+data class GymUserDto(
+    val id: String?,
+    val user: UserDto?,
+    val gym: GymDto?,
+    val roles: List<String>?,
 )
 
 data class UserDto(
@@ -21,7 +29,11 @@ data class UserDto(
     val firstName: String?,
     val lastName: String?,
     val profilePicUrl: String?,
-    val createdAt: LocalDateTime?,
-    val updatedAt: LocalDateTime?,
+    val createdAt: String?,
+    val updatedAt: String?,
     val gymUsersIds: List<String>?
 )
+
+data class ExceptionResult(val message: String, val exception: String)
+
+data class ActionResponse(val message: String, val success: Boolean)
