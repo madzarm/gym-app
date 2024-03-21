@@ -62,7 +62,7 @@ fun CreateGymScreen(
     verticalArrangement = Arrangement.Center,
   ) {
     Text(
-      text = "Enter gym code!",
+      text = "Create your gym!",
       fontSize = 32.sp,
       fontWeight = FontWeight.Bold,
       color = Color.White,

@@ -13,5 +13,5 @@ import com.example.gym_app.viewModels.SharedViewModel
 @Composable
 fun LiveStatusScreen(navController: NavController, viewModel: SharedViewModel) {
 
-  Text(text = viewModel.selectedGym.value?.gym?.name ?: "Unknown")
+  Text(text = viewModel.selectedGym.value?.gym?.code ?: "Unknown")
 }

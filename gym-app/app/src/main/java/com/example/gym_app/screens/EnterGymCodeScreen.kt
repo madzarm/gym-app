@@ -37,9 +37,7 @@ import com.example.gym_app.viewModels.HomeViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun EnterGymCodeScreen(navController: NavHostController, onSubmit: () -> Unit) {
-  val backStackEntry = navController.getBackStackEntry(AppRoutes.HOME_SCREEN)
-  val homeViewModel: HomeViewModel = viewModel(backStackEntry)
+fun EnterGymCodeScreen(navController: NavHostController, homeViewModel: HomeViewModel, onSubmit: () -> Unit) {
   val context = LocalContext.current
 
   var errorMessage by remember { mutableStateOf("") }
