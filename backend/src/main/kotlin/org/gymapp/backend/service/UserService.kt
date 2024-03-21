@@ -1,5 +1,6 @@
 package org.gymapp.backend.service
 
+import org.gymapp.backend.common.Common
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.mapper.UserMapper
 import org.gymapp.backend.model.GymUser
@@ -55,25 +56,30 @@ class UserService(
         return userMapper.modelToDto(currentUser)
     }
 
-    fun joinGymAsMember(currentUser: User, code: String): Unit {
+    fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
         val gym = gymService.findGymByCode(code) ?: throw IllegalArgumentException("Gym not found!")
 
-        currentUser.gymUsers?.let {
-            if (it.any { gymUser -> gymUser.gym?.code == code }) {
-                throw IllegalArgumentException("User already joined gym!")
+        val existingGymUser = currentUser.gymUsers?.find { it.gym?.code == code }
+        if (existingGymUser != null) {
+            if (existingGymUser.roles.any { it.name == Common.Roles.ROLE_MEMBER.name }) {
+                throw IllegalArgumentException("User is already a member of this gym!")
+            } else {
+                val memberRole = roleService.findByName(Common.Roles.ROLE_MEMBER.name).orElseThrow { IllegalArgumentException("Role not found!") }
+                existingGymUser.roles.add(memberRole)
+                gymRepository.save(gym)
+                return gymUserMappper.modelToDto(existingGymUser)
             }
         }
 
-        val role = roleService.findByName("ROLE_MEMBER").get()
-
+        val roleMember = roleService.findByName(Common.Roles.ROLE_MEMBER.name).orElseThrow { IllegalArgumentException("Role not found!") }
         val gymUser = GymUser(
             id = UUID.randomUUID().toString(),
-            roles = mutableListOf(role),
+            roles = mutableListOf(roleMember),
             user = currentUser,
             gym = gym
         )
         gym.members?.add(gymUser) ?: mutableListOf(gymUser)
         gymRepository.save(gym)
-
+        return gymUserMappper.modelToDto(gymUser)
     }
 }

@@ -4,6 +4,7 @@ import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymDto
+import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -21,7 +22,7 @@ class GymController(
     fun createGym(
         @RequestBody request: CreateGymRequest,
         @AuthenticationPrincipal jwt: Jwt
-    ): ResponseEntity<GymDto> {
+    ): ResponseEntity<GymUserDto> {
         return ResponseEntity.status(201).body(gymService.createGym(request, jwt))
     }
 
