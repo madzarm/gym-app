@@ -2,6 +2,7 @@ package org.gymapp.backend.service
 
 import jakarta.transaction.Transactional
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.mapper.AccessCodeMapper
 import org.gymapp.backend.mapper.GymMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
@@ -24,7 +25,9 @@ class GymService(
     @Autowired private val userRepository: UserRepository,
     @Autowired private val gymMapper: GymMapper,
     @Autowired private val common: Common,
-    @Autowired private val gymUserMapper: GymUserMapper
+    @Autowired private val gymUserMapper: GymUserMapper,
+    @Autowired private val accessCodeService: AccessCodeService,
+    @Autowired private val accessCodeMapper: AccessCodeMapper
 ) {
 
     @Transactional
@@ -33,7 +36,7 @@ class GymService(
         val gym = Gym(
             UUID.randomUUID().toString(),
             request.name,
-            common.generateRandomGymCode(),
+            common.generateRandomCode(),
             request.picture,
             mutableListOf(),
             null
@@ -62,5 +65,14 @@ class GymService(
 
     fun findGymByCode(code: String): Gym? {
         return gymRepository.findByCode(code)
+    }
+
+    fun generateAccessCode(gymId: String, user: User): AccessCodeDto {
+        val gym = gymRepository.findById(gymId).get()
+        if (gym.owner?.user?.id != user.id) {
+            throw IllegalArgumentException("User is not the owner of the gym")
+        }
+        val accessCodeDto = accessCodeService.generateAccessCodeDto(gym)
+        return accessCodeDto
     }
 }
