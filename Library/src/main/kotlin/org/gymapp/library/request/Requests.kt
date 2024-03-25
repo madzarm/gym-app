@@ -9,6 +9,6 @@ data class CreateUserRequest(
 )
 
 data class CreateGymRequest(
-    var name: String?,
+    var name: String,
     var picture: String?
 ) 
