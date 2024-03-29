@@ -29,4 +29,12 @@ class AccessCodeService (
         accessCodeRepository.save(accessCode)
         return accessCodeMapper.modelToDto(accessCode)
     }
+
+    fun findAccessCodeByCode(code: String): AccessCode? {
+        return accessCodeRepository.findByCode(code)
+    }
+
+    fun deleteAccessCode(accessCode: AccessCode) {
+        accessCodeRepository.delete(accessCode)
+    }
 }

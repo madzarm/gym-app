@@ -15,6 +15,7 @@ import org.gymapp.library.response.UserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -25,6 +26,7 @@ class UserService(
     @Autowired private val gymRepository: GymRepository,
     @Autowired private val roleService: RoleService,
     @Autowired private val gymService: GymService,
+    @Autowired private val accessCodeService: AccessCodeService,
 ) {
 
     fun createUser(request: CreateUserRequest, jwt: Jwt): UserDto {
@@ -78,8 +80,43 @@ class UserService(
             user = currentUser,
             gym = gym
         )
-        gym.members?.add(gymUser) ?: mutableListOf(gymUser)
+        gym.members.add(gymUser)
         gymRepository.save(gym)
+        return gymUserMappper.modelToDto(gymUser)
+    }
+
+    fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
+        val accessCode = accessCodeService.findAccessCodeByCode(code) ?: throw IllegalArgumentException("Access code not found!")
+        if (accessCode.expiryDateTime.isBefore(LocalDateTime.now())) {
+            accessCodeService.deleteAccessCode(accessCode)
+            throw IllegalArgumentException("Access code expired!")
+        }
+
+        val gym = accessCode.gym
+        val existingGymUser = currentUser.gymUsers?.find { it.gym?.code == code }
+        if (existingGymUser != null) {
+            if (existingGymUser.roles.any { it.name == Common.Roles.ROLE_TRAINER.name }) {
+                throw IllegalArgumentException("User is already a trainer of this gym!")
+            } else {
+                val trainerRole = roleService.findByName(Common.Roles.ROLE_TRAINER.name).orElseThrow { IllegalArgumentException("Role not found!") }
+                existingGymUser.roles.add(trainerRole)
+                gymRepository.save(gym)
+                accessCodeService.deleteAccessCode(accessCode)
+                return gymUserMappper.modelToDto(existingGymUser)
+            }
+        }
+
+        val roleTrainer = roleService.findByName(Common.Roles.ROLE_TRAINER.name).orElseThrow { IllegalArgumentException("Role not found!") }
+        val gymUser = GymUser(
+            id = UUID.randomUUID().toString(),
+            roles = mutableListOf(roleTrainer),
+            user = currentUser,
+            gym = gym
+        )
+
+        gym.members.add(gymUser)
+        gymRepository.save(gym)
+        accessCodeService.deleteAccessCode(accessCode)
         return gymUserMappper.modelToDto(gymUser)
     }
 }
