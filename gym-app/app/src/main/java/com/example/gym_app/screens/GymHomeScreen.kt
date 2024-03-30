@@ -43,7 +43,7 @@ fun GymHomeScreen(navController: NavController) {
         modifier = Modifier.height(48.dp),
       ) {
         gymScreens
-          .filter { viewModel.selectedGym.value?.roles?.contains(it.role.name) ?: false }
+          .filter { viewModel.selectedGymUser.value?.roles?.contains(it.role.name) ?: false }
           .forEachIndexed { index, screen ->
             Tab(
               text = { Text(screen.label) },
@@ -57,7 +57,7 @@ fun GymHomeScreen(navController: NavController) {
       }
     }
   ) { innerPadding ->
-    val roles = viewModel.selectedGym.value?.roles ?: emptyList()
+    val roles = viewModel.selectedGymUser.value?.roles ?: emptyList()
     NavHost(
       navController = navHostController,
       startDestination = AppRoutes.LIVE_STATUS_SCREEN,
@@ -68,6 +68,7 @@ fun GymHomeScreen(navController: NavController) {
       }
       composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
       composable(AppRoutes.MANAGE_CLASSES_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
+      composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
     }
   }
 }
@@ -80,6 +81,8 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
 
   object ManageClasses :
     GymScreen(AppRoutes.MANAGE_CLASSES_SCREEN, "Manage classes", Role.ROLE_TRAINER)
+
+  object AccessCode : GymScreen(AppRoutes.ACCESS_CODE_SCREEN, "Access code", Role.ROLE_ADMIN)
 }
 
-val gymScreens = listOf(GymScreen.ManageClasses, GymScreen.LiveStatus, GymScreen.GroupTrainings)
+val gymScreens = listOf(GymScreen.ManageClasses, GymScreen.LiveStatus, GymScreen.GroupTrainings, GymScreen.AccessCode)

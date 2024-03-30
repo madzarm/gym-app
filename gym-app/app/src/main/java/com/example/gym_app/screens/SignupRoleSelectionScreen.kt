@@ -95,7 +95,7 @@ fun SignupRoleSelectionScreen(navController: NavController, modifier: Modifier =
                   painter = R.drawable.businessman,
                   text = "Gym Owner",
                   onClick = {
-                    viewModel.updateUserState { copy(role = Role.ROLE_OWNER) }
+                    viewModel.updateUserState { copy(role = Role.ROLE_ADMIN) }
                       println("Here -> " + viewModel.userState.value)
                     navController.navigate(AppRoutes.CREATE_ACCOUNT_SCREEN)
                   })
