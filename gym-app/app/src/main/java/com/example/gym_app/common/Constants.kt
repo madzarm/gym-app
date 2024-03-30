@@ -2,7 +2,7 @@ package com.example.gym_app.common
 
 
 enum class Role {
-    ROLE_OWNER, ROLE_MEMBER, ROLE_TRAINER
+    ROLE_ADMIN, ROLE_MEMBER, ROLE_TRAINER
 }
 
 object AppRoutes {
@@ -18,5 +18,6 @@ object AppRoutes {
     const val ENTER_GYM_CODE_SCREEN = "EnterGymCodeScreen"
     const val ENTER_TRAINER_ACCESS_CODE_SCREEN = "EnterTrainerAccessCodeScreen"
     const val CREATE_GYM_SCREEN = "CreateGymScreen"
+    const val ACCESS_CODE_SCREEN = "AccessCodeScreen"
     const val HOME = "home"
 }
