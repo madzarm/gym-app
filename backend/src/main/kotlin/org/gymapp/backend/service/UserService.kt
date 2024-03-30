@@ -93,7 +93,7 @@ class UserService(
         }
 
         val gym = accessCode.gym
-        val existingGymUser = currentUser.gymUsers?.find { it.gym?.code == code }
+        val existingGymUser = currentUser.gymUsers?.find { it.gym?.code == accessCode.gym.code }
         if (existingGymUser != null) {
             if (existingGymUser.roles.any { it.name == Common.Roles.ROLE_TRAINER.name }) {
                 throw IllegalArgumentException("User is already a trainer of this gym!")
