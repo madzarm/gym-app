@@ -40,4 +40,13 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         )
         return ResponseEntity(body, HttpStatus.CONFLICT)
     }
+
+    @ExceptionHandler(Exception::class)
+    fun handleException(ex: Exception): ResponseEntity<ExceptionResult> {
+        val body = ExceptionResult(
+            ex.message ?: "An error occurred!",
+            ex::class.simpleName ?: "Exception"
+        )
+        return ResponseEntity(body, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
 }
