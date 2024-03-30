@@ -86,6 +86,7 @@ fun GymApp(
       composable(AppRoutes.ENTER_TRAINER_ACCESS_CODE_SCREEN) {
         EnterTrainerAccessCodeScreen(
           navController = navController,
+          homeViewModel = homeViewModel,
           onSubmit = {
             navController.navigate(AppRoutes.HOME_SCREEN) {
               popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }
