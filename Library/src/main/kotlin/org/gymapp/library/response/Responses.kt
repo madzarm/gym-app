@@ -37,3 +37,10 @@ data class UserDto(
 data class ExceptionResult(val message: String, val exception: String)
 
 data class ActionResponse(val message: String, val success: Boolean)
+
+data class AccessCodeDto (
+    val id: String,
+    val code: String,
+    val expiryDateTime: String,
+    val gymId: String,
+)
