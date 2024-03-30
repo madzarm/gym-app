@@ -7,15 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.common.readErrorMessage
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateGymRequest
-import org.gymapp.library.response.ExceptionResult
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
 import retrofit2.HttpException
@@ -31,7 +28,7 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
     loadItems(accessToken)
   }
 
-  fun addGym(context: Context, code: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
+  fun joinGymAsMember(context: Context, code: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
     viewModelScope.launch {
       try {
         val gymUserDto: GymUserDto = ApiClient.apiService.joinGymAsMember("Bearer ${TokenManager.getAccessToken(context)}", code)
