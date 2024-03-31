@@ -8,6 +8,8 @@ import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymTrainerRepository
+import org.gymapp.library.request.CreateClassRequest
+import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymTrainerDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
