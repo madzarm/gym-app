@@ -3,6 +3,7 @@ package com.example.gym_app.api
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
 import retrofit2.Response
@@ -34,4 +35,7 @@ interface ApiService {
 
     @POST("/gyms")
     suspend fun createGym(@Header("Authorization") authHeader: String, @Body request: CreateGymRequest): GymUserDto
+
+    @GET("/trainers/gyms/{gymId}")
+    suspend fun getTrainer(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): GymTrainerDto
 }

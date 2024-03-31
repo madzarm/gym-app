@@ -23,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.Role
+import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +33,7 @@ fun GymHomeScreen(navController: NavController) {
   val oldNavBackStackEntry =
     remember(navController) { navController.getBackStackEntry(AppRoutes.HOME_SCREEN) }
   val viewModel: SharedViewModel = viewModel(oldNavBackStackEntry)
+  val gymClassVideModel: GymClassViewModel = viewModel()
   val navHostController: NavHostController = rememberNavController()
   val (selectedTabIndex, setSelectedTabIndex) = remember { mutableStateOf(0) }
   Scaffold(
@@ -67,7 +69,13 @@ fun GymHomeScreen(navController: NavController) {
         GroupTrainingsScreen(navController = navHostController)
       }
       composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
-      composable(AppRoutes.MANAGE_CLASSES_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
+      composable(AppRoutes.MANAGE_CLASSES_SCREEN) { ManageClassesScreen(navHostController, viewModel) {
+        gymClassVideModel.setSelectedGymClass(it)
+        navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+      } }
+      composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
+        TrainerGymClassScreen(navHostController, gymClassVideModel)
+      }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
     }
   }

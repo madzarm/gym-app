@@ -1,5 +1,6 @@
 package com.example.gym_app.common
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -15,6 +16,9 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.gymapp.library.response.ExceptionResult
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
+import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.math.max
 
 fun base64StringToImageBitmap(base64String: String): ImageBitmap {
@@ -62,4 +66,35 @@ fun uriToBase64(context: Context, uri: Uri, maxWidth: Int = 250, maxHeight: Int 
     val imageBytes = outputStream.toByteArray()
 
     return Base64.encodeToString(imageBytes, Base64.DEFAULT)
+}
+
+fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
+    val dateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    } else {
+        TODO("VERSION.SDK_INT < O")
+    }
+
+    val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+
+    val date = dateTime.format(dateFormatter)
+    val time = dateTime.format(timeFormatter)
+
+    return date to time
+}
+
+@SuppressLint("NewApi")
+fun formatDuration(durationStr: String?): String? {
+    if (durationStr == null) return null
+
+    val duration = Duration.parse(durationStr)
+
+    val hours = duration.toHours()
+    val minutes = duration.minusHours(hours).toMinutes()
+
+    return when {
+        hours > 0 -> "${hours}h, ${minutes}m"
+        else -> "${minutes}m"
+    }
 }

@@ -46,8 +46,8 @@ data class GymMemberDto (
 )
 
 data class GymTrainerDto(
-    val id: String?,
-    val gymClasses: List<GymClassDto>?
+    val id: String,
+    val gymClasses: List<GymClassDto> = mutableListOf()
 )
 
 data class UserDto(
