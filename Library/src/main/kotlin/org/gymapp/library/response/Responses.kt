@@ -21,6 +21,21 @@ data class GymUserDto(
     val user: UserDto?,
     val gym: GymDto?,
     val roles: List<String>?,
+    val gymOwner: GymOwnerDto?,
+    val gymMember: GymMemberDto?,
+    val gymTrainer: GymTrainerDto?
+)
+
+data class GymMemberDto (
+    val id: String?,
+) 
+
+    data class GymOwnerDto(
+    val id: String?,
+)
+
+data class GymTrainerDto(
+    val id: String?,
 )
 
 data class UserDto(
