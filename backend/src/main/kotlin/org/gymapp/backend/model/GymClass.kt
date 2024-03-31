@@ -11,11 +11,11 @@ import java.time.LocalDateTime
 class GymClass (
     @Id
     val id: String,
-    val name: String,
-    val description: String,
-    val dateTime: LocalDateTime,
-    val duration: Duration,
-    val maxParticipants: Int,
+    var name: String,
+    var description: String,
+    var dateTime: LocalDateTime,
+    var duration: Duration,
+    var maxParticipants: Int,
     @ManyToOne val trainer: GymTrainer,
     @ManyToOne val gym: Gym,
     @ManyToMany val participants: List<GymMember> = mutableListOf()

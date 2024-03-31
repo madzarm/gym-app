@@ -3,6 +3,7 @@ package org.gymapp.backend.controller
 import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.model.CreateClassRequest
+import org.gymapp.backend.model.UpdateClassRequest
 import org.gymapp.backend.service.TrainerService
 import org.gymapp.library.response.GymTrainerDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,5 +30,14 @@ class TrainerController(
         @RequestBody request: CreateClassRequest
     ): GymTrainerDto {
         return trainerService.createClass(common.getCurrentUser(jwt), gymId, request)
+    }
+
+    @PutMapping("/gyms/classes/{classId}")
+    fun updateClass(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable("classId") classId: String,
+        @RequestBody request: UpdateClassRequest
+    ): GymTrainerDto {
+        return trainerService.updateClass(common.getCurrentUser(jwt), classId, request)
     }
 }

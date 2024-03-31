@@ -92,4 +92,19 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    fun updateClass(currentUser: User, classId: String, request: UpdateClassRequest): GymTrainerDto {
+        val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
+        val trainer = gymClass.trainer
+
+        request.name?.let { gymClass.name = it }
+        request.description?.let { gymClass.description = it }
+        request.dateTime?.let { gymClass.dateTime = LocalDateTime.parse(it) }
+        request.duration?.let { gymClass.duration = Duration.ofMinutes(it.toLong()) }
+        request.maxParticipants?.let { gymClass.maxParticipants = it }
+
+        gymClassRepository.save(gymClass)
+
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
 }
