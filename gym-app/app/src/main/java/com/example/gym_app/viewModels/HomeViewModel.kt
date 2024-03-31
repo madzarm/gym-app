@@ -28,49 +28,29 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
     loadItems(accessToken)
   }
 
-  fun joinGymAsTrainer(context: Context, code: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
-    viewModelScope.launch {
-        try {
-            val gymUserDto: GymUserDto = ApiClient.apiService.joinGymAsTrainer("Bearer ${TokenManager.getAccessToken(context)}", code)
-            val existingList = _gymUserDtos.value ?: listOf()
-
-            val existingIndex = existingList.indexOfFirst { it.id == gymUserDto.id }
-
-            val updatedList = if (existingIndex != -1) {
-            existingList.toMutableList().apply {
-                this[existingIndex] = gymUserDto
-            }
-            } else {
-            existingList.toMutableList().apply {
-                add(gymUserDto)
-            }
-            }
-
-            _gymUserDtos.value = updatedList
-            onSuccess()
-        } catch (e: HttpException) {
-            val errorMessage = readErrorMessage(e)
-            onError(errorMessage)
-        }
-    }
-
-  fun joinGymAsMember(context: Context, code: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
+  fun joinGymAsTrainer(
+    context: Context,
+    code: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
     viewModelScope.launch {
       try {
-        val gymUserDto: GymUserDto = ApiClient.apiService.joinGymAsMember("Bearer ${TokenManager.getAccessToken(context)}", code)
-        val existingList = _gymUserDtos.value ?: listOf()
+        val gymUserDto: GymUserDto =
+          ApiClient.apiService.joinGymAsTrainer(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            code,
+          )
+        val existingList = _gymUserDtos.value
 
         val existingIndex = existingList.indexOfFirst { it.id == gymUserDto.id }
 
-        val updatedList = if (existingIndex != -1) {
-          existingList.toMutableList().apply {
-            this[existingIndex] = gymUserDto
+        val updatedList =
+          if (existingIndex != -1) {
+            existingList.toMutableList().apply { this[existingIndex] = gymUserDto }
+          } else {
+            existingList.toMutableList().apply { add(gymUserDto) }
           }
-        } else {
-          existingList.toMutableList().apply {
-            add(gymUserDto)
-          }
-        }
 
         _gymUserDtos.value = updatedList
         onSuccess()
@@ -80,14 +60,53 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
       }
     }
 
-
-  fun createGym(context: Context, name: String, imageBase64: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
+  fun joinGymAsMember(
+    context: Context,
+    code: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
     viewModelScope.launch {
       try {
-        val gymUserDto: GymUserDto = ApiClient.apiService.createGym("Bearer ${TokenManager.getAccessToken(context)}", CreateGymRequest(name, imageBase64))
-        val updatedList = _gymUserDtos.value.toMutableList().apply {
-          add(gymUserDto)
-        }
+        val gymUserDto: GymUserDto =
+          ApiClient.apiService.joinGymAsMember(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            code,
+          )
+        val existingList = _gymUserDtos.value ?: listOf()
+
+        val existingIndex = existingList.indexOfFirst { it.id == gymUserDto.id }
+
+        val updatedList =
+          if (existingIndex != -1) {
+            existingList.toMutableList().apply { this[existingIndex] = gymUserDto }
+          } else {
+            existingList.toMutableList().apply { add(gymUserDto) }
+          }
+
+        _gymUserDtos.value = updatedList
+        onSuccess()
+      } catch (e: HttpException) {
+        val errorMessage = readErrorMessage(e)
+        onError(errorMessage)
+      }
+    }
+
+  fun createGym(
+    context: Context,
+    name: String,
+    imageBase64: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      try {
+        val gymUserDto: GymUserDto =
+          ApiClient.apiService.createGym(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            CreateGymRequest(name, imageBase64),
+          )
+        val updatedList = _gymUserDtos.value.toMutableList().apply { add(gymUserDto) }
         _gymUserDtos.value = updatedList
         onSuccess.invoke()
       } catch (e: HttpException) {
@@ -96,16 +115,12 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
       }
     }
 
-    fun loadItems(accessToken: String) =
+  fun loadItems(accessToken: String) =
     viewModelScope.launch {
       val gymUsersDeferred =
-        async(Dispatchers.IO) {
-          ApiClient.apiService.getUserGyms("Bearer ${accessToken}")
-        }
+        async(Dispatchers.IO) { ApiClient.apiService.getUserGyms("Bearer ${accessToken}") }
       val currentUserDeferred =
-        async(Dispatchers.IO) {
-          ApiClient.apiService.getCurrentUser("Bearer ${accessToken}")
-        }
+        async(Dispatchers.IO) { ApiClient.apiService.getCurrentUser("Bearer ${accessToken}") }
 
       launch {
         try {
@@ -126,7 +141,6 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
       }
     }
 }
-
 
 class HomeViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
   override fun <T : ViewModel> create(modelClass: Class<T>): T {
