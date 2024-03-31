@@ -1,13 +1,11 @@
 package org.gymapp.backend.model
 
-import jakarta.persistence.Entity
+import jakarta.persistence.*
 
 @Entity(name = "gym_members")
-class GymMember(
-    id: String,
-    roles: MutableList<Role>,
-    gym: Gym,
-    user: User,
-) : GymUser(id, roles, user, gym) {
+class GymMember (
+    @Id val id: String? = null,
+    @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
+) {
 
 }

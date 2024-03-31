@@ -9,7 +9,7 @@ import org.mapstruct.Named;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {GymMapper.class, UserMapper.class})
+@Mapper(componentModel = "spring", uses = {GymMapper.class, UserMapper.class, GymTrainerMapper.class, GymOwnerMapper.class, GymMemberMapper.class})
 public interface GymUserMapper {
 
     @Mapping(source = "roles", target = "roles", qualifiedByName = "mapRolesToNames")

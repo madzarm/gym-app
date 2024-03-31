@@ -47,6 +47,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message ?: "An error occurred!",
             ex::class.simpleName ?: "Exception"
         )
+        ex.printStackTrace()
         return ResponseEntity(body, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 }

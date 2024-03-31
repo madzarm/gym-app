@@ -15,6 +15,10 @@ class Common(@Autowired val userRepository: UserRepository) {
         ROLE_ADMIN, ROLE_MEMBER, ROLE_TRAINER
     }
 
+    enum class Difficulty {
+        BEGINNER, INTERMEDIATE, ADVANCED
+    }
+
     fun extractId(jwt: Jwt) = jwt.getClaimAsString("sub").split("|")[1]
 
     fun generateRandomCode(codeLength: Int = 4): String {

@@ -3,7 +3,6 @@ package org.gymapp.backend.model
 import jakarta.persistence.*
 
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 open class GymUser(
     @Id var id: String,
     @ManyToMany(fetch = FetchType.EAGER)
@@ -14,7 +13,17 @@ open class GymUser(
     )
     var roles: MutableList<Role>,
     @ManyToOne(cascade = [CascadeType.ALL]) var user: User,
-    @ManyToOne(cascade = [CascadeType.ALL]) var gym: Gym?
+    @ManyToOne(cascade = [CascadeType.ALL]) var gym: Gym?,
+    @OneToOne(mappedBy = "gymUser") var gymOwner: GymOwner? = null,
+    @OneToOne(mappedBy = "gymUser") var gymTrainer: GymTrainer? = null,
+    @OneToOne(mappedBy = "gymUser") var gymMember: GymMember? = null,
 ) {
 
+    fun hasRole(roleName: String): Boolean {
+        return roles.any { it.name == roleName }
+    }
+
+    fun addRole(role: Role) {
+        roles.add(role)
+    }
 }

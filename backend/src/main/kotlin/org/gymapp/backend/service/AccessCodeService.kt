@@ -30,8 +30,8 @@ class AccessCodeService (
         return accessCodeMapper.modelToDto(accessCode)
     }
 
-    fun findAccessCodeByCode(code: String): AccessCode? {
-        return accessCodeRepository.findByCode(code)
+    fun findAccessCodeByCode(code: String): AccessCode {
+        return accessCodeRepository.findByCode(code) ?: throw IllegalArgumentException("Access code not found!")
     }
 
     fun deleteAccessCode(accessCode: AccessCode) {

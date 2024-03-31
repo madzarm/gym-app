@@ -2,6 +2,8 @@ package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.model.AccessCodeDto
+import org.gymapp.backend.model.GymOwner
+import org.gymapp.backend.model.GymOwnerDto
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymDto
@@ -24,7 +26,7 @@ class GymController(
         @RequestBody request: CreateGymRequest,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<GymUserDto> {
-        return ResponseEntity.status(201).body(gymService.createGym(request, jwt))
+        return ResponseEntity.status(201).body(gymService.createGym(request, common.getCurrentUser(jwt)))
     }
 
     @GetMapping
@@ -32,11 +34,5 @@ class GymController(
         return ResponseEntity.ok(gymService.findUserGyms(common.getCurrentUser(jwt)))
     }
 
-    @GetMapping("/{gymId}/accessCode")
-    fun generateAccessCode(
-        @PathVariable gymId: String,
-        @AuthenticationPrincipal jwt: Jwt
-    ): ResponseEntity<AccessCodeDto> {
-        return ResponseEntity.ok(gymService.generateAccessCode(gymId, common.getCurrentUser(jwt)))
-    }
+
 }

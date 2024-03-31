@@ -1,6 +1,10 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.model.GymMemberDto
+import org.gymapp.backend.model.GymTrainerDto
+import org.gymapp.backend.service.MemberService
+import org.gymapp.backend.service.TrainerService
 import org.gymapp.backend.service.UserService
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.ActionResponse
@@ -22,7 +26,9 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("/users")
 class UserController(
     @Autowired private val userService: UserService,
-    @Autowired private val common: Common
+    @Autowired private val common: Common,
+    @Autowired private val memberService: MemberService,
+    @Autowired private val trainerService: TrainerService
 ) {
 
     @PostMapping
@@ -46,14 +52,13 @@ class UserController(
     }
 
     @PostMapping("/join-as-member")
-    fun joinGymAsMember(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymUserDto> {
-
-        return ResponseEntity.ok(userService.joinGymAsMember(common.getCurrentUser(jwt), code))
+    fun joinGymAsMember(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymMemberDto> {
+        return ResponseEntity.ok(memberService.joinGymAsMember(common.getCurrentUser(jwt), code))
     }
 
     @PostMapping("/join-as-trainer")
-    fun joinGymAsTrainer(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymUserDto> {
-        return ResponseEntity.ok(userService.joinGymAsTrainer(common.getCurrentUser(jwt), code))
+    fun joinGymAsTrainer(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymTrainerDto> {
+        return ResponseEntity.ok(trainerService.joinGymAsTrainer(common.getCurrentUser(jwt), code))
     }
 
 

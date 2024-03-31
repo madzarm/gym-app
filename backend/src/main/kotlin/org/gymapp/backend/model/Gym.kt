@@ -9,9 +9,10 @@ class Gym(
     var code: String,
     @Column(columnDefinition = "LONGTEXT")
     var picture: String?,
-    @OneToMany(mappedBy = "gym",cascade = [CascadeType.ALL]) val members: MutableList<GymUser> = mutableListOf(),
-    @OneToOne var owner: GymUser?,
-    @OneToMany var accessCodes: MutableList<AccessCode> = mutableListOf()
+    @OneToMany(mappedBy = "gym",cascade = [CascadeType.ALL]) val gymUsers: MutableList<GymUser> = mutableListOf(),
+    @OneToOne var owner: GymOwner?,
+    @OneToMany var accessCodes: MutableList<AccessCode> = mutableListOf(),
+    @OneToMany(mappedBy = "gym") val classes: MutableList<GymClass> = mutableListOf(),
 ) {
 
 }

@@ -14,6 +14,10 @@ class User(
     var profilePicUrl: String?,
     var createdAt: LocalDateTime?,
     var updatedAt: LocalDateTime?,
-    @OneToMany(mappedBy = "user") val gymUsers: List<GymUser>?
+    @OneToMany(mappedBy = "user") val gymUsers: MutableList<GymUser> = mutableListOf()
 ) {
+
+    fun getGymUser(gymCode: String): GymUser? {
+        return gymUsers.find { it.gym?.code == gymCode }
+    }
 }
