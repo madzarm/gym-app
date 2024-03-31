@@ -68,15 +68,6 @@ class GymService(
         return gymRepository.findByCode(code) ?: throw IllegalArgumentException("Gym not found")
     }
 
-    fun generateAccessCode(gymId: String, user: User): AccessCodeDto {
-        val gym = gymRepository.findById(gymId).get()
-        if (gym.owner?.gymUser?.user?.id != user.id) {
-            throw IllegalArgumentException("User is not the owner of the gym")
-        }
-        val accessCodeDto = accessCodeService.generateAccessCodeDto(gym)
-        return accessCodeDto
-    }
-
     fun findById(gymId: String): Gym {
         return gymRepository.findById(gymId)
             .orElseThrow { IllegalArgumentException("Gym not found")}

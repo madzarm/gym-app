@@ -2,6 +2,7 @@ package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
+import org.gymapp.backend.service.OwnerService
 import org.gymapp.library.response.AccessCodeDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/owners")
 class OwnerController (
-    @Autowired private val gymService: GymService,
+    @Autowired private val ownerService: OwnerService,
     @Autowired private val common: Common,
 ){
 
@@ -24,6 +25,6 @@ class OwnerController (
         @PathVariable gymId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<AccessCodeDto> {
-        return ResponseEntity.ok(gymService.generateAccessCode(gymId, common.getCurrentUser(jwt)))
+        return ResponseEntity.ok(ownerService.generateAccessCode(gymId, common.getCurrentUser(jwt)))
     }
 }

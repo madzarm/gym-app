@@ -11,9 +11,11 @@ class GymTrainer (
 
     companion object {
         fun fromGymUser(gymUser: GymUser): GymTrainer {
-            return GymTrainer(
+            val trainer =  GymTrainer(
                 gymUser = gymUser
             )
+            gymUser.gymTrainer = trainer
+            return trainer
         }
     }
 }

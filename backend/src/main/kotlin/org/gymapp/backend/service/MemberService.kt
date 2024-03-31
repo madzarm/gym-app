@@ -5,12 +5,14 @@ import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addParticipant
 import org.gymapp.backend.extensions.getMember
 import org.gymapp.backend.mapper.GymMemberMapper
+import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymMemberRepository
 import org.gymapp.library.response.GymMemberDto
+import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
@@ -23,10 +25,11 @@ class MemberService(
     @Autowired private val gymMemberMapper: GymMemberMapper,
     @Autowired private val gymMemberRepository: GymMemberRepository,
     @Autowired private val gymUserRepository: GymUserRepository,
+    @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val entityManager: EntityManager, private val gymClassRepository: GymClassRepository,
 ) {
 
-    fun joinGymAsMember(currentUser: User, code: String): GymMemberDto {
+    fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
         val gym = gymService.findGymByCode(code)
 
         var gymUser = currentUser.getGymUser(gym.code)
@@ -38,8 +41,9 @@ class MemberService(
             gymUser.roles.add(roleService.findByName(Common.Roles.ROLE_MEMBER.name))
             gymUserRepository.save(gymUser)
             val member = GymMember(gymUser = gymUser)
+            gymUser.gymMember = member
             gymMemberRepository.save(member)
-            return gymMemberMapper.modelToDto(member)
+            return gymUserMapper.modelToDto(gymUser)
         }
 
         gymUser = GymUser(
@@ -51,8 +55,9 @@ class MemberService(
         gymUserRepository.save(gymUser)
 
         val member = GymMember(gymUser = gymUser)
+        gymUser.gymMember = member
         gymMemberRepository.save(member)
-        return gymMemberMapper.modelToDto(member)
+        return gymUserMapper.modelToDto(gymUser)
     }
 
     fun registerToClass(currentUser: User, classId: String): GymMemberDto {

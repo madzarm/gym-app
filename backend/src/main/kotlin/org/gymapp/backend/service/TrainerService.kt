@@ -4,6 +4,7 @@ import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addClass
 import org.gymapp.backend.extensions.getGym
 import org.gymapp.backend.mapper.GymTrainerMapper
+import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymUserRepository
@@ -11,6 +12,7 @@ import org.gymapp.backend.repository.GymTrainerRepository
 import org.gymapp.library.request.CreateClassRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymTrainerDto
+import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -24,10 +26,11 @@ class TrainerService(
     @Autowired private val gymUserRepository: GymUserRepository,
     @Autowired private val gymTrainerMapper: GymTrainerMapper,
     @Autowired private val gymTrainerRepository: GymTrainerRepository,
+    @Autowired private val gymUserMapper: GymUserMapper,
     private val gymClassRepository: GymClassRepository,
 ) {
 
-    fun joinGymAsTrainer(currentUser: User, code: String): GymTrainerDto {
+    fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
         val accessCode = accessCodeService.findAccessCodeByCode(code)
         if (accessCode.expiryDateTime.isBefore(LocalDateTime.now())) {
             accessCodeService.deleteAccessCode(accessCode)
@@ -47,7 +50,8 @@ class TrainerService(
 
                 val trainer = GymTrainer.fromGymUser(existingGymUser)
                 gymTrainerRepository.save(trainer)
-                return gymTrainerMapper.modelToDto(trainer)
+                existingGymUser.gymTrainer = trainer
+                return gymUserMapper.modelToDto(existingGymUser)
             }
         }
 
@@ -64,7 +68,7 @@ class TrainerService(
 
         val trainer = GymTrainer.fromGymUser(gymUser)
         gymTrainerRepository.save(trainer)
-        return gymTrainerMapper.modelToDto(trainer)
+        return gymUserMapper.modelToDto(gymUser)
     }
 
     fun getTrainer(currentUser: User, gymId: String): GymTrainerDto {
