@@ -1,9 +1,6 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.model.AccessCodeDto
-import org.gymapp.backend.model.GymOwner
-import org.gymapp.backend.model.GymOwnerDto
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymDto

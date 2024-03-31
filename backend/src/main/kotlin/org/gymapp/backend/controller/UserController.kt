@@ -1,16 +1,11 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.model.GymMemberDto
-import org.gymapp.backend.model.GymTrainerDto
 import org.gymapp.backend.service.MemberService
 import org.gymapp.backend.service.TrainerService
 import org.gymapp.backend.service.UserService
 import org.gymapp.library.request.CreateUserRequest
-import org.gymapp.library.response.ActionResponse
-import org.gymapp.library.response.GymDto
-import org.gymapp.library.response.GymUserDto
-import org.gymapp.library.response.UserDto
+import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal

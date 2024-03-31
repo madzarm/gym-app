@@ -9,6 +9,7 @@ import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
 import org.gymapp.library.request.CreateGymRequest
+import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired

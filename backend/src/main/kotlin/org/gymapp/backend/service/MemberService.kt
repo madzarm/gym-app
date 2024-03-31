@@ -7,6 +7,7 @@ import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.GymRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymMemberRepository
+import org.gymapp.library.response.GymMemberDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*

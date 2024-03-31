@@ -1,9 +1,8 @@
 package org.gymapp.backend.mapper;
 
 import org.gymapp.backend.model.GymTrainer;
-import org.gymapp.backend.model.GymTrainerDto;
+import org.gymapp.library.response.GymTrainerDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import java.util.List;
 

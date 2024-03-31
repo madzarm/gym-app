@@ -1,8 +1,8 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.model.AccessCodeDto
 import org.gymapp.backend.service.GymService
+import org.gymapp.library.response.AccessCodeDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
