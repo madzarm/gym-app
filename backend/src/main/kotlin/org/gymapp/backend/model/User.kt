@@ -20,4 +20,8 @@ class User(
     fun getGymUser(gymCode: String): GymUser? {
         return gymUsers.find { it.gym?.code == gymCode }
     }
+
+    fun getTrainer(gymId: String): GymTrainer {
+        return gymUsers.find { it.gym?.id == gymId }?.gymTrainer ?: throw IllegalArgumentException("User is not a trainer of this gym!")
+    }
 }

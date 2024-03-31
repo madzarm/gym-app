@@ -60,4 +60,10 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    fun getTrainer(currentUser: User, gymId: String): GymTrainerDto {
+        val trainer = currentUser.getTrainer(gymId)
+
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
 }

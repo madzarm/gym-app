@@ -23,6 +23,7 @@ class WebConfig(
             csrf { disable() }
             authorizeHttpRequests {
                 authorize("/users/**", authenticated)
+                authorize("/trainers/**", authenticated)
                 authorize("/gyms/**", authenticated)
                 authorize("/users/current**", authenticated)
                 authorize("/users/gyms**", authenticated)
