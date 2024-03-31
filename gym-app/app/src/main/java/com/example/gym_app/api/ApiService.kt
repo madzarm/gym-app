@@ -29,7 +29,7 @@ interface ApiService {
     @POST("/users/join-as-trainer")
     suspend fun joinGymAsTrainer(@Header("Authorization") authHeader: String, @Query("code") code: String): GymUserDto
 
-    @GET("/gyms/{id}/accessCode")
+    @GET("owners/gyms/{id}/accessCode")
     suspend fun generateAccessCode(@Header("Authorization") authHeader: String, @Path("id") gymId: String): AccessCodeDto
 
     @POST("/gyms")
