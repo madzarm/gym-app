@@ -24,6 +24,7 @@ class WebConfig(
             authorizeHttpRequests {
                 authorize("/users/**", authenticated)
                 authorize("/trainers/**", authenticated)
+                authorize("/members/**", authenticated)
                 authorize("/gyms/**", authenticated)
                 authorize("/users/current**", authenticated)
                 authorize("/users/gyms**", authenticated)

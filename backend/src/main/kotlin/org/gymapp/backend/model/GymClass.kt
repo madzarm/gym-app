@@ -1,9 +1,6 @@
 package org.gymapp.backend.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToMany
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 import java.time.Duration
 import java.time.LocalDateTime
 
@@ -18,6 +15,6 @@ class GymClass (
     var maxParticipants: Int,
     @ManyToOne val trainer: GymTrainer,
     @ManyToOne val gym: Gym,
-    @ManyToMany val participants: List<GymMember> = mutableListOf()
+    @ManyToMany(mappedBy = "classes") val participants: MutableList<GymMember> = mutableListOf()
 ){
 }

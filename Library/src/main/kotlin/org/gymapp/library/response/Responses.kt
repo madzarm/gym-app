@@ -33,11 +33,12 @@ data class GymClassDto(
     val dateTime: String?,
     val duration: String?,
     val maxParticipants: String?,
-    val participants: List<GymMemberDto>?
+    val participantsIds: List<String>?
 )
 
 data class GymMemberDto (
     val id: String?,
+    val gymClasses: List<GymClassDto>?
 ) 
 
     data class GymOwnerDto(
