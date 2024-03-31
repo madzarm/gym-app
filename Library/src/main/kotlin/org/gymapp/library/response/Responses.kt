@@ -26,6 +26,16 @@ data class GymUserDto(
     val gymTrainer: GymTrainerDto?
 )
 
+data class GymClassDto(
+    val id: String?,
+    val name: String?,
+    val description: String?,
+    val dateTime: String?,
+    val duration: String?,
+    val maxParticipants: String?,
+    val participants: List<GymMemberDto>?
+)
+
 data class GymMemberDto (
     val id: String?,
 ) 
@@ -36,6 +46,7 @@ data class GymMemberDto (
 
 data class GymTrainerDto(
     val id: String?,
+    val gymClasses: List<GymClassDto>?
 )
 
 data class UserDto(

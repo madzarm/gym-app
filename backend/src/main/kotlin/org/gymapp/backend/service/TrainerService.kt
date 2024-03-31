@@ -1,13 +1,17 @@
 package org.gymapp.backend.service
 
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.extensions.addClass
+import org.gymapp.backend.extensions.getGym
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.model.*
+import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymTrainerRepository
 import org.gymapp.library.response.GymTrainerDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 
@@ -18,6 +22,7 @@ class TrainerService(
     @Autowired private val gymUserRepository: GymUserRepository,
     @Autowired private val gymTrainerMapper: GymTrainerMapper,
     @Autowired private val gymTrainerRepository: GymTrainerRepository,
+    private val gymClassRepository: GymClassRepository,
 ) {
 
     fun joinGymAsTrainer(currentUser: User, code: String): GymTrainerDto {
@@ -63,6 +68,27 @@ class TrainerService(
     fun getTrainer(currentUser: User, gymId: String): GymTrainerDto {
         val trainer = currentUser.getTrainer(gymId)
 
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    fun createClass(currentUser: User, gymId: String, request: CreateClassRequest): GymTrainerDto {
+        val trainer = currentUser.getTrainer(gymId)
+        val gym = trainer.getGym()
+
+        val gymClass = GymClass(
+            id = UUID.randomUUID().toString(),
+            name = request.name,
+            description = request.description,
+            dateTime = LocalDateTime.parse(request.dateTime),
+            duration = Duration.ofMinutes(request.duration.toLong()),
+            maxParticipants = request.maxParticipants,
+            trainer = trainer,
+            gym = gym
+        )
+
+        gymClassRepository.save(gymClass)
+
+        trainer.addClass(gymClass)
         return gymTrainerMapper.modelToDto(trainer)
     }
 
