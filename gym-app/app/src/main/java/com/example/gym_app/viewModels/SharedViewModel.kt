@@ -20,8 +20,8 @@ class SharedViewModel : ViewModel() {
     private val _accessCode = MutableLiveData<AccessCodeDto>()
     val accessCode: LiveData<AccessCodeDto> = _accessCode
 
-    private val _trainerGymClasses = MutableLiveData<List<GymClassDto>>()
-    val trainerGymClasses: LiveData<List<GymClassDto>> = _trainerGymClasses
+    private val _gymClasses = MutableLiveData<List<GymClassDto>>()
+    val gymClasses: LiveData<List<GymClassDto>> = _gymClasses
 
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
@@ -36,7 +36,7 @@ class SharedViewModel : ViewModel() {
     fun getTrainerGymClasses(context: Context) =
         viewModelScope.launch {
             val gymClasses: List<GymClassDto> = ApiClient.apiService.getTrainer("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymUser.value?.gym?.id ?: "").gymClasses
-            _trainerGymClasses.value = gymClasses
+            _gymClasses.value = gymClasses
         }
 }
 

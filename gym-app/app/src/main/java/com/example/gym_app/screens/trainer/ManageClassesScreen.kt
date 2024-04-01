@@ -51,7 +51,7 @@ fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel
   LaunchedEffect(true) {
     viewModel.getTrainerGymClasses(context)
   }
-  val gymClasses = viewModel.trainerGymClasses.observeAsState()
+  val gymClasses = viewModel.gymClasses.observeAsState()
 
   CustomBackground(title = "Your classes") {
     val listState = rememberLazyListState()
