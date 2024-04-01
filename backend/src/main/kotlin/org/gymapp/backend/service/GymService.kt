@@ -2,14 +2,12 @@ package org.gymapp.backend.service
 
 import jakarta.transaction.Transactional
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.mapper.AccessCodeMapper
-import org.gymapp.backend.mapper.GymMapper
-import org.gymapp.backend.mapper.GymOwnerMapper
-import org.gymapp.backend.mapper.GymUserMapper
+import org.gymapp.backend.mapper.*
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -25,7 +23,8 @@ class GymService(
     @Autowired private val common: Common,
     @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val accessCodeService: AccessCodeService,
-    @Autowired private val gymOwnerRepository: GymOwnerRepository
+    @Autowired private val gymOwnerRepository: GymOwnerRepository,
+    @Autowired private val gymClassMapper: GymClassMapper
 ) {
 
     @Transactional
@@ -58,6 +57,11 @@ class GymService(
         return gymUserMapper.modelToDto(gymUser)
     }
 
+    fun getGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
+        val gym = findById(gymId)
+        return gymClassMapper.modelsToDtos(gym.classes)
+    }
+
     fun findUserGyms(user: User): List<GymDto> {
         val gymUsers = gymUserRepository.findByUserId(user.id!!)
         val gyms = gymUsers.map { it.gym }
@@ -72,4 +76,5 @@ class GymService(
         return gymRepository.findById(gymId)
             .orElseThrow { IllegalArgumentException("Gym not found")}
     }
+
 }

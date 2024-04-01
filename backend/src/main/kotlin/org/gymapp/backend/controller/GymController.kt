@@ -3,6 +3,7 @@ package org.gymapp.backend.controller
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
+import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +30,14 @@ class GymController(
     @GetMapping
     fun findUserGyms(@AuthenticationPrincipal jwt: Jwt): ResponseEntity<List<GymDto>> {
         return ResponseEntity.ok(gymService.findUserGyms(common.getCurrentUser(jwt)))
+    }
+
+    @GetMapping("/{gymId}/classes")
+    fun getGymClasses(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<GymClassDto>> {
+        return ResponseEntity.ok(gymService.getGymClasses(common.getCurrentUser(jwt), gymId))
     }
 
 
