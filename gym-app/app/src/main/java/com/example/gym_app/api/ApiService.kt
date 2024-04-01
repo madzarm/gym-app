@@ -4,6 +4,7 @@ import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
@@ -46,4 +47,7 @@ interface ApiService {
 
     @POST("/trainers/gyms/{gymId}/classes")
     suspend fun createGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: UpdateClassRequest): GymTrainerDto
+
+    @GET("/gyms/{gymId}/classes")
+    suspend fun getGymClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
 }

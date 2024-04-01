@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.Role
 import com.example.gym_app.screens.member.GroupTrainingsScreen
+import com.example.gym_app.screens.member.GymClassDetailsScreen
 import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
 import com.example.gym_app.screens.trainer.CreateClassScreen
@@ -39,7 +40,7 @@ fun GymHomeScreen(navController: NavController) {
   val oldNavBackStackEntry =
     remember(navController) { navController.getBackStackEntry(AppRoutes.HOME_SCREEN) }
   val viewModel: SharedViewModel = viewModel(oldNavBackStackEntry)
-  val gymClassVideModel: GymClassViewModel = viewModel()
+  val gymClassViewModel: GymClassViewModel = viewModel()
   val navHostController: NavHostController = rememberNavController()
   val (selectedTabIndex, setSelectedTabIndex) = remember { mutableStateOf(0) }
   Scaffold(
@@ -72,7 +73,10 @@ fun GymHomeScreen(navController: NavController) {
       modifier = Modifier.padding(innerPadding),
     ) {
       composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
-        GroupTrainingsScreen(navController = navHostController)
+        GroupTrainingsScreen(viewModel) {
+          gymClassViewModel.setSelectedGymClass(it)
+          navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        }
       }
       composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
       composable(AppRoutes.MANAGE_CLASSES_SCREEN) {
@@ -81,18 +85,21 @@ fun GymHomeScreen(navController: NavController) {
           viewModel,
           { navHostController.navigate(AppRoutes.CREATE_CLASS_SCREEN) },
         ) {
-          gymClassVideModel.setSelectedGymClass(it)
+          gymClassViewModel.setSelectedGymClass(it)
           navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
         }
       }
       composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
-        TrainerGymClassScreen(navHostController, gymClassVideModel)
+        TrainerGymClassScreen(navHostController, gymClassViewModel)
       }
       composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
+      composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) { GymClassDetailsScreen(navHostController, gymClassViewModel, viewModel)}
     }
   }
 }
+
+
 
 sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object GroupTrainings :
