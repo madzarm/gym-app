@@ -92,15 +92,15 @@ fun CreateAccountScreen(
               val useState by userViewModel.userState.collectAsStateWithLifecycle()
               Spacer(modifier = Modifier.weight(1f))
 
-              TextField(
+              CustomTextField(
                   value = useState.firstName,
                   label = "First name",
                   onValueChange = { userViewModel.updateUserState { copy(firstName = it) } })
-              TextField(
+            CustomTextField(
                   value = useState.lastName,
                   label = "Last name",
                   onValueChange = { userViewModel.updateUserState { copy(lastName = it) } })
-              TextField(
+            CustomTextField(
                   value = useState.email,
                   label = "Last name",
                   onValueChange = { userViewModel.updateUserState { copy(email = it) } })
@@ -120,7 +120,7 @@ fun CreateAccountScreen(
 }
 
 @Composable
-fun TextField(
+fun CustomTextField(
     modifier: Modifier = Modifier,
     value: String,
     label: String,

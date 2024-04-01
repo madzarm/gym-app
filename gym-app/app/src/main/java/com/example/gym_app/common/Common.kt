@@ -84,14 +84,12 @@ fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
     return date to time
 }
 
-@SuppressLint("NewApi")
 fun formatDuration(durationStr: String?): String? {
     if (durationStr == null) return null
 
-    val duration = Duration.parse(durationStr)
-
-    val hours = duration.toHours()
-    val minutes = duration.minusHours(hours).toMinutes()
+    val durationInt = durationStr.toInt()
+    val hours = durationInt / 60
+    val minutes = durationInt % 60
 
     return when {
         hours > 0 -> "${hours}h, ${minutes}m"
