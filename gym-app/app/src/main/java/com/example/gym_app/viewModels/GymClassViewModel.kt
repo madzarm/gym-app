@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
+import com.example.gym_app.common.readErrorMessage
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymMemberDto
+import retrofit2.HttpException
 
 class GymClassViewModel : ViewModel() {
   private val _selectedGymClass = MutableLiveData<GymClassDto>()
@@ -49,6 +52,17 @@ class GymClassViewModel : ViewModel() {
         _selectedGymClass.value?.id!!,
         request,
       )
+    }
+
+  fun joinGymClass(context: Context, gymClassId: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
+    viewModelScope.launch {
+      try {
+        val gymMemberDto: GymMemberDto = ApiClient.apiService.registerToClass("Bearer ${TokenManager.getAccessToken(context)}", gymClassId)
+        onSuccess()
+      } catch (e: HttpException) {
+        val errorMessage = readErrorMessage(e)
+        onError(errorMessage)
+      }
     }
 
   fun createGymClass(

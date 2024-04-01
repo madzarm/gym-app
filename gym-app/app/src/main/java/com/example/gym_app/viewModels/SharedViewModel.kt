@@ -38,14 +38,11 @@ class SharedViewModel : ViewModel() {
             val gymClasses: List<GymClassDto> = ApiClient.apiService.getTrainer("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymUser.value?.gym?.id ?: "").gymClasses
             _gymClasses.value = gymClasses
         }
-}
 
-class SharedViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(TokenManager.getAccessToken(context) ?: "") as T
+    fun getGymClasses(context: Context, gymId: String) {
+        viewModelScope.launch {
+            val gymClasses: List<GymClassDto> = ApiClient.apiService.getGymClasses("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            _gymClasses.value = gymClasses
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
