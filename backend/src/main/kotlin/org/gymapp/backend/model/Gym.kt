@@ -13,6 +13,8 @@ class Gym(
     @OneToOne var owner: GymOwner?,
     @OneToMany var accessCodes: MutableList<AccessCode> = mutableListOf(),
     @OneToMany(mappedBy = "gym") val classes: MutableList<GymClass> = mutableListOf(),
+
+    @OneToMany(mappedBy = "gym") val visits: MutableList<GymVisit> = mutableListOf(),
 ) {
 
 }

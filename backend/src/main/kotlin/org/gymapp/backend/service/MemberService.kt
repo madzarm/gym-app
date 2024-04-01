@@ -6,11 +6,9 @@ import org.gymapp.backend.extensions.addParticipant
 import org.gymapp.backend.extensions.getMember
 import org.gymapp.backend.mapper.GymMemberMapper
 import org.gymapp.backend.mapper.GymUserMapper
+import org.gymapp.backend.mapper.GymVisitMapper
 import org.gymapp.backend.model.*
-import org.gymapp.backend.repository.GymClassRepository
-import org.gymapp.backend.repository.GymRepository
-import org.gymapp.backend.repository.GymUserRepository
-import org.gymapp.backend.repository.GymMemberRepository
+import org.gymapp.backend.repository.*
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,6 +25,8 @@ class MemberService(
     @Autowired private val gymUserRepository: GymUserRepository,
     @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val entityManager: EntityManager, private val gymClassRepository: GymClassRepository,
+    @Autowired private val gymVisitMapper: GymVisitMapper,
+    @Autowired private val gymVisitRepository: GymVisitRepository,
 ) {
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
@@ -85,6 +85,19 @@ class MemberService(
         return gymMemberMapper.modelToDto(member)
     }
 
+    fun visitGym(currentUser: User, gymId: String): GymVisitDto? {
+        val gym = gymService.findById(gymId)
+        val member = currentUser.getMember(gymId)
+
+        val visit = GymVisit(
+            id = UUID.randomUUID().toString(),
+            gym = gym,
+            gymMember = member
+        )
+
+        gymVisitRepository.save(visit)
+        return gymVisitMapper.modelToDto(visit)
+    }
 
 
 }

@@ -13,7 +13,10 @@ class GymMember (
         inverseJoinColumns = [JoinColumn(name = "class_id")])
     val classes: MutableList<GymClass> = mutableListOf(),
     @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
-    val firstJoined: LocalDate = LocalDate.now()
+    val firstJoined: LocalDate = LocalDate.now(),
+
+    @OneToMany(mappedBy = "gymMember")
+    val visits: MutableList<GymVisit> = mutableListOf()
 ) {
 
 }

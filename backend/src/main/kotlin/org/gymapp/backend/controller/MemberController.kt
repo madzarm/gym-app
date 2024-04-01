@@ -1,6 +1,7 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.model.GymVisitDto
 import org.gymapp.backend.service.MemberService
 import org.gymapp.library.response.GymMemberDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +35,14 @@ class MemberController (
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<GymMemberDto> {
         return ResponseEntity.ok().body(memberService.getMember(common.getCurrentUser(jwt), gymId))
+    }
+
+    @PostMapping("/gyms/{gymId}/gym-visit")
+    fun visitGym(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<GymVisitDto> {
+        return ResponseEntity.ok().body(memberService.visitGym(common.getCurrentUser(jwt), gymId))
     }
 
 }
