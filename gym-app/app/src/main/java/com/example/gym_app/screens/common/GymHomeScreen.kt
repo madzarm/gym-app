@@ -23,9 +23,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.Role
-import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.member.GroupTrainingsScreen
+import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
+import com.example.gym_app.screens.trainer.CreateClassScreen
 import com.example.gym_app.screens.trainer.ManageClassesScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
 import com.example.gym_app.viewModels.GymClassViewModel
@@ -74,13 +75,20 @@ fun GymHomeScreen(navController: NavController) {
         GroupTrainingsScreen(navController = navHostController)
       }
       composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
-      composable(AppRoutes.MANAGE_CLASSES_SCREEN) { ManageClassesScreen(navHostController, viewModel) {
-        gymClassVideModel.setSelectedGymClass(it)
-        navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
-      } }
+      composable(AppRoutes.MANAGE_CLASSES_SCREEN) {
+        ManageClassesScreen(
+          navHostController,
+          viewModel,
+          { navHostController.navigate(AppRoutes.CREATE_CLASS_SCREEN) },
+        ) {
+          gymClassVideModel.setSelectedGymClass(it)
+          navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+        }
+      }
       composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
         TrainerGymClassScreen(navHostController, gymClassVideModel)
       }
+      composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
     }
   }
@@ -98,9 +106,10 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object AccessCode : GymScreen(AppRoutes.ACCESS_CODE_SCREEN, "Access code", Role.ROLE_ADMIN)
 }
 
-val gymScreens = listOf(
-  GymScreen.ManageClasses,
-  GymScreen.LiveStatus,
-  GymScreen.GroupTrainings,
-  GymScreen.AccessCode
-)
+val gymScreens =
+  listOf(
+    GymScreen.ManageClasses,
+    GymScreen.LiveStatus,
+    GymScreen.GroupTrainings,
+    GymScreen.AccessCode,
+  )

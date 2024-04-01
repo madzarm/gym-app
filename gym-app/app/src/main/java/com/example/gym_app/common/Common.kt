@@ -69,6 +69,7 @@ fun uriToBase64(context: Context, uri: Uri, maxWidth: Int = 250, maxHeight: Int 
 }
 
 fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
+    if (dateTimeStr == null) return null to null
     val dateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     } else {

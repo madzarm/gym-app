@@ -45,7 +45,7 @@ import org.gymapp.library.response.GymClassDto
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel, onClick: (GymClassDto) -> Unit) {
+fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel, onCreateClick: () -> Unit, onClick: (GymClassDto) -> Unit,) {
 
   val context = LocalContext.current
   LaunchedEffect(true) {
@@ -62,7 +62,7 @@ fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel
         Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
       floatingActionButton = {
         ExtendedFloatingActionButton(
-          onClick = {},
+          onClick = onCreateClick,
           expanded = expandedFab,
           icon = { Icon(Icons.Filled.Add, "Create a class button") },
           text = { Text(text = "Create a class") },

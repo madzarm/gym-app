@@ -43,4 +43,7 @@ interface ApiService {
 
     @PUT("/trainers/gyms/classes/{classId}")
     suspend fun updateGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Body request: UpdateClassRequest): GymTrainerDto
+
+    @POST("/trainers/gyms/{gymId}/classes")
+    suspend fun createGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: UpdateClassRequest): GymTrainerDto
 }
