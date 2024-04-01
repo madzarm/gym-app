@@ -7,12 +7,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+import java.time.Duration;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface GymClassMapper {
 
-    @Mapping(target = "duration", source = "duration", dateFormat = "HH:mm")
+    @Mapping(target = "duration", source = "duration", qualifiedByName = "durationToString")
     @Mapping(target = "participantsIds", source = "participants", qualifiedByName = "participantsToIds")
     GymClassDto modelToDto(GymClass gymClass);
 
@@ -21,5 +22,10 @@ public interface GymClassMapper {
     @Named("participantsToIds")
     default List<String> participantsToIds(List<GymMember> participants) {
         return participants.stream().map(GymMember::getId).toList();
+    }
+
+    @Named("durationToString")
+    default String durationToString(Duration duration) {
+        return String.valueOf(duration.toMinutes());
     }
 }
