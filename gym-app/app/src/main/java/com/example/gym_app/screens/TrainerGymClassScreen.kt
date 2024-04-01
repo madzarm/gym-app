@@ -4,7 +4,6 @@ import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,6 +33,7 @@ import java.util.Calendar
 
 @Composable
 fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymClassViewModel) {
+  val context = LocalContext.current
   val gymClass = viewModel.selectedGymClass.observeAsState()
   val gymClassUpdatable = viewModel.updatedGymClass.observeAsState()
   CustomBackground(title = gymClass.value?.name ?: "Unknown class") {
@@ -75,7 +75,8 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         ShowTimePicker(viewModel)
         Button(
           onClick = {
-            viewModel.updateGymClass()
+            viewModel.updateGymClass(context)
+
             navHostController.popBackStack()
           },
           modifier = Modifier.padding(top = 16.dp),
@@ -90,27 +91,23 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
 fun ShowTimePicker(viewModel: GymClassViewModel) {
   val context = LocalContext.current
   val calendar = remember { Calendar.getInstance() }
-  // Assuming the GymClassViewModel has a function to observe or get the current time
   val gymClass = viewModel.updatedGymClass.observeAsState()
   val gymClassDto = gymClass.value
 
-  // Extracting the date and time from the viewModel
   val (date, time) = extractDateAndTime(gymClassDto?.dateTime)
   var timeText by remember { mutableStateOf(time ?: "") }
 
   OutlinedTextField(
     value = timeText,
-    onValueChange = { /* Do nothing as this is read-only */ },
+    onValueChange = {},
     readOnly = true,
     label = { Text("Time") },
     modifier = Modifier,
     trailingIcon = {
       Button(onClick = {
         TimePickerDialog(context, { _, hourOfDay, minute ->
-          // Formatting the time in HH:mm format
           val selectedTime = String.format("%02d:%02d", hourOfDay, minute)
           timeText = selectedTime
-          // Assuming you have a way to update the time in your viewModel
           viewModel.updateGymClass { copy(dateTime = "${date}T$selectedTime") }
         }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
       }) {
@@ -142,7 +139,6 @@ fun ShowDatePicker(viewModel: GymClassViewModel) {
               context,
               { _, year, monthOfYear, dayOfMonth ->
                 val month = monthOfYear + 1
-                // Formatting the date with leading zeros for month and day
                 val selectedDate = String.format("%d-%02d-%02d", year, month, dayOfMonth)
 
                 Toast.makeText(context, "Selected date: $selectedDate", Toast.LENGTH_LONG).show()

@@ -22,6 +22,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -36,7 +37,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.common.formatDuration
@@ -47,7 +47,10 @@ import org.gymapp.library.response.GymClassDto
 @Composable
 fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel, onClick: (GymClassDto) -> Unit) {
 
-  viewModel.getTrainerGymClasses(LocalContext.current)
+  val context = LocalContext.current
+  LaunchedEffect(true) {
+    viewModel.getTrainerGymClasses(context)
+  }
   val gymClasses = viewModel.trainerGymClasses.observeAsState()
 
   CustomBackground(title = "Your classes") {
