@@ -1,9 +1,6 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.member
 
 import android.annotation.SuppressLint
-import android.net.Uri
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -16,7 +13,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,29 +29,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.gym_app.common.AppRoutes
-import com.example.gym_app.common.uriToBase64
 import com.example.gym_app.viewModels.HomeViewModel
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun CreateGymScreen(
-  navController: NavHostController,
-  homeViewModel: HomeViewModel,
-  onSubmit: () -> Unit,
-) {
-  var name by remember { mutableStateOf("") }
-  var imageUri by remember { mutableStateOf<Uri?>(null) }
-  var errorMessage by remember { mutableStateOf("") }
+fun EnterGymCodeScreen(navController: NavHostController, homeViewModel: HomeViewModel, onSubmit: () -> Unit) {
   val context = LocalContext.current
 
-  val galleryLauncher =
-    rememberLauncherForActivityResult(contract = ActivityResultContracts.GetContent()) { uri: Uri?
-      ->
-      imageUri = uri
-    }
+  var errorMessage by remember { mutableStateOf("") }
 
   Column(
     modifier =
@@ -62,7 +49,7 @@ fun CreateGymScreen(
     verticalArrangement = Arrangement.Center,
   ) {
     Text(
-      text = "Create your gym!",
+      text = "Enter gym code!",
       fontSize = 32.sp,
       fontWeight = FontWeight.Bold,
       color = Color.White,
@@ -81,29 +68,23 @@ fun CreateGymScreen(
       horizontalAlignment = Alignment.CenterHorizontally,
       verticalArrangement = Arrangement.Center,
     ) {
+      var code by remember { mutableStateOf("") }
+
       Spacer(modifier = Modifier.weight(1f))
       OutlinedTextField(
-        value = name,
-        onValueChange = { name = it },
-        label = { Text("Name") },
-        isError = errorMessage.isNotEmpty(),
+        value = code,
+        onValueChange = { code = it },
+        label = { Text("Code") },
+          isError = errorMessage.isNotEmpty(),
         supportingText = {
           if (errorMessage.isNotEmpty()) {
             Text(errorMessage)
           }
         },
       )
-      Button(onClick = { galleryLauncher.launch("image/*") }) { Text("Pick Image") }
       Button(
         onClick = {
-          val base64Image = imageUri?.let { uri -> uriToBase64(context, uri) } ?: ""
-          homeViewModel.createGym(
-            context = context,
-            name = name,
-            imageBase64 = base64Image,
-            onSuccess = onSubmit,
-            onError = { msg -> errorMessage = msg },
-          )
+          homeViewModel.joinGymAsMember(context, code, onSuccess = onSubmit, onError = { msg -> errorMessage = msg })
         }
       ) {
         Text(text = "Create", fontSize = 6.em)

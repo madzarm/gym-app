@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.trainer
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog

@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.common
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.height
@@ -23,6 +23,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.Role
+import com.example.gym_app.screens.member.LiveStatusScreen
+import com.example.gym_app.screens.member.GroupTrainingsScreen
+import com.example.gym_app.screens.owner.AccessCodeScreen
+import com.example.gym_app.screens.trainer.ManageClassesScreen
+import com.example.gym_app.screens.trainer.TrainerGymClassScreen
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
 
@@ -93,4 +98,9 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object AccessCode : GymScreen(AppRoutes.ACCESS_CODE_SCREEN, "Access code", Role.ROLE_ADMIN)
 }
 
-val gymScreens = listOf(GymScreen.ManageClasses, GymScreen.LiveStatus, GymScreen.GroupTrainings, GymScreen.AccessCode)
+val gymScreens = listOf(
+  GymScreen.ManageClasses,
+  GymScreen.LiveStatus,
+  GymScreen.GroupTrainings,
+  GymScreen.AccessCode
+)

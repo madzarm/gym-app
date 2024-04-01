@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.member
 
 import android.annotation.SuppressLint
 import androidx.compose.material3.Text

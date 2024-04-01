@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.owner
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image

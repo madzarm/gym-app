@@ -1,4 +1,4 @@
-package com.example.gym_app.screens
+package com.example.gym_app.screens.trainer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
