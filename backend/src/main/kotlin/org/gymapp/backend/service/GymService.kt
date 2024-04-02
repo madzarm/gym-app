@@ -25,7 +25,7 @@ class GymService(
     @Autowired private val gymOwnerRepository: GymOwnerRepository,
     @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymMemberRepository: GymMemberRepository,
-    @Autowired private val gymMemberMapper: GymMemberMapper,
+    @Autowired private val gymMemberMapper: GymMemberMapper, private val gymVisitRepository: GymVisitRepository,
 ) {
 
     @Transactional
@@ -83,6 +83,11 @@ class GymService(
     fun findById(gymId: String): Gym {
         return gymRepository.findById(gymId)
             .orElseThrow { IllegalArgumentException("Gym not found")}
+    }
+
+    fun getLiveStatus(gymId: String): Int {
+        val active = gymVisitRepository.findByGymIdAndDurationNotNull(gymId)
+        return active.size
     }
 
 }

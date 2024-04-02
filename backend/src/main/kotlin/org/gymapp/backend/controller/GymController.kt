@@ -48,5 +48,12 @@ class GymController(
         return ResponseEntity.ok(gymService.getGymMemberFull(memberId))
     }
 
+    @GetMapping("/{gymId}/live")
+    fun getLiveStatus(
+        @PathVariable gymId: String
+    ): ResponseEntity<Int> {
+        return ResponseEntity.ok(gymService.getLiveStatus(gymId))
+    }
+
 
 }
