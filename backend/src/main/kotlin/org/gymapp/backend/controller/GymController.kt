@@ -1,6 +1,7 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.model.GymMemberDtoFull
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymClassDto
@@ -38,6 +39,13 @@ class GymController(
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<List<GymClassDto>> {
         return ResponseEntity.ok(gymService.getGymClasses(common.getCurrentUser(jwt), gymId))
+    }
+
+    @GetMapping("/members/{memberId}")
+    fun getGymMemberFull(
+        @PathVariable memberId: String,
+    ): ResponseEntity<GymMemberDtoFull> {
+        return ResponseEntity.ok(gymService.getGymMemberFull(memberId))
     }
 
 

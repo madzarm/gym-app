@@ -22,9 +22,10 @@ class GymService(
     @Autowired private val gymMapper: GymMapper,
     @Autowired private val common: Common,
     @Autowired private val gymUserMapper: GymUserMapper,
-    @Autowired private val accessCodeService: AccessCodeService,
     @Autowired private val gymOwnerRepository: GymOwnerRepository,
-    @Autowired private val gymClassMapper: GymClassMapper
+    @Autowired private val gymClassMapper: GymClassMapper,
+    @Autowired private val gymMemberRepository: GymMemberRepository,
+    @Autowired private val gymMemberMapper: GymMemberMapper,
 ) {
 
     @Transactional
@@ -55,6 +56,13 @@ class GymService(
         gymOwnerRepository.save(owner)
 
         return gymUserMapper.modelToDto(gymUser)
+    }
+
+    fun getGymMemberFull(userId: String): GymMemberDtoFull? {
+        val gymMember = gymMemberRepository.findById(userId)
+            .orElseThrow { IllegalArgumentException("Member not found") }
+
+        return gymMemberMapper.modelToDtoFull(gymMember)
     }
 
     fun getGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
