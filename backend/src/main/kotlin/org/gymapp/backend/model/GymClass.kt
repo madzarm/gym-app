@@ -15,6 +15,11 @@ class GymClass (
     var maxParticipants: Int,
     @ManyToOne val trainer: GymTrainer,
     @ManyToOne val gym: Gym,
-    @ManyToMany(mappedBy = "classes") val participants: MutableList<GymMember> = mutableListOf()
+    @ManyToMany
+    @JoinTable(
+        name = "gym_member_classes",
+        joinColumns = [JoinColumn(name = "class_id")],
+        inverseJoinColumns = [JoinColumn(name = "member_id")])
+    val participants: MutableList<GymMember> = mutableListOf()
 ){
 }
