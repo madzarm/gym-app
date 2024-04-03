@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "690451916424",
+    "project_id": "fitra-5b183",
+    "storage_bucket": "fitra-5b183.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690451916424:android:2355d6ef9ce2322a76213d",
+        "android_client_info": {
+          "package_name": "com.example.gym_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbf0LEgrgD6WGiLrLrVLbSJ_7HqNoAMtk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

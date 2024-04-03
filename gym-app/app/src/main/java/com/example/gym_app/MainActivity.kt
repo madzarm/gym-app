@@ -19,6 +19,7 @@ import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.AuthViewModel
+import com.google.firebase.FirebaseApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ class MainActivity : ComponentActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     account = Auth0("Ro2WqbNVwQMZIIYVNVX5POPqHK0EIcGH", "dev-jj2awpllib7dacna.us.auth0.com")
-
+      FirebaseApp.initializeApp(this)
     val authViewModel: AuthViewModel by viewModels()
 
     setContent {

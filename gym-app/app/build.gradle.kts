@@ -1,8 +1,7 @@
 plugins {
-//  kotlin("kapt")
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
-//  id("com.google.dagger.hilt.android")
+  id("com.google.gms.google-services")
 }
 
 android {
@@ -70,12 +69,7 @@ dependencies {
   implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
   implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
   implementation("com.google.android.material:material:+")
-//  implementation("androidx.hilt:hilt-navigation-fragment:1.2.0")
-//  implementation("com.google.dagger:hilt-android:2.49")
-//  kapt("com.google.dagger:hilt-android-compiler:2.44")
-//  implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-}
 
-//kapt {
-//  correctErrorTypes = true
-//}
+  implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
+  implementation("com.google.firebase:firebase-messaging")
+}
