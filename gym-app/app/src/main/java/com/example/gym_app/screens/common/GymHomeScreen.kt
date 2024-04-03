@@ -78,7 +78,7 @@ fun GymHomeScreen(navController: NavController) {
           navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
         }
       }
-      composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(navHostController, viewModel) }
+      composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(viewModel) }
       composable(AppRoutes.MANAGE_CLASSES_SCREEN) {
         ManageClassesScreen(
           navHostController,

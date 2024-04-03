@@ -23,9 +23,18 @@ class SharedViewModel : ViewModel() {
     private val _gymClasses = MutableLiveData<List<GymClassDto>>()
     val gymClasses: LiveData<List<GymClassDto>> = _gymClasses
 
+    private val _liveStatus = MutableLiveData<Int>()
+    val liveStatus: LiveData<Int> = _liveStatus
+
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
     }
+
+    fun getLiveStatus(context: Context) =
+        viewModelScope.launch {
+            val liveStatus: Int = ApiClient.apiService.getLiveStatus("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymUser.value?.gym?.id ?: "")
+            _liveStatus.value = liveStatus
+        }
 
     fun generateAccessCode(context: Context) =
         viewModelScope.launch {

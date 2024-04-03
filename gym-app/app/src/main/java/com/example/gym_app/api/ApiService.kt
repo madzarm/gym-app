@@ -54,4 +54,7 @@ interface ApiService {
 
     @POST("/members/classes/{classId}")
     suspend fun registerToClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String): GymMemberDto
+
+    @GET("/gyms/{gymId}/live")
+    suspend fun getLiveStatus(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): Int
 }

@@ -1,14 +1,20 @@
 package com.example.gym_app.screens.member
 
-import android.annotation.SuppressLint
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import com.example.gym_app.viewModels.SharedViewModel
 
-@SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun LiveStatusScreen(navController: NavController, viewModel: SharedViewModel) {
+fun LiveStatusScreen(viewModel: SharedViewModel) {
 
-  Text(text = viewModel.selectedGymUser.value?.gym?.code ?: "Unknown")
+  val context = LocalContext.current
+  LaunchedEffect(true) {
+    viewModel.getLiveStatus(context)
+  }
+
+  val liveStatus = viewModel.liveStatus.value
+
+  Text(text = liveStatus?.toString() ?: "Unknown")
 }
