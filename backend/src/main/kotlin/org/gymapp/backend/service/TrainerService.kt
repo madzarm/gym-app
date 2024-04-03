@@ -113,4 +113,13 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    fun deleteClass(currentUser: User, classId: String): GymTrainerDto {
+        val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
+        val trainer = gymClass.trainer
+
+        gymClassRepository.delete(gymClass)
+
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
 }
