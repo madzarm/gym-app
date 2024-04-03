@@ -92,4 +92,15 @@ class GymClassViewModel : ViewModel() {
         onError(e.message ?: "An error occurred")
       }
     }
+
+    fun deleteGymClass(context: Context, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+        viewModelScope.launch {
+            try {
+                ApiClient.apiService.deleteGymClass("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymClass.value?.id ?: "")
+                onSuccess()
+            } catch (e: HttpException) {
+                onFailure(readErrorMessage(e))
+            }
+        }
+    }
 }

@@ -11,6 +11,7 @@ import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -45,6 +46,9 @@ interface ApiService {
 
     @PUT("/trainers/gyms/classes/{classId}")
     suspend fun updateGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Body request: UpdateClassRequest): GymTrainerDto
+
+    @DELETE("/trainers/gyms/classes/{classId}")
+    suspend fun deleteGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String): GymTrainerDto
 
     @POST("/trainers/gyms/{gymId}/classes")
     suspend fun createGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: UpdateClassRequest): GymTrainerDto

@@ -5,6 +5,7 @@ import android.app.TimePickerDialog
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,10 +40,13 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
   CustomBackground(title = gymClass.value?.name ?: "Unknown class") {
     Scaffold(
       modifier =
-        Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
+        Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp))
     ) { innerPadding ->
       Column(
-        modifier = Modifier.fillMaxHeight().fillMaxWidth().padding(top = innerPadding.calculateTopPadding(), start = 56.dp, end = 56.dp),
+        modifier =
+          Modifier.fillMaxHeight()
+            .fillMaxWidth()
+            .padding(top = innerPadding.calculateTopPadding(), start = 56.dp, end = 56.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
@@ -73,20 +77,38 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         )
         ShowDatePicker(viewModel)
         ShowTimePicker(viewModel)
-        Button(
-          onClick = {
-            viewModel.updateGymClass(context)
+        Row {
+          Button(
+            onClick = {
+              viewModel.updateGymClass(context)
 
-            navHostController.popBackStack()
-          },
-          modifier = Modifier.padding(top = 16.dp),
-        ) {
-          Text(text = "Update")
+              navHostController.popBackStack()
+            },
+            modifier = Modifier.padding(top = 16.dp),
+          ) {
+            Text(text = "Update")
+          }
+          Button(
+            onClick = {
+              viewModel.deleteGymClass(context = context, onSuccess = {
+                Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                navHostController.popBackStack()
+              },
+                onFailure = {
+                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                })
+            },
+            modifier = Modifier.padding(top = 16.dp),
+          ) {
+            Text(text = "Delete")
+          }
         }
+
       }
     }
   }
 }
+
 @Composable
 fun ShowTimePicker(viewModel: GymClassViewModel) {
   val context = LocalContext.current
@@ -104,18 +126,28 @@ fun ShowTimePicker(viewModel: GymClassViewModel) {
     label = { Text("Time") },
     modifier = Modifier,
     trailingIcon = {
-      Button(onClick = {
-        TimePickerDialog(context, { _, hourOfDay, minute ->
-          val selectedTime = String.format("%02d:%02d", hourOfDay, minute)
-          timeText = selectedTime
-          viewModel.updateGymClass { copy(dateTime = "${date}T$selectedTime") }
-        }, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), true).show()
-      }) {
+      Button(
+        onClick = {
+          TimePickerDialog(
+              context,
+              { _, hourOfDay, minute ->
+                val selectedTime = String.format("%02d:%02d", hourOfDay, minute)
+                timeText = selectedTime
+                viewModel.updateGymClass { copy(dateTime = "${date}T$selectedTime") }
+              },
+              calendar.get(Calendar.HOUR_OF_DAY),
+              calendar.get(Calendar.MINUTE),
+              true,
+            )
+            .show()
+        }
+      ) {
         Text("Pick Time")
       }
-    }
+    },
   )
 }
+
 @Composable
 fun ShowDatePicker(viewModel: GymClassViewModel) {
   val context = LocalContext.current
@@ -129,7 +161,7 @@ fun ShowDatePicker(viewModel: GymClassViewModel) {
   val (date, time) = extractDateAndTime(gymClassDto?.dateTime)
   OutlinedTextField(
     value = date!!,
-    label = {Text(text = "Date")},
+    label = { Text(text = "Date") },
     readOnly = true,
     onValueChange = { viewModel.updateGymClass { copy(dateTime = "${date}T${time}") } },
     trailingIcon = {
