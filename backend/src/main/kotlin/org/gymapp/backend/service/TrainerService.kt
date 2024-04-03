@@ -3,6 +3,7 @@ package org.gymapp.backend.service
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addClass
 import org.gymapp.backend.extensions.getGym
+import org.gymapp.backend.extensions.getParticipantsFcmTokens
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
@@ -15,6 +16,7 @@ import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
@@ -27,7 +29,8 @@ class TrainerService(
     @Autowired private val gymTrainerMapper: GymTrainerMapper,
     @Autowired private val gymTrainerRepository: GymTrainerRepository,
     @Autowired private val gymUserMapper: GymUserMapper,
-    private val gymClassRepository: GymClassRepository,
+    @Autowired private val gymClassRepository: GymClassRepository,
+    @Autowired private val notificationService: NotificationService,
 ) {
 
     fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
@@ -113,11 +116,15 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    @Transactional
     fun deleteClass(currentUser: User, classId: String): GymTrainerDto {
         val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
         val trainer = gymClass.trainer
 
         gymClassRepository.delete(gymClass)
+
+        val fcmTokens = gymClass.getParticipantsFcmTokens()
+        notificationService.sendNotifications(fcmTokens, "Class cancelled!", "The class ${gymClass.name} has been cancelled!")
 
         return gymTrainerMapper.modelToDto(trainer)
     }

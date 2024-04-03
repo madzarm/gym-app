@@ -23,3 +23,7 @@ fun GymClass.addParticipant(member: GymMember) {
     member.classes.add(this)
     this.participants.add(member)
 }
+
+fun GymClass.getParticipantsFcmTokens(): List<String> {
+    return this.participants.map { it.gymUser.user.fcmToken ?: "" }
+}
