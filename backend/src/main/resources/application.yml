@@ -18,3 +18,6 @@ logging:
     org:
       springframework:
         security=DEBUG:
+
+firebase:
+  apiKey_path: ${FIREBASE_API_KEY_PATH}
