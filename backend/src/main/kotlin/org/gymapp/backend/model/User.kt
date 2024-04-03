@@ -14,6 +14,7 @@ class User(
     var profilePicUrl: String?,
     var createdAt: LocalDateTime?,
     var updatedAt: LocalDateTime?,
+    var fcmToken: String? = null,
     @OneToMany(mappedBy = "user") val gymUsers: MutableList<GymUser> = mutableListOf()
 ) {
 
