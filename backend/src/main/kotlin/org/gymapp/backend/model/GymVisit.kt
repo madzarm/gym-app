@@ -21,5 +21,5 @@ class GymVisit (
 
     val date: LocalDateTime = LocalDateTime.now(),
 
-    val duration: Duration? = null,
+    var duration: Duration? = null,
 )

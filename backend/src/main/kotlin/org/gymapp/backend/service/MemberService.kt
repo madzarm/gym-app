@@ -13,6 +13,8 @@ import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -95,6 +97,17 @@ class MemberService(
             gymMember = member
         )
 
+        gymVisitRepository.save(visit)
+        return gymVisitMapper.modelToDto(visit)
+    }
+
+    fun leaveGym(currentUser: User, gymId: String): GymVisitDto? {
+        val member = currentUser.getMember(gymId)
+
+        val visit: GymVisit = gymVisitRepository.findByGymIdAndGymMemberIdAndDurationNull(gymId, member.id)
+            .firstOrNull() ?: throw IllegalArgumentException("User is not in the gym")
+
+        visit.duration = Duration.between(visit.date, LocalDateTime.now())
         gymVisitRepository.save(visit)
         return gymVisitMapper.modelToDto(visit)
     }

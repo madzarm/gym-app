@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
@@ -37,12 +38,20 @@ class MemberController (
         return ResponseEntity.ok().body(memberService.getMember(common.getCurrentUser(jwt), gymId))
     }
 
-    @PostMapping("/gyms/{gymId}/gym-visit")
+    @PostMapping("/gyms/{gymId}/visit")
     fun visitGym(
         @PathVariable gymId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<GymVisitDto> {
         return ResponseEntity.ok().body(memberService.visitGym(common.getCurrentUser(jwt), gymId))
+    }
+
+    @PutMapping("/gyms/{gymId}/leave")
+    fun leaveGym(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<GymVisitDto> {
+        return ResponseEntity.ok().body(memberService.leaveGym(common.getCurrentUser(jwt), gymId))
     }
 
 }
