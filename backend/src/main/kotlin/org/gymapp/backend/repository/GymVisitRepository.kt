@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository
 @Repository
 interface GymVisitRepository : JpaRepository<GymVisit, String>  {
 
-    fun findByGymIdAndDurationNotNull(gymId: String): List<GymVisit>
+    fun findByGymIdAndDurationNull(gymId: String): List<GymVisit>
     fun findByGymIdAndGymMemberIdAndDurationNull(gymId: String, id: String?): List<GymVisit>
 
 }

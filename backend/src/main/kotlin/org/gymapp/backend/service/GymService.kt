@@ -86,7 +86,7 @@ class GymService(
     }
 
     fun getLiveStatus(gymId: String): Int {
-        val active = gymVisitRepository.findByGymIdAndDurationNotNull(gymId)
+        val active = gymVisitRepository.findByGymIdAndDurationNull(gymId)
         return active.size
     }
 
