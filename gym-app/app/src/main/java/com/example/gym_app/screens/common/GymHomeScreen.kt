@@ -26,6 +26,7 @@ import com.example.gym_app.common.Role
 import com.example.gym_app.screens.member.GroupTrainingsScreen
 import com.example.gym_app.screens.member.GymClassDetailsScreen
 import com.example.gym_app.screens.member.LiveStatusScreen
+import com.example.gym_app.screens.member.QeCodeScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
 import com.example.gym_app.screens.trainer.CreateClassScreen
 import com.example.gym_app.screens.trainer.ManageClassesScreen
@@ -94,12 +95,13 @@ fun GymHomeScreen(navController: NavController) {
       }
       composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
-      composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) { GymClassDetailsScreen(navHostController, gymClassViewModel, viewModel)}
+      composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) {
+        GymClassDetailsScreen(navHostController, gymClassViewModel, viewModel)
+      }
+      composable(AppRoutes.QR_CODE_SCREEN) { QeCodeScreen(sharedViewModel = viewModel) }
     }
   }
 }
-
-
 
 sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object GroupTrainings :
@@ -111,6 +113,8 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
     GymScreen(AppRoutes.MANAGE_CLASSES_SCREEN, "Manage classes", Role.ROLE_TRAINER)
 
   object AccessCode : GymScreen(AppRoutes.ACCESS_CODE_SCREEN, "Access code", Role.ROLE_ADMIN)
+
+  object QrCode : GymScreen(AppRoutes.QR_CODE_SCREEN, "Qr code", Role.ROLE_MEMBER)
 }
 
 val gymScreens =
@@ -119,4 +123,5 @@ val gymScreens =
     GymScreen.LiveStatus,
     GymScreen.GroupTrainings,
     GymScreen.AccessCode,
+    GymScreen.QrCode
   )

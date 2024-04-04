@@ -69,6 +69,7 @@ dependencies {
   implementation("com.squareup.moshi:moshi-kotlin:1.12.0")
   implementation("androidx.compose.runtime:runtime-livedata:1.6.1")
   implementation("com.google.android.material:material:+")
+  implementation("com.google.zxing:core:3.4.1")
 
   implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
   implementation("com.google.firebase:firebase-messaging")

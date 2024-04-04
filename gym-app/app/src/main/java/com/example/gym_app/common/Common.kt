@@ -11,9 +11,13 @@ import android.provider.MediaStore
 import android.util.Base64
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import com.google.zxing.common.BitMatrix
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import org.gymapp.library.response.ExceptionResult
+import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.ByteArrayOutputStream
 import java.time.Duration
@@ -96,4 +100,32 @@ fun formatDuration(durationStr: String?): String? {
         hours > 0 -> "${hours}h, ${minutes}m"
         else -> "${minutes}m"
     }
+}
+
+fun generateQRCode(content: String, width: Int = 500, height: Int = 500): Bitmap? {
+    return try {
+        val bitMatrix: BitMatrix = MultiFormatWriter().encode(
+            content,
+            BarcodeFormat.QR_CODE,
+            width,
+            height
+        )
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                bitmap.setPixel(x, y, if (bitMatrix[x, y]) 0xFF000000.toInt() else 0xFFFFFFFF.toInt())
+            }
+        }
+        bitmap
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun createQRCodeContent(jwt: String, gymId: String): String {
+    val jsonObject = JSONObject()
+    jsonObject.put("jwt", jwt)
+    jsonObject.put("gymId", gymId)
+    return jsonObject.toString()
 }
