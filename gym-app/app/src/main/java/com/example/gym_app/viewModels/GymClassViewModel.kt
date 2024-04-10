@@ -72,14 +72,14 @@ class GymClassViewModel : ViewModel() {
         ReviewGymClassRequest(
           review = _gymClassReview.value?.review ?: "",
           rating = _gymClassReview.value?.rating ?: 1,
-          classId = _gymClassReview.value?.gymClassDto?.id ?: "",
+          classId = _selectedGymClass.value?.id ?: "",
           memberId = memberId,
         )
       val trainerReview =
         ReviewTrainerRequest (
             review = _trainerReview.value?.review ?: "",
             rating = _trainerReview.value?.rating ?: 1,
-            trainerId = _trainerReview.value?.trainerId ?: "",
+            trainerId = _selectedGymClass.value?.trainerId ?: "",
             memberId = memberId,
         )
       try {

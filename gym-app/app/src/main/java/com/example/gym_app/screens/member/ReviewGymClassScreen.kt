@@ -54,6 +54,8 @@ fun ReviewGymClassScreen(
   val user = sharedViewModel.selectedGymUser.value
   val context = LocalContext.current
 
+  println(viewModel.selectedGymClass.value?.id ?: "Unknown")
+
   CustomBackground(title = "Reviewing class: ${gymClass.value?.name ?: "Unknown"}") {
     Scaffold(
       modifier =

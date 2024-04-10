@@ -78,4 +78,7 @@ interface ApiService {
 
     @POST("/members/gyms/review-trainer")
     suspend fun reviewTrainer(@Header("Authorization") authHeader: String, @Body request: ReviewTrainerRequest): GymTrainerReviewDto
+
+    @GET("/members/gyms/{gymId}/classes-for-review")
+    suspend fun getGymClassesForReview(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
 }

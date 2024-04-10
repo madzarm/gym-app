@@ -49,8 +49,12 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
 
   val selectedGymUser = sharedViewModel.selectedGymUser.value
   val gymClasses = sharedViewModel.gymClasses.observeAsState()
+  val gymClassesForReview = sharedViewModel.gymClassesForReview.observeAsState()
 
-  LaunchedEffect(true) { sharedViewModel.getGymClasses(context, selectedGymUser?.gym?.id ?: "") }
+  LaunchedEffect(true) {
+    sharedViewModel.getGymClasses(context, selectedGymUser?.gym?.id ?: "")
+    sharedViewModel.getGymClassesForReview(context, selectedGymUser?.gym?.id ?: "")
+  }
 
   CustomBackground(title = "All classes") {
     val listState = rememberLazyListState()
@@ -67,7 +71,7 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
         val combinedList =
           combineLists(
             filterOldClasses(gymClasses.value ?: emptyList()),
-            filterUpcomingClasses(gymClasses.value ?: emptyList()),
+            gymClassesForReview.value ?: emptyList(),
           )
 
         items(combinedList) { item ->
