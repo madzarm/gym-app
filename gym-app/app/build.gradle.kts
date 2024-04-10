@@ -71,6 +71,20 @@ dependencies {
   implementation("com.google.android.material:material:+")
   implementation("com.google.zxing:core:3.4.1")
 
+  implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.14")
+
+  // For `compose`. Creates a `ChartStyle` based on an M2 Material Theme.
+  implementation("com.patrykandpatrick.vico:compose-m2:2.0.0-alpha.14")
+
+  // For `compose`. Creates a `ChartStyle` based on an M3 Material Theme.
+  implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.14")
+
+  // Houses the core logic for charts and other elements. Included in all other modules.
+  implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.14")
+
+  // For the view system.
+  implementation("com.patrykandpatrick.vico:views:2.0.0-alpha.14")
+
   implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
   implementation("com.google.firebase:firebase-messaging")
 }

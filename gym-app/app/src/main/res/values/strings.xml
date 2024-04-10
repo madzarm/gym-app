@@ -3,4 +3,5 @@
     <string name="com_auth0_domain">dev-jj2awpllib7dacna.us.auth0.com</string>
     <string name="com_auth0_scheme">demo</string>
     <string name="default_notification_channel_id">default</string>
+    <string name="series_x">Series %d</string>
 </resources>

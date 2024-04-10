@@ -6,6 +6,7 @@ enum class Role {
 }
 
 object AppRoutes {
+    const val STATISTICS_SCREEN = "StatisticsScreen"
     const val REQUEST_PERMISSION_SCREEN = "RequestPermissionScreen"
     const val QR_CODE_SCREEN = "QrCodeScreen"
     const val GYM_CLASS_DETAILS_SCREEN = "GymClassDetailsScreen"

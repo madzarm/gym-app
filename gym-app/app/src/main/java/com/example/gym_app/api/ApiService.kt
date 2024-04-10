@@ -8,6 +8,7 @@ import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
+import org.gymapp.library.response.GymVisitDto
 import org.gymapp.library.response.UserDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -61,4 +62,7 @@ interface ApiService {
 
     @GET("/gyms/{gymId}/live")
     suspend fun getLiveStatus(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): Int
+
+    @GET("/gyms/{gymId}/gymVisits")
+    suspend fun getGymVisits(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymVisitDto>
 }
