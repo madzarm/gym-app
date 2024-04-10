@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -36,6 +37,8 @@ import java.util.Calendar
 fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymClassViewModel) {
   val context = LocalContext.current
   val gymClass = viewModel.selectedGymClass.observeAsState()
+  var showConfirmationDialog by remember { mutableStateOf(false) }
+  val participantsCount = gymClass.value?.participantsIds?.size ?: 0
   val gymClassUpdatable = viewModel.updatedGymClass.observeAsState()
   CustomBackground(title = gymClass.value?.name ?: "Unknown class") {
     Scaffold(
@@ -89,15 +92,48 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
           ) {
             Text(text = "Update")
           }
+          if (showConfirmationDialog) {
+            AlertDialog(
+              onDismissRequest = { showConfirmationDialog = false },
+              title = { Text("Confirm Deletion") },
+              text = {
+                Text("Are you sure you want to delete a class that has $participantsCount participants? Participants will be notified!")
+              },
+              confirmButton = {
+                Button(
+                  onClick = {
+                    viewModel.deleteGymClass(context = context, onSuccess = {
+                      Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                      navHostController.popBackStack()
+                    }, onFailure = {
+                      Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                    })
+                    showConfirmationDialog = false
+                  }
+                ) {
+                  Text("Delete")
+                }
+              },
+              dismissButton = {
+                Button(onClick = { showConfirmationDialog = false }) {
+                  Text("Cancel")
+                }
+              }
+            )
+          }
+
           Button(
             onClick = {
-              viewModel.deleteGymClass(context = context, onSuccess = {
-                Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
-                navHostController.popBackStack()
-              },
-                onFailure = {
-                    Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+              if (participantsCount > 0) {
+                showConfirmationDialog = true
+              } else {
+                viewModel.deleteGymClass(context = context, onSuccess = {
+                  Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                  navHostController.popBackStack()
+                }, onFailure = {
+                  Toast.makeText(context, it, Toast.LENGTH_LONG).show()
                 })
+              }
             },
             modifier = Modifier.padding(top = 16.dp),
           ) {
