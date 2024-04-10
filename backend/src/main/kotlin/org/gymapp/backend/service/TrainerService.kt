@@ -4,6 +4,7 @@ import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addClass
 import org.gymapp.backend.extensions.getGym
 import org.gymapp.backend.extensions.getParticipantsFcmTokens
+import org.gymapp.backend.extensions.getUpcomingClasses
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
@@ -77,6 +78,13 @@ class TrainerService(
     fun getTrainer(currentUser: User, gymId: String): GymTrainerDto {
         val trainer = currentUser.getTrainer(gymId)
 
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    fun getTrainerWithUpcomingClasses(currentUser: User, gymId: String): GymTrainerDto {
+        val trainer = currentUser.getTrainer(gymId)
+        val upcomingClasses = trainer.getUpcomingClasses()
+        trainer.classes = upcomingClasses.toMutableList()
         return gymTrainerMapper.modelToDto(trainer)
     }
 

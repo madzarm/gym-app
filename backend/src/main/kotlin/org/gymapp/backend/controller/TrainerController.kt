@@ -22,6 +22,11 @@ class TrainerController(
         return trainerService.getTrainer(common.getCurrentUser(jwt), gymId)
     }
 
+    @GetMapping("/gyms/{gymId}/upcoming-classes")
+    fun getTrainerWithUpcomingClasses(@AuthenticationPrincipal jwt: Jwt, @PathVariable("gymId") gymId: String): GymTrainerDto {
+        return trainerService.getTrainerWithUpcomingClasses(common.getCurrentUser(jwt), gymId)
+    }
+
     @PostMapping("/gyms/{gymId}/classes")
     fun createClass(
         @AuthenticationPrincipal jwt: Jwt,

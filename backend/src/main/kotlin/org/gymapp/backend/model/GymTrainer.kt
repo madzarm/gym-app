@@ -6,7 +6,7 @@ import jakarta.persistence.*
 class GymTrainer (
     @Id val id: String? = null,
     @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
-    @OneToMany(mappedBy = "trainer") val classes: MutableList<GymClass> = mutableListOf()
+    @OneToMany(mappedBy = "trainer") var classes: MutableList<GymClass> = mutableListOf()
 ) {
 
     companion object {

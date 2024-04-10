@@ -21,7 +21,7 @@ class GymClass (
         joinColumns = [JoinColumn(name = "class_id")],
         inverseJoinColumns = [JoinColumn(name = "member_id")])
     val participants: MutableList<GymMember> = mutableListOf(),
-    @OneToMany(mappedBy = "gymClass")
+    @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
     val reviews: List<GymClassReview> = mutableListOf()
 ){
 }

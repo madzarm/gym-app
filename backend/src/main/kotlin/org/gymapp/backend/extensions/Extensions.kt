@@ -1,6 +1,7 @@
 package org.gymapp.backend.extensions
 
 import org.gymapp.backend.model.*
+import java.time.LocalDateTime
 
 fun GymTrainer.addClass(gymClass: GymClass) {
     this.classes.add(gymClass)
@@ -26,4 +27,8 @@ fun GymClass.addParticipant(member: GymMember) {
 
 fun GymClass.getParticipantsFcmTokens(): List<String> {
     return this.participants.map { it.gymUser.user.fcmToken ?: "" }
+}
+
+fun GymTrainer.getUpcomingClasses(): List<GymClass> {
+    return this.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) }
 }
