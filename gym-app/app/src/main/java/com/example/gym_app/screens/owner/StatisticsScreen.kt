@@ -32,6 +32,7 @@ import com.patrykandpatrick.vico.compose.component.shape.dashedShape
 import com.patrykandpatrick.vico.compose.component.shape.markerCorneredShape
 import com.patrykandpatrick.vico.compose.component.shape.shader.color
 import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
+import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.chart.dimensions.HorizontalDimensions
 import com.patrykandpatrick.vico.core.chart.insets.Insets
 import com.patrykandpatrick.vico.core.component.marker.MarkerComponent
@@ -43,6 +44,7 @@ import com.patrykandpatrick.vico.core.context.MeasureContext
 import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
+import com.patrykandpatrick.vico.core.model.ExtraStore
 import com.patrykandpatrick.vico.core.model.lineSeries
 
 @Composable
@@ -65,11 +67,12 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
       lineSeries {
         series(y = yAxisPerHour, x = xAxisPerHour)
       } }
-
     modelProducerPerDay.tryRunTransaction {
       lineSeries {
         series(y = yAxisPerDay, x = xAxisPerDay)
-      } }
+      }
+    }
+
   }
 
   Column {
@@ -111,8 +114,13 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
             )
           ),
           startAxis = rememberStartAxis(guideline = null),
-          bottomAxis = rememberBottomAxis(),
-          persistentMarkers = mapOf(getCurrentHour() to marker),
+          bottomAxis = rememberBottomAxis(
+            valueFormatter = { value, _, _ ->
+              val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+              daysOfWeek.getOrNull(value.toInt() - 1) ?: ""
+            },
+            ),
+          persistentMarkers = mapOf(getCurrentDay() to marker),
         ),
         modelProducerPerDay,
         marker = marker,
@@ -124,6 +132,14 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
 fun getCurrentHour(): Float {
   return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
     java.time.LocalDateTime.now().hour.toFloat()
+  } else {
+    TODO("VERSION.SDK_INT < O")
+  }
+}
+
+fun getCurrentDay(): Float {
+  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    java.time.LocalDate.now().dayOfWeek.value.toFloat()
   } else {
     TODO("VERSION.SDK_INT < O")
   }
