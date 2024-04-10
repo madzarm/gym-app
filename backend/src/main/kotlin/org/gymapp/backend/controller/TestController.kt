@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -53,7 +55,7 @@ class TestController (
     fun generateRandomVisits (
         @PathParam("gymId") gymId: String,
     ): ResponseEntity<List<GymVisitDto>>{
-        return ResponseEntity.ok(generateRandomVisits(500, gymId).map { gymVisitMapper.modelToDto(it) })
+        return ResponseEntity.ok(generateRandomVisits(2000, gymId).map { gymVisitMapper.modelToDto(it) })
     }
 
 
@@ -64,10 +66,20 @@ class TestController (
             18 to 0.135f, 19 to 0.135f, 20 to 0.120f, 21 to 0.09f, 22 to 0.06f
         )
 
-        val gym = gymService.findById(gymId) // Assuming gymService is defined elsewhere
+        val dayProbabilities = mapOf(
+            1 to 0.14f, // Monday
+            2 to 0.14f, // Tuesday
+            3 to 0.14f, // Wednesday
+            4 to 0.14f, // Thursday
+            5 to 0.14f, // Friday
+            6 to 0.20f, // Saturday
+            7 to 0.10f  // Sunday
+        )
+
+
+        val gym = gymService.findById(gymId)
         val gymMembers = gym.gymUsers.map { it.gymMember }
 
-        // Check if there are gym members available
         if (gymMembers.isEmpty()) {
             throw IllegalStateException("No gym members found for gym ID: $gymId")
         }
@@ -79,6 +91,13 @@ class TestController (
             cumulativeProbabilities.add(time to cumSum)
         }
 
+        val cumulativeDayProbabilities = mutableListOf<Pair<Int, Float>>()
+        var dayCumSum = 0f
+        dayProbabilities.forEach { (day, prob) ->
+            dayCumSum += prob
+            cumulativeDayProbabilities.add(day to dayCumSum)
+        }
+
         val gymVisits = mutableListOf<GymVisit>()
         val random = Random()
 
@@ -86,17 +105,18 @@ class TestController (
         val stdDeviation = 15
 
         repeat(n) {
+            val dayRand = random.nextFloat()
+            val chosenDayOfWeek = cumulativeDayProbabilities.first { it.second >= dayRand }.first
+            val chosenDate = LocalDate.now().minusDays((LocalDate.now().dayOfWeek.value - chosenDayOfWeek + 7) % 7L)
+
+
             val r = random.nextFloat()
             val hour = cumulativeProbabilities.first { it.second >= r }.first
 
             var durationMinutes = (random.nextGaussian() * stdDeviation + meanDuration).roundToInt()
             durationMinutes = durationMinutes.coerceIn(40, 110)
 
-            val visitTime = LocalDateTime.now()
-                .withHour(hour)
-                .withMinute(0)
-                .withSecond(0)
-                .withNano(0)
+            val visitTime = LocalDateTime.of(chosenDate, LocalTime.of(hour, 0))
 
             val gymMember = gymMembers[random.nextInt(gymMembers.size)]
 
