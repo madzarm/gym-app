@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface GymClassReviewRepository: JpaRepository<GymClassReview, String>{
+
+    fun findByMemberId(memberId: String): List<GymClassReview>
 }

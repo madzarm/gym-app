@@ -4,14 +4,13 @@ import jakarta.persistence.EntityManager
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addParticipant
 import org.gymapp.backend.extensions.getMember
+import org.gymapp.backend.mapper.GymClassMapper
 import org.gymapp.backend.mapper.GymMemberMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.mapper.GymVisitMapper
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
-import org.gymapp.library.response.GymMemberDto
-import org.gymapp.library.response.GymUserDto
-import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -28,6 +27,7 @@ class MemberService(
     @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val entityManager: EntityManager, private val gymClassRepository: GymClassRepository,
     @Autowired private val gymVisitMapper: GymVisitMapper,
+    @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
 ) {
 
@@ -110,6 +110,17 @@ class MemberService(
         visit.duration = Duration.between(visit.date, LocalDateTime.now())
         gymVisitRepository.save(visit)
         return gymVisitMapper.modelToDto(visit)
+    }
+
+    fun getClassesForReview(currentUser: User, gymId: String): List<GymClassDto> {
+        val member = currentUser.getMember(gymId)
+
+        // TODO uncomment this when testing is finished
+        // val finishedClasses = member.classes.filter { it.dateTime.plusMinutes(it.duration.toMinutes()).isBefore(LocalDateTime.now()) }
+        val finishedClasses = member.classes.filter { it.dateTime.isBefore(LocalDateTime.now()) }
+        val nonReviewedFinishedClasses = finishedClasses.filter { it.reviews.none { review -> review.member.id == member.id } }
+
+        return gymClassMapper.modelsToDtos(nonReviewedFinishedClasses)
     }
 
 

@@ -6,10 +6,7 @@ import org.gymapp.backend.service.ReviewService
 import org.gymapp.backend.service.MemberService
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
-import org.gymapp.library.response.GymClassReviewDto
-import org.gymapp.library.response.GymMemberDto
-import org.gymapp.library.response.GymTrainerReviewDto
-import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -76,6 +73,14 @@ class MemberController (
         @AuthenticationPrincipal jwt: Jwt,
     ): ResponseEntity<GymTrainerReviewDto> {
         return ResponseEntity.ok().body(reviewService.reviewTrainer(common.getCurrentUser(jwt), request))
+    }
+
+    @GetMapping("/gyms/{gymId}/classes-for-review")
+    fun getClassesForReview(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<GymClassDto>> {
+        return ResponseEntity.ok().body(memberService.getClassesForReview(common.getCurrentUser(jwt), gymId))
     }
 
 }

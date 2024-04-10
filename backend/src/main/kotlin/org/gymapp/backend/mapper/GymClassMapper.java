@@ -15,6 +15,7 @@ public interface GymClassMapper {
 
     @Mapping(target = "duration", source = "duration", qualifiedByName = "durationToString")
     @Mapping(target = "participantsIds", source = "participants", qualifiedByName = "participantsToIds")
+    @Mapping(target = "trainerId", source = "trainer.id")
     GymClassDto modelToDto(GymClass gymClass);
 
     List<GymClassDto> modelsToDtos(List<GymClass> gymClasses);
