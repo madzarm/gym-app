@@ -47,7 +47,9 @@ import com.patrykandpatrick.vico.core.model.lineSeries
 
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
-  val modelProducer = remember { CartesianChartModelProducer.build() }
+  val modelProducerPerHour = remember { CartesianChartModelProducer.build() }
+  val modelProducerPerDay = remember { CartesianChartModelProducer.build() }
+
   val statisticsViewModel: StatisticsViewModel = viewModel()
 
   val context = LocalContext.current
@@ -55,10 +57,18 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
 
   LaunchedEffect(Unit) {
     statisticsViewModel.getGymVisits(context, gymId)
-    val (xAxis, yAxis) = statisticsViewModel.prepareGraphData()
-    modelProducer.tryRunTransaction {
+
+    val (xAxisPerHour, yAxisPerHour) = statisticsViewModel.prepareGraphData()
+    val (xAxisPerDay, yAxisPerDay) = statisticsViewModel.prepareGraphDataPerDay()
+
+    modelProducerPerHour.tryRunTransaction {
       lineSeries {
-        series(y = yAxis, x = xAxis)
+        series(y = yAxisPerHour, x = xAxisPerHour)
+      } }
+
+    modelProducerPerDay.tryRunTransaction {
+      lineSeries {
+        series(y = yAxisPerDay, x = xAxisPerDay)
       } }
   }
 
@@ -81,7 +91,30 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
           bottomAxis = rememberBottomAxis(),
           persistentMarkers = mapOf(getCurrentHour() to marker),
         ),
-        modelProducer,
+        modelProducerPerHour,
+        marker = marker,
+      )
+    }
+
+    Column {
+      Text(
+        text = "Gym Visit Trends by Day",
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(16.dp),
+      )
+      val marker = rememberMarker()
+      CartesianChartHost(
+        rememberCartesianChart(
+          rememberLineCartesianLayer(
+            listOf(
+              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary)),
+            )
+          ),
+          startAxis = rememberStartAxis(guideline = null),
+          bottomAxis = rememberBottomAxis(),
+          persistentMarkers = mapOf(getCurrentHour() to marker),
+        ),
+        modelProducerPerDay,
         marker = marker,
       )
     }

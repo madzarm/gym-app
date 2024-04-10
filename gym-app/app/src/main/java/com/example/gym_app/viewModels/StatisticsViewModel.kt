@@ -4,13 +4,13 @@ import android.content.Context
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import kotlinx.coroutines.launch
 import org.gymapp.library.response.GymVisitDto
+import java.time.LocalDate
+import kotlin.math.roundToInt
 
 class StatisticsViewModel : ViewModel() {
 
@@ -30,29 +30,59 @@ class StatisticsViewModel : ViewModel() {
       }
   }
 
+
   fun prepareGraphData(): Pair<List<Int>, List<Int>> {
-    // Initialize the map to store counts of visits for each hour the gym is open
-    val visitCountsPerHour = (7..22).associateWith { 0 }.toMutableMap()
+    val visitCountsPerHourPerDay = mutableMapOf<Int, MutableList<Int>>()
+
+    (7..22).forEach { hour -> visitCountsPerHourPerDay[hour] = mutableListOf() }
+
+    _gymVisits.value?.forEach { visitDto ->
+      val visitDateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        LocalDateTime.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+      } else {
+        TODO("VERSION.SDK_INT < O")
+      }
+      val hour = visitDateTime.hour
+      val day = visitDateTime.toLocalDate()
+
+      if (hour in 7..22) {
+        visitCountsPerHourPerDay[hour]?.add(day.hashCode())
+      }
+    }
+
+    val averagesPerHour = visitCountsPerHourPerDay.mapValues { (_, visits) ->
+      if (visits.isNotEmpty()) {
+        (visits.size.toDouble() / visits.distinct().size).roundToInt()
+      } else {
+        0
+      }
+    }
+
+    val hours = averagesPerHour.keys.toList()
+    val averages = averagesPerHour.values.toList()
+
+    return Pair(hours, averages)
+  }
+
+  fun prepareGraphDataPerDay(): Pair<List<Int>, List<Int>> {
+    val visitCountsPerDay = (1..7).associateWith { 0 }.toMutableMap()
 
     _gymVisits.value
-      ?.groupBy { visitDto ->
-        // Parse the date string to LocalDateTime and get the hour
+      ?.map { visitDto ->
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          LocalDateTime.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME).hour
+          LocalDate.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME).dayOfWeek
         } else {
           TODO("VERSION.SDK_INT < O")
         }
       }
-      ?.forEach { (hour, visits) ->
-        if (hour in 7..22) {
-          visitCountsPerHour[hour] = visits.size
-        }
+      ?.groupBy { it }
+      ?.forEach { (dayOfWeek, visits) ->
+        visitCountsPerDay[dayOfWeek.value] = visits.size
       }
 
-    // Prepare lists for the x and y axis of the graph
-    val hours = visitCountsPerHour.keys.toList()
-    val counts = visitCountsPerHour.values.toList()
+    val days = visitCountsPerDay.keys.toList()
+    val counts = visitCountsPerDay.values.toList()
 
-    return Pair(hours, counts)
+    return Pair(days, counts)
   }
 }
