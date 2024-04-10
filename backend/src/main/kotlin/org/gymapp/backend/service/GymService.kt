@@ -6,7 +6,6 @@ import org.gymapp.backend.mapper.*
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
 import org.gymapp.library.request.CreateGymRequest
-import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
@@ -25,7 +24,9 @@ class GymService(
     @Autowired private val gymOwnerRepository: GymOwnerRepository,
     @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymMemberRepository: GymMemberRepository,
-    @Autowired private val gymMemberMapper: GymMemberMapper, private val gymVisitRepository: GymVisitRepository,
+    @Autowired private val gymMemberMapper: GymMemberMapper,
+    @Autowired private val gymVisitRepository: GymVisitRepository,
+    @Autowired private val gymVisitMapper: GymVisitMapperImpl,
 ) {
 
     @Transactional
@@ -88,6 +89,11 @@ class GymService(
     fun getLiveStatus(gymId: String): Int {
         val active = gymVisitRepository.findByGymIdAndDurationNull(gymId)
         return active.size
+    }
+
+    fun getGymVisits(currentUser: User, gymId: String): List<GymVisitDto>? {
+        val gym = findById(gymId)
+        return gymVisitMapper.modelsToDtos(gym.visits)
     }
 
 }

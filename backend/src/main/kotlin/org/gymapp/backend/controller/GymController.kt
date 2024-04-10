@@ -2,6 +2,7 @@ package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.model.GymMemberDtoFull
+import org.gymapp.backend.model.GymVisitDto
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymClassDto
@@ -53,6 +54,14 @@ class GymController(
         @PathVariable gymId: String
     ): ResponseEntity<Int> {
         return ResponseEntity.ok(gymService.getLiveStatus(gymId))
+    }
+
+    @GetMapping("/{gymId}/gymVisits")
+    fun getGymVisits(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<GymVisitDto>> {
+        return ResponseEntity.ok(gymService.getGymVisits(common.getCurrentUser(jwt), gymId))
     }
 
 
