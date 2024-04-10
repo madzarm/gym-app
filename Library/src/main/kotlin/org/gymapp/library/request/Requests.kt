@@ -28,3 +28,17 @@ data class UpdateClassRequest(
     val duration: String? = null,
     val maxParticipants: Int? = null
 )
+
+data class ReviewGymClassRequest (
+    var review: String = "",
+    var rating: Int = 0,
+    var classId: String = "",
+    var memberId: String = ""
+)
+
+data class ReviewTrainerRequest (
+    var review: String = "",
+    var rating: Int = 0,
+    var trainerId: String = "",
+    var memberId: String = ""
+)

@@ -50,6 +50,32 @@ data class GymTrainerDto(
     val gymClasses: List<GymClassDto> = mutableListOf()
 )
 
+data class GymVisitDto (
+    val id: String,
+    val gymId: String,
+    val gymMemberId: String,
+    val date: String,
+    val duration: String? = null,
+)
+
+data class GymClassReviewDto(
+    val id: String,
+    val review: String,
+    val rating: Int,
+    val gymClassId: String,
+    val memberId: String,
+    val date: String,
+)
+
+data class GymTrainerReviewDto (
+    val id: String,
+    val review: String,
+    val rating: Int,
+    val trainerId: String,
+    val memberId: String,
+    val date: String,
+)
+
 data class UserDto(
     val id: String?,
     val email: String?,
