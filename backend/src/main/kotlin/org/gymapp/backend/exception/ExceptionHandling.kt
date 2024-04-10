@@ -20,6 +20,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message ?: "Illegal argument!",
             ex::class.simpleName ?: "IllegalArgumentException"
         )
+        ex.printStackTrace()
         return ResponseEntity(body, HttpStatus.BAD_REQUEST)
     }
 
@@ -29,6 +30,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message ?: "User not found!",
             ex::class.simpleName ?: "UserNotFoundException"
         )
+        ex.printStackTrace()
         return ResponseEntity(body, HttpStatus.NOT_FOUND)
     }
 
@@ -38,6 +40,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             ex.message ?: "User is already registered!",
             ex::class.simpleName ?: "UserAlreadyRegisteredException"
         )
+        ex.printStackTrace()
         return ResponseEntity(body, HttpStatus.CONFLICT)
     }
 
