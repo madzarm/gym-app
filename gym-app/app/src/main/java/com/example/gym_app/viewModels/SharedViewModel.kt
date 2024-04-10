@@ -44,7 +44,7 @@ class SharedViewModel : ViewModel() {
 
     fun getTrainerGymClasses(context: Context) =
         viewModelScope.launch {
-            val gymClasses: List<GymClassDto> = ApiClient.apiService.getTrainer("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymUser.value?.gym?.id ?: "").gymClasses
+            val gymClasses: List<GymClassDto> = ApiClient.apiService.getTrainerWithUpcomingClasses("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymUser.value?.gym?.id ?: "").gymClasses
             _gymClasses.value = gymClasses
         }
 

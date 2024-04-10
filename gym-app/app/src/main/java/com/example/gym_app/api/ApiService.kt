@@ -45,6 +45,9 @@ interface ApiService {
     @GET("/trainers/gyms/{gymId}")
     suspend fun getTrainer(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): GymTrainerDto
 
+    @GET("/trainers/gyms/{gymId}/upcoming-classes")
+    suspend fun getTrainerWithUpcomingClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): GymTrainerDto
+
     @PUT("/trainers/gyms/classes/{classId}")
     suspend fun updateGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Body request: UpdateClassRequest): GymTrainerDto
 
