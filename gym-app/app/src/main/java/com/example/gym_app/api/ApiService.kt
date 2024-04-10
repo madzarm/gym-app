@@ -11,6 +11,7 @@ import org.gymapp.library.response.GymClassReviewDto
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymTrainerReviewDto
+import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
 import org.gymapp.library.response.UserDto
@@ -81,4 +82,7 @@ interface ApiService {
 
     @GET("/members/gyms/{gymId}/classes-for-review")
     suspend fun getGymClassesForReview(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
+
+    @GET("/owners/gyms/{gymId}/trainers")
+    suspend fun getTrainersWithReviews(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymTrainerWithReviewsDto>
 }

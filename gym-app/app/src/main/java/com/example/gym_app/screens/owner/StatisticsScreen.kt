@@ -1,20 +1,58 @@
 package com.example.gym_app.screens.owner
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.Layout
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.gym_app.R
 import com.example.gym_app.viewModels.SharedViewModel
 import com.example.gym_app.viewModels.StatisticsViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -32,7 +70,6 @@ import com.patrykandpatrick.vico.compose.component.shape.dashedShape
 import com.patrykandpatrick.vico.compose.component.shape.markerCorneredShape
 import com.patrykandpatrick.vico.compose.component.shape.shader.color
 import com.patrykandpatrick.vico.compose.dimensions.dimensionsOf
-import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.chart.dimensions.HorizontalDimensions
 import com.patrykandpatrick.vico.core.chart.insets.Insets
 import com.patrykandpatrick.vico.core.component.marker.MarkerComponent
@@ -44,8 +81,9 @@ import com.patrykandpatrick.vico.core.context.MeasureContext
 import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.model.ExtraStore
 import com.patrykandpatrick.vico.core.model.lineSeries
+import org.gymapp.library.response.GymTrainerWithReviewsDto
+
 
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
@@ -56,23 +94,21 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
 
   val context = LocalContext.current
   val gymId = sharedViewModel.selectedGymUser.value?.gym?.id ?: ""
+  val trainers = statisticsViewModel.trainersWithReviews.observeAsState()
 
   LaunchedEffect(Unit) {
+    statisticsViewModel.getTrainersWithReviews(context, gymId)
     statisticsViewModel.getGymVisits(context, gymId)
 
     val (xAxisPerHour, yAxisPerHour) = statisticsViewModel.prepareGraphData()
     val (xAxisPerDay, yAxisPerDay) = statisticsViewModel.prepareGraphDataPerDay()
 
     modelProducerPerHour.tryRunTransaction {
-      lineSeries {
-        series(y = yAxisPerHour, x = xAxisPerHour)
-      } }
-    modelProducerPerDay.tryRunTransaction {
-      lineSeries {
-        series(y = yAxisPerDay, x = xAxisPerDay)
-      }
+      lineSeries { series(y = yAxisPerHour, x = xAxisPerHour) }
     }
-
+    modelProducerPerDay.tryRunTransaction {
+      lineSeries { series(y = yAxisPerDay, x = xAxisPerDay) }
+    }
   }
 
   Column {
@@ -87,7 +123,7 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         rememberCartesianChart(
           rememberLineCartesianLayer(
             listOf(
-              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary)),
+              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary))
             )
           ),
           startAxis = rememberStartAxis(guideline = null),
@@ -110,15 +146,16 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         rememberCartesianChart(
           rememberLineCartesianLayer(
             listOf(
-              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary)),
+              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary))
             )
           ),
           startAxis = rememberStartAxis(guideline = null),
-          bottomAxis = rememberBottomAxis(
-            valueFormatter = { value, _, _ ->
-              val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
-              daysOfWeek.getOrNull(value.toInt() - 1) ?: ""
-            },
+          bottomAxis =
+            rememberBottomAxis(
+              valueFormatter = { value, _, _ ->
+                val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+                daysOfWeek.getOrNull(value.toInt() - 1) ?: ""
+              }
             ),
           persistentMarkers = mapOf(getCurrentDay() to marker),
         ),
@@ -126,6 +163,175 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         marker = marker,
       )
     }
+
+    Spacer(modifier = Modifier
+      .fillMaxWidth()
+      .height(40.dp))
+
+    Text(
+      text = "Trainers ratings",
+      style = MaterialTheme.typography.titleMedium,
+      modifier = Modifier.padding(16.dp),
+    )
+
+    val listState = rememberLazyListState()
+    LazyColumn(state = listState) {
+      val trainersWithReviews = trainers.value ?: emptyList()
+      items(trainersWithReviews) { trainer ->
+        val averageRating = trainer.reviews.map { it.rating }.average()
+
+        TrainerItem(trainer = trainer, averageRating = averageRating.toFloat())
+      }
+    }
+  }
+}
+
+@Composable
+fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float) {
+  Row (
+    modifier = Modifier.padding(16.dp),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.Start,
+  ) {
+    TrainerProfileImage(trainer.user.profilePicUrl)
+
+    Text(modifier = Modifier.padding(start = 16.dp), text = "${trainer.user.firstName} ${trainer.user.lastName}")
+
+    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+      Text(text = String.format("Rating:  %.1f", averageRating))
+      RatingBar(rating = averageRating)
+    }
+  }
+}
+
+@Composable
+fun TrainerProfileImage(profilePicUrl: String?) {
+  val painter =
+    rememberAsyncImagePainter(
+      ImageRequest.Builder(LocalContext.current)
+        .data(data = profilePicUrl ?: "")
+        .apply(
+          block =
+            fun ImageRequest.Builder.() {
+              crossfade(true)
+            }
+        )
+        .build()
+    )
+
+  Image(
+    painter = painter,
+    modifier = Modifier
+      .clip(CircleShape)
+      .size(50.dp),
+    contentDescription = "Profile image",
+  )
+}
+
+@Composable
+private fun RatingBar(
+  modifier: Modifier = Modifier,
+  rating: Float,
+  spaceBetween: Dp = 0.dp
+) {
+
+  val image = getImageBitmapFromVector(LocalContext.current, R.drawable.star_empty)!!
+  val imageFull = getImageBitmapFromVector(LocalContext.current, R.drawable.star_full)!!
+
+  val totalCount = 5
+
+  val height = LocalDensity.current.run { image.height.toDp() }
+  val width = LocalDensity.current.run { image.width.toDp() }
+  val space = LocalDensity.current.run { spaceBetween.toPx() }
+  val totalWidth = width * totalCount + spaceBetween * (totalCount - 1)
+
+
+  Box(
+    modifier
+      .width(totalWidth)
+      .height(height)
+      .drawBehind {
+        drawRating(rating, image, imageFull, space)
+      })
+}
+
+private fun DrawScope.drawRating(
+  rating: Float,
+  image: ImageBitmap,
+  imageFull: ImageBitmap,
+  space: Float
+) {
+
+  val totalCount = 5
+
+  val imageWidth = image.width.toFloat()
+  val imageHeight = size.height
+
+  val reminder = rating - rating.toInt()
+  val ratingInt = (rating - reminder).toInt()
+
+  for (i in 0 until totalCount) {
+
+    val start = imageWidth * i + space * i
+
+    drawImage(
+      image = image,
+      topLeft = Offset(start, 0f)
+    )
+  }
+
+  drawWithLayer {
+    for (i in 0 until totalCount) {
+      val start = imageWidth * i + space * i
+      drawImage(
+        image = imageFull,
+        topLeft = Offset(start, 0f)
+      )
+    }
+
+    val end = imageWidth * totalCount + space * (totalCount - 1)
+    val start = rating * imageWidth + ratingInt * space
+    val size = end - start
+
+    drawRect(
+      Color.Transparent,
+      topLeft = Offset(start, 0f),
+      size = Size(size, height = imageHeight),
+      blendMode = BlendMode.SrcIn
+    )
+  }
+}
+
+private fun DrawScope.drawWithLayer(block: DrawScope.() -> Unit) {
+  with(drawContext.canvas.nativeCanvas) {
+    val checkPoint = saveLayer(null, null)
+    block()
+    restoreToCount(checkPoint)
+  }
+}
+
+fun getBitmapFromVector(
+  drawable: Drawable
+): Bitmap {
+  val bitmap: Bitmap
+
+  val size = 70
+  bitmap = Bitmap.createBitmap(
+    size,
+    size,
+    Bitmap.Config.ARGB_8888
+  )
+
+  val canvas = android.graphics.Canvas(bitmap)
+  drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight())
+  drawable.draw(canvas)
+  return bitmap
+}
+
+fun getImageBitmapFromVector(context: Context, drawableId: Int): ImageBitmap? {
+  val drawable = ContextCompat.getDrawable(context, drawableId)
+  return drawable?.let {
+    getBitmapFromVector(it).asImageBitmap()
   }
 }
 

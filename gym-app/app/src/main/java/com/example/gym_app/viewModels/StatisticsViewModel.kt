@@ -4,8 +4,11 @@ import android.content.Context
 import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
+import kotlinx.coroutines.launch
+import org.gymapp.library.response.GymTrainerWithReviewsDto
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.gymapp.library.response.GymVisitDto
@@ -16,6 +19,9 @@ class StatisticsViewModel : ViewModel() {
 
   private val _gymVisits = MutableLiveData<List<GymVisitDto>>()
   val gymVisits: MutableLiveData<List<GymVisitDto>> = _gymVisits
+
+  private val _trainersWithReviews = MutableLiveData<List<GymTrainerWithReviewsDto>>()
+  val trainersWithReviews: MutableLiveData<List<GymTrainerWithReviewsDto>> = _trainersWithReviews
 
   suspend fun getGymVisits(context: Context, gymId: String) {
       try {
@@ -29,6 +35,20 @@ class StatisticsViewModel : ViewModel() {
         e.printStackTrace()
       }
   }
+
+  fun getTrainersWithReviews(context: Context, gymId: String) =
+    viewModelScope.launch {
+        try {
+            val trainersWithReviewsDto =
+            ApiClient.apiService.getTrainersWithReviews(
+                ("Bearer " + TokenManager.getAccessToken(context)) ?: "",
+                gymId,
+            )
+            _trainersWithReviews.value = trainersWithReviewsDto
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
 
   fun prepareGraphData(): Pair<List<Int>, List<Int>> {
