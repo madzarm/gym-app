@@ -4,10 +4,10 @@ import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.mapper.GymVisitMapper
 import org.gymapp.backend.model.GymVisit
-import org.gymapp.backend.model.GymVisitDto
 import org.gymapp.backend.repository.GymRepository
 import org.gymapp.backend.repository.GymVisitRepository
 import org.gymapp.backend.service.GymService
+import org.gymapp.library.response.GymVisitDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal

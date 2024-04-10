@@ -5,8 +5,15 @@ import jakarta.persistence.*
 @Entity(name = "gym_trainers")
 class GymTrainer (
     @Id val id: String? = null,
-    @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
-    @OneToMany(mappedBy = "trainer") var classes: MutableList<GymClass> = mutableListOf()
+
+    @OneToOne @MapsId @JoinColumn(name = "id")
+    val gymUser: GymUser,
+
+    @OneToMany(mappedBy = "trainer")
+    var classes: MutableList<GymClass> = mutableListOf(),
+
+    @OneToMany(mappedBy = "trainer")
+    var reviews: MutableList<GymTrainerReview> = mutableListOf()
 ) {
 
     companion object {

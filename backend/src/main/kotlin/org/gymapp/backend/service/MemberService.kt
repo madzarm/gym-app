@@ -11,6 +11,7 @@ import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymUserDto
+import org.gymapp.library.response.GymVisitDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.Duration
@@ -21,7 +22,6 @@ import java.util.*
 class MemberService(
     @Autowired private val gymService: GymService,
     @Autowired private val roleService: RoleService,
-    @Autowired private val gymRepository: GymRepository,
     @Autowired private val gymMemberMapper: GymMemberMapper,
     @Autowired private val gymMemberRepository: GymMemberRepository,
     @Autowired private val gymUserRepository: GymUserRepository,

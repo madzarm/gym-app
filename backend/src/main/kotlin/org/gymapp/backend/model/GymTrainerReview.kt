@@ -3,21 +3,21 @@ package org.gymapp.backend.model
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.ManyToOne
-import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
-class GymClassReview (
+class GymTrainerReview (
     @Id
     val id: String = UUID.randomUUID().toString(),
-    val review: String,
-    val rating: Int,
-    val date: LocalDateTime = LocalDateTime.now(),
+
+    val review: String = "",
+
+    val rating: Int = 0,
+
     @ManyToOne
-    val gymClass: GymClass,
+    val trainer: GymTrainer,
+
     @ManyToOne
     val member: GymMember
-) {
-
-
+){
 }

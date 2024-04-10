@@ -9,6 +9,7 @@ import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymDto
 import org.gymapp.library.response.GymUserDto
+import org.gymapp.library.response.GymVisitDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.util.*
@@ -26,7 +27,7 @@ class GymService(
     @Autowired private val gymMemberRepository: GymMemberRepository,
     @Autowired private val gymMemberMapper: GymMemberMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
-    @Autowired private val gymVisitMapper: GymVisitMapperImpl,
+    @Autowired private val gymVisitMapper: GymVisitMapper,
 ) {
 
     @Transactional

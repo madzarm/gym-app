@@ -1,7 +1,7 @@
 package org.gymapp.backend.mapper;
 
 import org.gymapp.backend.model.GymVisit;
-import org.gymapp.backend.model.GymVisitDto;
+import org.gymapp.library.response.GymVisitDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;

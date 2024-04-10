@@ -14,7 +14,13 @@ class GymMember (
     val firstJoined: LocalDate = LocalDate.now(),
 
     @OneToMany(mappedBy = "gymMember")
-    val visits: MutableList<GymVisit> = mutableListOf()
+    val visits: MutableList<GymVisit> = mutableListOf(),
+
+    @OneToMany(mappedBy = "member")
+    val gymClassReviews: MutableList<GymClassReview> = mutableListOf(),
+
+    @OneToMany(mappedBy = "member")
+    val gymTrainerReviews: MutableList<GymTrainerReview> = mutableListOf()
 ) {
 
 }

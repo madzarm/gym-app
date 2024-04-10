@@ -1,7 +1,7 @@
 package org.gymapp.backend.mapper;
 
 import org.gymapp.backend.model.GymClassReview;
-import org.gymapp.backend.model.GymClassReviewDto;
+import org.gymapp.library.response.GymClassReviewDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

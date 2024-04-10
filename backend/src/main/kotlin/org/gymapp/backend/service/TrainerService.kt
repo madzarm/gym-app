@@ -137,4 +137,8 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    fun findTrainerById(id: String): GymTrainer {
+        return gymTrainerRepository.findById(id).orElseThrow { IllegalArgumentException("Trainer not found!") }
+    }
+
 }
