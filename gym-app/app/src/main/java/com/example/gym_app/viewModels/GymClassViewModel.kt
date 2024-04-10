@@ -8,10 +8,16 @@ import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.common.readErrorMessage
 import kotlinx.coroutines.launch
+import org.gymapp.library.request.ReviewGymClassRequest
+import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymMemberDto
 import retrofit2.HttpException
+
+data class GymClassReview(val gymClassDto: GymClassDto, val rating: Int, val review: String)
+
+data class TrainerReview(val trainerId: String, val rating: Int, val review: String)
 
 class GymClassViewModel : ViewModel() {
   private val _selectedGymClass = MutableLiveData<GymClassDto>()
@@ -23,6 +29,12 @@ class GymClassViewModel : ViewModel() {
   private val _createGymClassRequest = MutableLiveData<UpdateClassRequest>()
   val createGymClassRequest: MutableLiveData<UpdateClassRequest> = _createGymClassRequest
 
+  private val _gymClassReview = MutableLiveData<GymClassReview>()
+  val gymClassReview: MutableLiveData<GymClassReview> = _gymClassReview
+
+  private val _trainerReview = MutableLiveData<TrainerReview>()
+  val trainerReview: MutableLiveData<TrainerReview> = _trainerReview
+
   fun setSelectedGymClass(gymClass: GymClassDto) {
     _selectedGymClass.value = gymClass
     _updatedGymClass.value = gymClass
@@ -32,9 +44,52 @@ class GymClassViewModel : ViewModel() {
     _updatedGymClass.value = update(_updatedGymClass.value!!)
   }
 
+  fun updateGymClassReview(update: GymClassReview.() -> GymClassReview) {
+    _gymClassReview.value =
+      update(
+        _gymClassReview.value
+          ?: GymClassReview(gymClassDto = _selectedGymClass.value!!, rating = 1, review = "")
+      )
+  }
+
+  fun updateTrainerReview(update: TrainerReview.() -> TrainerReview) {
+    _trainerReview.value =
+      update(_trainerReview.value ?: TrainerReview(trainerId = "", rating = 1, review = ""))
+  }
+
   fun updateRequest(update: UpdateClassRequest.() -> UpdateClassRequest) {
     _createGymClassRequest.value = update(_createGymClassRequest.value ?: UpdateClassRequest())
   }
+
+  fun submitReview(
+    context: Context,
+    memberId: String,
+    onSuccess: () -> Unit,
+    onFailure: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      val classReview =
+        ReviewGymClassRequest(
+          review = _gymClassReview.value?.review ?: "",
+          rating = _gymClassReview.value?.rating ?: 1,
+          classId = _gymClassReview.value?.gymClassDto?.id ?: "",
+          memberId = memberId,
+        )
+      val trainerReview =
+        ReviewTrainerRequest (
+            review = _trainerReview.value?.review ?: "",
+            rating = _trainerReview.value?.rating ?: 1,
+            trainerId = _trainerReview.value?.trainerId ?: "",
+            memberId = memberId,
+        )
+      try {
+        ApiClient.apiService.reviewGymClass("Bearer ${TokenManager.getAccessToken(context)}", classReview)
+        ApiClient.apiService.reviewTrainer("Bearer ${TokenManager.getAccessToken(context)}", trainerReview)
+        onSuccess()
+      } catch (e: HttpException) {
+        onFailure(readErrorMessage(e))
+      }
+    }
 
   fun updateGymClass(context: Context) =
     viewModelScope.launch {
@@ -54,10 +109,19 @@ class GymClassViewModel : ViewModel() {
       )
     }
 
-  fun joinGymClass(context: Context, gymClassId: String, onSuccess: () -> Unit, onError: (String) -> Unit) =
+  fun joinGymClass(
+    context: Context,
+    gymClassId: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
     viewModelScope.launch {
       try {
-        val gymMemberDto: GymMemberDto = ApiClient.apiService.registerToClass("Bearer ${TokenManager.getAccessToken(context)}", gymClassId)
+        val gymMemberDto: GymMemberDto =
+          ApiClient.apiService.registerToClass(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            gymClassId,
+          )
         onSuccess()
       } catch (e: HttpException) {
         val errorMessage = readErrorMessage(e)
@@ -93,14 +157,17 @@ class GymClassViewModel : ViewModel() {
       }
     }
 
-    fun deleteGymClass(context: Context, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
-        viewModelScope.launch {
-            try {
-                ApiClient.apiService.deleteGymClass("Bearer ${TokenManager.getAccessToken(context)}", _selectedGymClass.value?.id ?: "")
-                onSuccess()
-            } catch (e: HttpException) {
-                onFailure(readErrorMessage(e))
-            }
-        }
+  fun deleteGymClass(context: Context, onSuccess: () -> Unit, onFailure: (String) -> Unit) {
+    viewModelScope.launch {
+      try {
+        ApiClient.apiService.deleteGymClass(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          _selectedGymClass.value?.id ?: "",
+        )
+        onSuccess()
+      } catch (e: HttpException) {
+        onFailure(readErrorMessage(e))
+      }
     }
+  }
 }

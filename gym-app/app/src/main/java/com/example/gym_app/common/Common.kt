@@ -89,6 +89,14 @@ fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
     return date to time
 }
 
+fun localDateTimeFromString(dateTimeStr: String): LocalDateTime {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+    } else {
+        TODO("VERSION.SDK_INT < O")
+    }
+}
+
 fun formatDuration(durationStr: String?): String? {
     if (durationStr == null) return null
 

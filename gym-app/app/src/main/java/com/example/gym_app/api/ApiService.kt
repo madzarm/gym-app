@@ -2,11 +2,15 @@ package com.example.gym_app.api
 
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.request.CreateUserRequest
+import org.gymapp.library.request.ReviewGymClassRequest
+import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassReviewDto
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymTrainerDto
+import org.gymapp.library.response.GymTrainerReviewDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
 import org.gymapp.library.response.UserDto
@@ -68,4 +72,10 @@ interface ApiService {
 
     @GET("/gyms/{gymId}/gymVisits")
     suspend fun getGymVisits(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymVisitDto>
+
+    @POST("/members/gyms/review-class")
+    suspend fun reviewGymClass(@Header("Authorization") authHeader: String, @Body request: ReviewGymClassRequest): GymClassReviewDto
+
+    @POST("/members/gyms/review-trainer")
+    suspend fun reviewTrainer(@Header("Authorization") authHeader: String, @Body request: ReviewTrainerRequest): GymTrainerReviewDto
 }

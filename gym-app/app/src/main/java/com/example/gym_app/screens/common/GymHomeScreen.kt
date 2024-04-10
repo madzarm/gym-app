@@ -27,6 +27,7 @@ import com.example.gym_app.screens.member.GroupTrainingsScreen
 import com.example.gym_app.screens.member.GymClassDetailsScreen
 import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.member.QeCodeScreen
+import com.example.gym_app.screens.member.ReviewGymClassScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
 import com.example.gym_app.screens.owner.StatisticsScreen
 import com.example.gym_app.screens.trainer.CreateClassScreen
@@ -75,9 +76,12 @@ fun GymHomeScreen(navController: NavController) {
       modifier = Modifier.padding(innerPadding),
     ) {
       composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
-        GroupTrainingsScreen(viewModel) {
+        GroupTrainingsScreen(sharedViewModel = viewModel, onGymClassClick = {
           gymClassViewModel.setSelectedGymClass(it)
           navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        }) {
+          gymClassViewModel.setSelectedGymClass(it)
+          navHostController.navigate(AppRoutes.REVIEW_GYM_CLASS_SCREEN)
         }
       }
       composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(viewModel) }
@@ -94,6 +98,7 @@ fun GymHomeScreen(navController: NavController) {
       composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
         TrainerGymClassScreen(navHostController, gymClassViewModel)
       }
+      composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) { ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController) }
       composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
       composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) {
