@@ -77,6 +77,7 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         )
         ShowDatePicker(viewModel)
         ShowTimePicker(viewModel)
+        Text(text = "Participants registered: ${gymClass.value?.participantsIds?.size ?: 0}")
         Row {
           Button(
             onClick = {
