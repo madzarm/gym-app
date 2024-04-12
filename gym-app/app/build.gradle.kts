@@ -12,7 +12,7 @@ android {
     manifestPlaceholders["auth0Domain"] = "@string/com_auth0_domain"
     manifestPlaceholders["auth0Scheme"] = "demo"
     applicationId = "com.example.gym_app"
-    minSdk = 24
+    minSdk = 26
     targetSdk = 34
     versionCode = 1
     versionName = "1.0"
@@ -46,6 +46,7 @@ dependencies {
   implementation("androidx.compose.ui:ui-graphics")
   implementation("androidx.compose.ui:ui-tooling-preview")
   implementation("androidx.compose.material3:material3-android:1.2.1")
+  implementation("androidx.compose.animation:animation")
   testImplementation("junit:junit:4.13.2")
   androidTestImplementation("androidx.test.ext:junit:1.1.5")
   androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -84,6 +85,8 @@ dependencies {
 
   // For the view system.
   implementation("com.patrykandpatrick.vico:views:2.0.0-alpha.14")
+
+  implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.3.2")
 
   implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
   implementation("com.google.firebase:firebase-messaging")
