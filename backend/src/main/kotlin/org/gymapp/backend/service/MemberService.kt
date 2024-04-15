@@ -25,7 +25,7 @@ class MemberService(
     @Autowired private val gymMemberRepository: GymMemberRepository,
     @Autowired private val gymUserRepository: GymUserRepository,
     @Autowired private val gymUserMapper: GymUserMapper,
-    @Autowired private val entityManager: EntityManager, private val gymClassRepository: GymClassRepository,
+    @Autowired private val gymClassRepository: GymClassRepository,
     @Autowired private val gymVisitMapper: GymVisitMapper,
     @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
