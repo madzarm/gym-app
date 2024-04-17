@@ -43,14 +43,17 @@ import com.example.gym_app.common.formatDuration
 import com.example.gym_app.viewModels.SharedViewModel
 import org.gymapp.library.response.GymClassDto
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedContentLambdaTargetStateParameter")
 @Composable
-fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel, onCreateClick: () -> Unit, onClick: (GymClassDto) -> Unit,) {
+fun ManageClassesScreen(
+  navController: NavController,
+  viewModel: SharedViewModel,
+  onCreateClick: () -> Unit,
+  onClick: (GymClassDto) -> Unit,
+) {
 
   val context = LocalContext.current
-  LaunchedEffect(true) {
-    viewModel.getTrainerGymClasses(context)
-  }
+  LaunchedEffect(true) { viewModel.getTrainerGymClasses(context) }
   val gymClasses = viewModel.gymClasses.observeAsState()
 
   CustomBackground(title = "Your classes") {
@@ -70,6 +73,7 @@ fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel
       },
       floatingActionButtonPosition = FabPosition.End,
     ) {
+
       LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +89,7 @@ fun ManageClassesScreen(navController: NavController, viewModel: SharedViewModel
 @Composable
 fun GymClass(gymClass: GymClassDto, onClick: (GymClassDto) -> Unit) {
   TextButton(
-    onClick = {onClick(gymClass)},
+    onClick = { onClick(gymClass) },
     modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp),
     shape = RoundedCornerShape(20.dp),
   ) {
@@ -97,7 +101,8 @@ fun GymClass(gymClass: GymClassDto, onClick: (GymClassDto) -> Unit) {
           .background(
             brush = Brush.horizontalGradient(colors = listOf(Color(0xFF00d4ff), Color(0xFF0051bf)))
           )
-          .fillMaxWidth().fillMaxSize(),
+          .fillMaxWidth()
+          .fillMaxSize(),
     ) {
       Column(
         modifier = Modifier.fillMaxWidth().padding(20.dp),
