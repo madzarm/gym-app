@@ -33,7 +33,26 @@ data class GymClassDto(
     val dateTime: String?,
     val duration: String?,
     val maxParticipants: String?,
-    val participantsIds: List<String>?
+    val trainerId: String,
+    val instances: List<GymClassInstanceDto>,
+    val recurringPattern: RecurringPatternDto,
+)
+
+data class RecurringPatternDto (
+    val id: String, 
+    val maxNumOfOccurrences: Int? = null,
+    val dayOfWeeks: List<Int> = mutableListOf(),
+) 
+
+data class GymClassInstanceDto (
+    val id: String,
+    val name: String,
+    val description: String,
+    val dateTime: String,
+    val duration: String,
+    val maxParticipants: String,
+    val participantsIds: List<String>,
+    val trainerId: String,
 )
 
 data class GymMemberDto (
@@ -48,6 +67,12 @@ data class GymMemberDto (
 data class GymTrainerDto(
     val id: String,
     val gymClasses: List<GymClassDto> = mutableListOf()
+)
+
+data class GymTrainerWithReviewsDto(
+    val id: String, 
+    val user: UserDto,
+    val reviews: List<GymTrainerReviewDto> = mutableListOf()
 )
 
 data class GymVisitDto (
