@@ -8,6 +8,7 @@ import org.gymapp.backend.extensions.getUpcomingClasses
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
+import org.gymapp.backend.repository.GymClassInstanceRepository
 import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymTrainerRepository
@@ -32,6 +33,7 @@ class TrainerService(
     @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val gymClassRepository: GymClassRepository,
     @Autowired private val notificationService: NotificationService,
+    private val gymClassInstanceRepository: GymClassInstanceRepository,
 ) {
 
     fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
@@ -100,7 +102,8 @@ class TrainerService(
             duration = Duration.ofMinutes(request.duration.toLong()),
             maxParticipants = request.maxParticipants,
             trainer = trainer,
-            gym = gym
+            gym = gym,
+            isRecurring = false
         )
 
         gymClassRepository.save(gymClass)
@@ -125,14 +128,14 @@ class TrainerService(
     }
 
     @Transactional
-    fun deleteClass(currentUser: User, classId: String): GymTrainerDto {
-        val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
-        val trainer = gymClass.trainer
+    fun deleteClassInstance(currentUser: User, classId: String): GymTrainerDto {
+        val gymClassInstance = gymClassInstanceRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
+        val trainer = gymClassInstance.gymClass.trainer
 
-        gymClassRepository.delete(gymClass)
+        gymClassInstanceRepository.delete(gymClassInstance)
 
-        val fcmTokens = gymClass.getParticipantsFcmTokens()
-        notificationService.sendNotifications(fcmTokens, "Class cancelled!", "The class ${gymClass.name} has been cancelled!")
+        val fcmTokens = gymClassInstance.getParticipantsFcmTokens()
+        notificationService.sendNotifications(fcmTokens, "Class cancelled!", "The class ${gymClassInstance.gymClass.name} has been cancelled!")
 
         return gymTrainerMapper.modelToDto(trainer)
     }

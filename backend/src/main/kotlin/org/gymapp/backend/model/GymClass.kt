@@ -8,20 +8,31 @@ import java.time.LocalDateTime
 class GymClass (
     @Id
     val id: String,
+
     var name: String,
+
     var description: String,
+
     var dateTime: LocalDateTime,
+
     var duration: Duration,
+
     var maxParticipants: Int,
-    @ManyToOne val trainer: GymTrainer,
-    @ManyToOne val gym: Gym,
-    @ManyToMany
-    @JoinTable(
-        name = "gym_member_classes",
-        joinColumns = [JoinColumn(name = "class_id")],
-        inverseJoinColumns = [JoinColumn(name = "member_id")])
-    val participants: MutableList<GymMember> = mutableListOf(),
+
+    var isRecurring: Boolean,
+
+    @ManyToOne
+    val trainer: GymTrainer,
+
+    @ManyToOne
+    val gym: Gym,
+
     @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
-    val reviews: List<GymClassReview> = mutableListOf()
-){
-}
+    val reviews: List<GymClassReview> = mutableListOf(),
+
+    @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
+    val instances: List<GymClassInstance> = mutableListOf(),
+
+    @OneToOne(mappedBy = "gymClass", cascade = [CascadeType.ALL])
+    val recurringPattern: RecurringPattern? = null,
+)

@@ -1,5 +1,6 @@
 package org.gymapp.backend.controller
 
+import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.model.*
 import org.gymapp.backend.service.ReviewService
@@ -30,9 +31,10 @@ class MemberController (
     @PostMapping("/classes/{classId}")
     fun registerToClass(
         @PathVariable classId: String,
+        @PathParam("dateTime") dateTime: String,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<GymMemberDto> {
-        return ResponseEntity.ok().body(memberService.registerToClass(common.getCurrentUser(jwt), classId))
+        return ResponseEntity.ok().body(memberService.registerToClass(common.getCurrentUser(jwt), classId, dateTime))
     }
 
     @GetMapping("/gyms/{gymId}")

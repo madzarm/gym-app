@@ -20,15 +20,19 @@ fun Gym.getMember(user: User): GymMember? {
     return null
 }
 
-fun GymClass.addParticipant(member: GymMember) {
+fun GymClassInstance.addParticipant(member: GymMember) {
     member.classes.add(this)
     this.participants.add(member)
 }
 
-fun GymClass.getParticipantsFcmTokens(): List<String> {
+fun GymClassInstance.getParticipantsFcmTokens(): List<String> {
     return this.participants.map { it.gymUser.user.fcmToken ?: "" }
 }
 
 fun GymTrainer.getUpcomingClasses(): List<GymClass> {
     return this.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) }
+}
+
+fun LocalDateTime.readStringToDate(): LocalDateTime {
+    return LocalDateTime.parse(this.toString())
 }

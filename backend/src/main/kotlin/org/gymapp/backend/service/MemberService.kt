@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Service
 class MemberService(
@@ -29,6 +30,7 @@ class MemberService(
     @Autowired private val gymVisitMapper: GymVisitMapper,
     @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
+    @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
 ) {
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
@@ -62,23 +64,35 @@ class MemberService(
         return gymUserMapper.modelToDto(gymUser)
     }
 
-    fun registerToClass(currentUser: User, classId: String): GymMemberDto {
+    fun registerToClass(currentUser: User, classId: String, dateTimeString: String): GymMemberDto {
+        val dateTime = LocalDateTime.parse(dateTimeString)
+
         val gymClass = gymClassRepository.findById(classId)
             .orElseThrow { throw IllegalArgumentException("Class with that id does not exist") }
 
         val member = gymClass.gym.getMember(currentUser) ?: throw IllegalArgumentException("User is not a member of this gym")
 
-        if (gymClass.participants.any { it.gymUser.user.id == currentUser.id }) {
+        val gymClassInstance =
+            if (gymClass.instances.any { it.dateTime == dateTime }) {
+                gymClass.instances.first { it.dateTime == dateTime}
+            } else {
+                GymClassInstance(
+                    dateTime = dateTime,
+                    gymClass = gymClass
+                )
+            }
+
+
+        if (gymClassInstance.participants.any { it.gymUser.user.id == currentUser.id }) {
             throw IllegalArgumentException("User is already registered to this class")
         }
 
-        if (gymClass.participants.size >= gymClass.maxParticipants) {
+        if (gymClassInstance.participants.size >= gymClass.maxParticipants) {
             throw IllegalArgumentException("Class is full")
         }
 
-
-        gymClass.addParticipant(member)
-        gymClassRepository.save(gymClass)
+        gymClassInstance.addParticipant(member)
+        gymClassInstanceRepository.save(gymClassInstance)
         return gymMemberMapper.modelToDto(member)
     }
 
@@ -117,7 +131,8 @@ class MemberService(
 
         // TODO uncomment this when testing is finished
         // val finishedClasses = member.classes.filter { it.dateTime.plusMinutes(it.duration.toMinutes()).isBefore(LocalDateTime.now()) }
-        val finishedClasses = member.classes.filter { it.dateTime.isBefore(LocalDateTime.now()) }
+        val finishedClassesInstances = member.classes.filter { it.dateTime.isBefore(LocalDateTime.now()) }
+        val finishedClasses = finishedClassesInstances.map { it.gymClass }
         val nonReviewedFinishedClasses = finishedClasses.filter { it.reviews.none { review -> review.member.id == member.id } }
 
         return gymClassMapper.modelsToDtos(nonReviewedFinishedClasses)

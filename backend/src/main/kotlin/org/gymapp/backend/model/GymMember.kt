@@ -8,7 +8,7 @@ class GymMember (
     @Id val id: String? = null,
 
     @ManyToMany(mappedBy = "participants")
-    val classes: MutableList<GymClass> = mutableListOf(),
+    val classes: MutableList<GymClassInstance> = mutableListOf(),
 
     @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
     val firstJoined: LocalDate = LocalDate.now(),

@@ -50,6 +50,6 @@ class TrainerController(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable("classId") classId: String
     ): GymTrainerDto {
-        return trainerService.deleteClass(common.getCurrentUser(jwt), classId)
+        return trainerService.deleteClassInstance(common.getCurrentUser(jwt), classId)
     }
 }
