@@ -33,9 +33,10 @@ data class GymClassDto(
     val dateTime: String?,
     val duration: String?,
     val maxParticipants: String?,
+    val isRecurring: Boolean,
     val trainerId: String,
     val instances: List<GymClassInstanceDto>,
-    val recurringPattern: RecurringPatternDto,
+    val recurringPattern: RecurringPatternDto?,
 )
 
 data class RecurringPatternDto (
