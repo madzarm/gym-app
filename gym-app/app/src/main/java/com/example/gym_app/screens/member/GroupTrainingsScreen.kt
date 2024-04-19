@@ -97,21 +97,13 @@ fun combineLists(
 
 fun filterOldClasses(gymClasses: List<GymClassDto>): List<GymClassDto> {
   return gymClasses.filter {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-      localDateTimeFromString(it.dateTime!!).isAfter(LocalDateTime.now())
-    } else {
-      TODO("VERSION.SDK_INT < O")
-    }
+    localDateTimeFromString(it.dateTime!!).isAfter(LocalDateTime.now())
   }
 }
 
 fun filterUpcomingClasses(gymClasses: List<GymClassDto>): List<GymClassDto> {
   return gymClasses.filter {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       localDateTimeFromString(it.dateTime!!).isBefore(LocalDateTime.now())
-    } else {
-      TODO("VERSION.SDK_INT < O")
-    }
   }
 }
 

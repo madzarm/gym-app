@@ -336,19 +336,11 @@ fun getImageBitmapFromVector(context: Context, drawableId: Int): ImageBitmap? {
 }
 
 fun getCurrentHour(): Float {
-  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-    java.time.LocalDateTime.now().hour.toFloat()
-  } else {
-    TODO("VERSION.SDK_INT < O")
-  }
+  return java.time.LocalDateTime.now().hour.toFloat()
 }
 
 fun getCurrentDay(): Float {
-  return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-    java.time.LocalDate.now().dayOfWeek.value.toFloat()
-  } else {
-    TODO("VERSION.SDK_INT < O")
-  }
+  return java.time.LocalDate.now().dayOfWeek.value.toFloat()
 }
 
 @Composable

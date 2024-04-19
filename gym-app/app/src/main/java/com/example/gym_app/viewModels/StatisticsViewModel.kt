@@ -57,11 +57,8 @@ class StatisticsViewModel : ViewModel() {
     (7..22).forEach { hour -> visitCountsPerHourPerDay[hour] = mutableListOf() }
 
     _gymVisits.value?.forEach { visitDto ->
-      val visitDateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+      val visitDateTime =
         LocalDateTime.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-      } else {
-        TODO("VERSION.SDK_INT < O")
-      }
       val hour = visitDateTime.hour
       val day = visitDateTime.toLocalDate()
 
@@ -89,11 +86,7 @@ class StatisticsViewModel : ViewModel() {
 
     _gymVisits.value
       ?.map { visitDto ->
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-          LocalDate.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME).dayOfWeek
-        } else {
-          TODO("VERSION.SDK_INT < O")
-        }
+        LocalDate.parse(visitDto.date, DateTimeFormatter.ISO_LOCAL_DATE_TIME).dayOfWeek
       }
       ?.groupBy { it }
       ?.forEach { (dayOfWeek, visits) ->

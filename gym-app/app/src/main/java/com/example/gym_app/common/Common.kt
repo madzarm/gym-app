@@ -74,11 +74,8 @@ fun uriToBase64(context: Context, uri: Uri, maxWidth: Int = 250, maxHeight: Int 
 
 fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
     if (dateTimeStr == null) return null to null
-    val dateTime = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+    val dateTime =
         LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    } else {
-        TODO("VERSION.SDK_INT < O")
-    }
 
     val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
@@ -90,11 +87,7 @@ fun extractDateAndTime(dateTimeStr: String?): Pair<String?, String?> {
 }
 
 fun localDateTimeFromString(dateTimeStr: String): LocalDateTime {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
-    } else {
-        TODO("VERSION.SDK_INT < O")
-    }
+    return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 }
 
 fun formatDuration(durationStr: String?): String? {
