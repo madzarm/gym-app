@@ -90,7 +90,7 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
-    fun createClass(currentUser: User, gymId: String, request: CreateClassRequest): GymTrainerDto {
+    fun createClassInstance(currentUser: User, gymId: String, request: CreateClassRequest): GymTrainerDto {
         val trainer = currentUser.getTrainer(gymId)
         val gym = trainer.getGym()
 
@@ -106,7 +106,14 @@ class TrainerService(
             isRecurring = false
         )
 
+        val gymClassInstance = GymClassInstance(
+            id = UUID.randomUUID().toString(),
+            dateTime = gymClass.dateTime,
+            gymClass = gymClass
+        )
+
         gymClassRepository.save(gymClass)
+        gymClassInstanceRepository.save(gymClassInstance)
 
         trainer.addClass(gymClass)
         return gymTrainerMapper.modelToDto(trainer)

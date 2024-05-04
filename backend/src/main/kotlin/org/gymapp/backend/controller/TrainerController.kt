@@ -28,12 +28,12 @@ class TrainerController(
     }
 
     @PostMapping("/gyms/{gymId}/classes")
-    fun createClass(
+    fun createClassInstance(
         @AuthenticationPrincipal jwt: Jwt,
         @PathVariable("gymId") gymId: String,
         @RequestBody request: CreateClassRequest
     ): GymTrainerDto {
-        return trainerService.createClass(common.getCurrentUser(jwt), gymId, request)
+        return trainerService.createClassInstance(common.getCurrentUser(jwt), gymId, request)
     }
 
     @PutMapping("/gyms/classes/{classId}")

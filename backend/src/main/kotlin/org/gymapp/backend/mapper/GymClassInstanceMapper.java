@@ -27,6 +27,9 @@ public interface GymClassInstanceMapper {
     @Mapping(target = "duration", source = "gymClass.duration", qualifiedByName = "durationToString")
     @Mapping(target = "participantsIds", source = "participants", qualifiedByName = "participantsToIds")
     @Mapping(target = "trainerId", source = "gymClass.trainer.id")
+    @Mapping(target = "name", source = "gymClass.name")
+    @Mapping(target = "description", source = "gymClass.description")
+    @Mapping(target = "maxParticipants", source = "gymClass.maxParticipants")
     GymClassInstanceDto modelToDto(GymClassInstance gymClassInstance);
 
     @AfterMapping
