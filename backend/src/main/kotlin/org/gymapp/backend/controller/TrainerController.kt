@@ -3,6 +3,7 @@ package org.gymapp.backend.controller
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.TrainerService
 import org.gymapp.library.request.CreateClassRequest
+import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymTrainerDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +35,15 @@ class TrainerController(
         @RequestBody request: CreateClassRequest
     ): GymTrainerDto {
         return trainerService.createClassInstance(common.getCurrentUser(jwt), gymId, request)
+    }
+
+    @PostMapping("/gyms/{gymId}/classes/recurring")
+    fun createRecurringClass(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable("gymId") gymId: String,
+        @RequestBody request: CreateRecurringClassRequest
+    ): GymTrainerDto {
+        return trainerService.createRecurringClass(common.getCurrentUser(jwt), gymId, request)
     }
 
     @PutMapping("/gyms/classes/{classId}")

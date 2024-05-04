@@ -1,12 +1,13 @@
 package org.gymapp.backend.model
 
 import jakarta.persistence.*
+import java.util.*
 
 @Entity
 class RecurringPattern (
 
     @Id
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
 
     val maxNumOfOccurrences: Int,
 

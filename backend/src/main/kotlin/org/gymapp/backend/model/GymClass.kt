@@ -34,5 +34,5 @@ class GymClass (
     val instances: List<GymClassInstance> = mutableListOf(),
 
     @OneToOne(mappedBy = "gymClass", cascade = [CascadeType.ALL])
-    val recurringPattern: RecurringPattern? = null,
+    var recurringPattern: RecurringPattern? = null,
 )

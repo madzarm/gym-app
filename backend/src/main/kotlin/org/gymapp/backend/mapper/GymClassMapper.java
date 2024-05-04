@@ -18,6 +18,7 @@ public interface GymClassMapper {
 
     @Mapping(target = "duration", source = "duration", qualifiedByName = "durationToString")
     @Mapping(target = "trainerId", source = "trainer.id")
+    @Mapping(target = "isRecurring", source = "recurring")
     GymClassDto modelToDto(GymClass gymClass);
 
     List<GymClassDto> modelsToDtos(List<GymClass> gymClasses);

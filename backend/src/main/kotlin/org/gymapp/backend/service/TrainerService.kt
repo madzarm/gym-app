@@ -13,6 +13,7 @@ import org.gymapp.backend.repository.GymClassRepository
 import org.gymapp.backend.repository.GymUserRepository
 import org.gymapp.backend.repository.GymTrainerRepository
 import org.gymapp.library.request.CreateClassRequest
+import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
@@ -33,7 +34,8 @@ class TrainerService(
     @Autowired private val gymUserMapper: GymUserMapper,
     @Autowired private val gymClassRepository: GymClassRepository,
     @Autowired private val notificationService: NotificationService,
-    private val gymClassInstanceRepository: GymClassInstanceRepository,
+    @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
+    @Autowired private val recurringPatternService: RecurringPatternService,
 ) {
 
     fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
@@ -116,6 +118,33 @@ class TrainerService(
         gymClassInstanceRepository.save(gymClassInstance)
 
         trainer.addClass(gymClass)
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    fun createRecurringClass(currentUser: User, gymId: String, request: CreateRecurringClassRequest): GymTrainerDto {
+        val trainer = currentUser.getTrainer(gymId)
+        val gym = trainer.getGym()
+
+
+
+
+        val gymClass = GymClass(
+            id = UUID.randomUUID().toString(),
+            name = request.name,
+            description = request.description,
+            dateTime = LocalDateTime.parse(request.dateTime),
+            duration = Duration.ofMinutes(request.duration.toLong()),
+            maxParticipants = request.maxParticipants,
+            trainer = trainer,
+            gym = gym,
+            isRecurring = true,
+        )
+        gymClassRepository.save(gymClass)
+
+        val recurringPattern = recurringPatternService.createRecurringPattern(request.maxNumOfOccurrences, request.daysOfWeek, gymClass)
+        gymClass.recurringPattern = recurringPattern
+        gymClassRepository.save(gymClass)
+
         return gymTrainerMapper.modelToDto(trainer)
     }
 
