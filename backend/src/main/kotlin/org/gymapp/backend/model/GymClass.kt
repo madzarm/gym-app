@@ -31,8 +31,13 @@ class GymClass (
     val reviews: List<GymClassReview> = mutableListOf(),
 
     @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
-    val instances: List<GymClassInstance> = mutableListOf(),
+    var instances: MutableList<GymClassInstance> = mutableListOf(),
 
     @OneToOne(mappedBy = "gymClass", cascade = [CascadeType.ALL])
     var recurringPattern: RecurringPattern? = null,
-)
+) {
+
+    fun addInstance(instance: GymClassInstance) {
+        this.instances.add(instance)
+    }
+}

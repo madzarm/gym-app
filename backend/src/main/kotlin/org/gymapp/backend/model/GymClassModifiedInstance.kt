@@ -7,8 +7,10 @@ import java.time.LocalDateTime
 @Entity
 class GymClassModifiedInstance (
     @Id
-    val id: String,
-    @OneToOne @MapsId @JoinColumn(name = "id") val gymClassInstance: GymClassInstance,
+    val id: String? = null,
+
+    @OneToOne @MapsId @JoinColumn(name = "id")
+    val gymClassInstance: GymClassInstance,
 
     var description: String,
 

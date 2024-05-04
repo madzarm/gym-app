@@ -36,16 +36,11 @@ public interface GymClassInstanceMapper {
     default void handleModifiedInstance(GymClassInstance gymClassInstance, @MappingTarget GymClassInstanceDto dto) {
         if (gymClassInstance.getGymClassModifiedInstance() != null) {
             GymClassModifiedInstance modified = gymClassInstance.getGymClassModifiedInstance();
-            dto = dto.copy(
-                    dto.getId(),
-                    dto.getName(),
-                    modified.getDescription(),
-                    modified.getDateTime().format(DateTimeFormatter.ISO_DATE_TIME),
-                    String.valueOf(modified.getDuration().toMinutes()),
-                    String.valueOf(modified.getMaxParticipants()),
-                    dto.getParticipantsIds(),
-                    dto.getTrainerId()
-            );
+            dto.setDateTime(modified.getDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
+            dto.setDuration(String.valueOf(modified.getDuration().toMinutes()));
+            dto.setMaxParticipants(String.valueOf(modified.getMaxParticipants()));
+            dto.setDescription(modified.getDescription());
+            dto.setTrainerId(modified.getTrainer().getId() == null ? "" : modified.getTrainer().getId());
         }
     }
 

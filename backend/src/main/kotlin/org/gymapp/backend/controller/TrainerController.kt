@@ -5,6 +5,7 @@ import org.gymapp.backend.service.TrainerService
 import org.gymapp.library.request.CreateClassRequest
 import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.UpdateClassRequest
+import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.GymTrainerDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -44,6 +45,15 @@ class TrainerController(
         @RequestBody request: CreateRecurringClassRequest
     ): GymTrainerDto {
         return trainerService.createRecurringClass(common.getCurrentUser(jwt), gymId, request)
+    }
+
+    @PutMapping("/gyms/classes/{classId}/instances")
+    fun modifyRecurringClassInstance(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable("classId") classId: String,
+        @RequestBody request: UpdateGymClassInstanceRequest
+    ): GymTrainerDto {
+        return trainerService.updateGymClassInstance(common.getCurrentUser(jwt), classId, request)
     }
 
     @PutMapping("/gyms/classes/{classId}")

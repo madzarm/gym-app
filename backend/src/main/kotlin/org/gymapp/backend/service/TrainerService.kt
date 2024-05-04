@@ -8,19 +8,18 @@ import org.gymapp.backend.extensions.getUpcomingClasses
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.mapper.GymUserMapper
 import org.gymapp.backend.model.*
-import org.gymapp.backend.repository.GymClassInstanceRepository
-import org.gymapp.backend.repository.GymClassRepository
-import org.gymapp.backend.repository.GymUserRepository
-import org.gymapp.backend.repository.GymTrainerRepository
+import org.gymapp.backend.repository.*
 import org.gymapp.library.request.CreateClassRequest
 import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.UpdateClassRequest
+import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.GymTrainerDto
 import org.gymapp.library.response.GymUserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -36,6 +35,7 @@ class TrainerService(
     @Autowired private val notificationService: NotificationService,
     @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
     @Autowired private val recurringPatternService: RecurringPatternService,
+    @Autowired private val gymClassModifiedInstanceRepository: GymClassModifiedInstanceRepository,
 ) {
 
     fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
@@ -161,6 +161,65 @@ class TrainerService(
         gymClassRepository.save(gymClass)
 
         return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    @Transactional
+    fun updateGymClassInstance(currentUser: User, classId: String, request: UpdateGymClassInstanceRequest): GymTrainerDto {
+        val dateTime = LocalDateTime.parse(request.originalDateTime)
+        val date = dateTime.toLocalDate()
+        val gymClassInstanceOptional = gymClassInstanceRepository.findByGymClassIdAndDateTime(classId, date)
+
+        if (gymClassInstanceOptional.isPresent) {
+            val gymClassInstance = gymClassInstanceOptional.get()
+            val gymClass = gymClassInstance.gymClass
+            val trainer = gymClass.trainer
+
+            gymClassInstance.gymClassModifiedInstance?.let {
+                it.description = request.description ?: gymClass.description
+                it.dateTime = request.dateTime?.let { LocalDateTime.parse(it) } ?: gymClass.dateTime
+                it.duration = Duration.ofMinutes(request.duration?.toLong() ?: gymClass.duration.toMinutes())
+                it.maxParticipants = request.maxParticipants ?: gymClass.maxParticipants
+                it.isCanceled = request.isCanceled ?: false
+
+                gymClassModifiedInstanceRepository.save(it)
+                return gymTrainerMapper.modelToDto(trainer)
+            }
+
+            val gymClassModifiedInstance = createModifiedClassInstance(gymClassInstance, request)
+
+            gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
+            return gymTrainerMapper.modelToDto(trainer)
+        }
+
+        val gymClassInstance = createClassInstance(classId, request)
+
+        val gymClassModifiedInstance = createModifiedClassInstance(gymClassInstance, request)
+        gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
+
+        val trainer = gymClassInstance.gymClass.trainer
+        gymClassInstance.gymClass.addInstance(gymClassInstance)
+        return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    private fun createClassInstance(gymClassId: String, request: UpdateGymClassInstanceRequest): GymClassInstance {
+        val gymClass = gymClassRepository.findById(gymClassId).orElseThrow { IllegalArgumentException("Class not found!") }
+        return GymClassInstance(
+            dateTime = LocalDateTime.parse(request.originalDateTime),
+            gymClass = gymClass
+        )
+    }
+
+    private fun createModifiedClassInstance(gymClassInstance: GymClassInstance, request: UpdateGymClassInstanceRequest): GymClassModifiedInstance {
+        val gymClass = gymClassInstance.gymClass
+        return GymClassModifiedInstance(
+            description = request.description ?: gymClass.description,
+            dateTime = request.dateTime?.let { LocalDateTime.parse(it) } ?: gymClassInstance.dateTime,
+            duration = Duration.ofMinutes(request.duration?.toLong() ?: gymClass.duration.toMinutes()),
+            maxParticipants = request.maxParticipants ?: gymClass.maxParticipants,
+            trainer = gymClass.trainer,
+            isCanceled = request.isCanceled ?: false,
+            gymClassInstance = gymClassInstance
+        )
     }
 
     @Transactional
