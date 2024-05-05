@@ -68,7 +68,13 @@ private val HourFormatter = DateTimeFormatter.ofPattern("h a")
 private var eventPositions = mapOf<Event, Pair<Int, Int>>()
 
 @Composable
-fun CalendarScreen(navHostController: NavHostController, viewModel: GymClassViewModel) {
+fun CalendarScreen(
+  navHostController: NavHostController,
+  viewModel: GymClassViewModel,
+  onClassClicked: () -> Unit = {
+    navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+  },
+) {
   val gymClass = viewModel.selectedGymClass.observeAsState().value
   var events = remember(gymClass) { mutableStateListOf<Event>() }
 
@@ -99,7 +105,7 @@ fun CalendarScreen(navHostController: NavHostController, viewModel: GymClassView
         minDate = currentWeekStart,
         maxDate = currentWeekStart.plusDays(6),
         eventContent = { event ->
-          BasicEvent(event = event) { onEventClicked(navHostController, viewModel, event) }
+          BasicEvent(event = event) { onEventClicked(navHostController, viewModel, event, onClassClicked) }
         },
       )
     }
@@ -110,6 +116,7 @@ fun onEventClicked(
   navHostController: NavHostController,
   viewModel: GymClassViewModel,
   event: Event,
+  onClassClicked: () -> Unit,
 ) {
   viewModel.updateInstance {
     copy(
@@ -125,7 +132,20 @@ fun onEventClicked(
       isCanceled = false,
     )
   }
-  navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+
+  viewModel.updateInstanceDto {
+    copy(
+      name = event.name,
+      classId = event.classId ?: "",
+      description = event.description ?: "",
+      dateTime = event.start.toString(),
+      duration = event.duration ?: "0",
+      maxParticipants = event.maxParticipants?.toString() ?: "0",
+      participantsIds = event.participantsIds,
+      trainerId = event.trainerId,
+    )
+  }
+  onClassClicked()
 }
 
 fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
@@ -177,7 +197,8 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
     val instanceDescription = modifiedInstance?.description ?: instance.description
     val instanceName = instance.name
     val trainerId = modifiedInstance?.trainerId ?: instance.trainerId
-    val maxParticipants = Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
+    val maxParticipants =
+      Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
 
     events.add(
       Event(
@@ -272,7 +293,7 @@ fun Schedule(
 fun BasicSchedule(
   events: List<Event>,
   modifier: Modifier = Modifier,
-  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it){} },
+  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it) {} },
   minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
   maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
   dayWidth: Dp,
@@ -497,4 +518,4 @@ data class Event(
   val maxParticipants: Int? = 0,
   val participantsIds: List<String> = emptyList(),
   val trainerId: String = "",
-  )
+)

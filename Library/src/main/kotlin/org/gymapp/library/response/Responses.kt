@@ -47,6 +47,7 @@ data class RecurringPatternDto (
 
 data class GymClassInstanceDto (
     val id: String,
+    val classId: String,
     val name: String,
     var description: String,
     var dateTime: String,

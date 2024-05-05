@@ -14,6 +14,7 @@ import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymMemberDto
 import retrofit2.HttpException
 
@@ -44,6 +45,9 @@ class GymClassViewModel : ViewModel() {
   private val _selectedInstance = MutableLiveData<GymClassInstanceModel>()
   val selectedInstance: MutableLiveData<GymClassInstanceModel> = _selectedInstance
 
+  private val _selectedInstanceDto = MutableLiveData<GymClassInstanceDto>()
+  val selectedInstanceDto: MutableLiveData<GymClassInstanceDto> = _selectedInstanceDto
+
   private val _createGymClassRequest = MutableLiveData<UpdateClassRequest>()
   val createGymClassRequest: MutableLiveData<UpdateClassRequest> = _createGymClassRequest
 
@@ -62,12 +66,31 @@ class GymClassViewModel : ViewModel() {
     _updatedGymClass.value = gymClass
   }
 
+  fun setSelectedInstanceDto(gymClassInstanceDto: GymClassInstanceDto) {
+    _selectedInstanceDto.value = gymClassInstanceDto
+  }
+
   fun updateGymClass(update: GymClassDto.() -> GymClassDto) {
     _updatedGymClass.value = update(_updatedGymClass.value!!)
   }
 
   fun updateInstance(update: GymClassInstanceModel.() -> GymClassInstanceModel) {
     _selectedInstance.value = update(_selectedInstance.value ?: GymClassInstanceModel())
+  }
+
+  fun updateInstanceDto(update: GymClassInstanceDto.() -> GymClassInstanceDto) {
+    _selectedInstanceDto.value = update(_selectedInstanceDto.value ?: GymClassInstanceDto(
+        id = "",
+        classId = "",
+        name = "",
+        description = "",
+        dateTime = "",
+        duration = "",
+        maxParticipants = "",
+        participantsIds = emptyList(),
+        trainerId = "",
+        gymClassModifiedInstance = null,
+    ))
   }
 
   fun updateGymClassReview(update: GymClassReview.() -> GymClassReview) {

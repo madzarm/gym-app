@@ -37,6 +37,8 @@ import com.example.gym_app.screens.trainer.TrainerGymClassInstanceScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
+import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassInstanceDto
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedGetBackStackEntry", "UnusedMaterial3ScaffoldPaddingParameter")
@@ -80,12 +82,13 @@ fun GymHomeScreen(navController: NavController) {
       composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
         GroupTrainingsScreen(
           sharedViewModel = viewModel,
-          onGymClassClick = {
-            gymClassViewModel.setSelectedGymClass(it)
+          onGymClassClick = { gymClassInstanceDto: GymClassInstanceDto, gymClassDto: GymClassDto ->
+            gymClassViewModel.setSelectedGymClass(gymClassDto)
+            gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
             navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
           },
         ) {
-          gymClassViewModel.setSelectedGymClass(it)
+          //TODO change when backend is fixed
           navHostController.navigate(AppRoutes.REVIEW_GYM_CLASS_SCREEN)
         }
       }
@@ -106,13 +109,18 @@ fun GymHomeScreen(navController: NavController) {
       composable(AppRoutes.CALENDAR_SCREEN) {
         CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel)
       }
+      composable(AppRoutes.CALENDAR_SCREEN_MEMBER) {
+        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel) {
+            navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        }
+      }
       composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
         ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
       }
       composable(AppRoutes.GYM_CLASS_INSTANCE_SCREEN) {
         TrainerGymClassInstanceScreen(
           navHostController = navHostController,
-         viewModel = gymClassViewModel
+          viewModel = gymClassViewModel,
         )
       }
       composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
