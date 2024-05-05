@@ -8,6 +8,7 @@ import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.common.readErrorMessage
 import kotlinx.coroutines.launch
+import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
@@ -28,6 +29,9 @@ class GymClassViewModel : ViewModel() {
 
   private val _createGymClassRequest = MutableLiveData<UpdateClassRequest>()
   val createGymClassRequest: MutableLiveData<UpdateClassRequest> = _createGymClassRequest
+
+  private val _createRecurringGymClassRequest = MutableLiveData<CreateRecurringClassRequest>()
+  val createRecurringGymClassRequest: MutableLiveData<CreateRecurringClassRequest> = _createRecurringGymClassRequest
 
   private val _gymClassReview = MutableLiveData<GymClassReview>()
   val gymClassReview: MutableLiveData<GymClassReview> = _gymClassReview
@@ -59,6 +63,10 @@ class GymClassViewModel : ViewModel() {
 
   fun updateRequest(update: UpdateClassRequest.() -> UpdateClassRequest) {
     _createGymClassRequest.value = update(_createGymClassRequest.value ?: UpdateClassRequest())
+  }
+
+  fun updateRecurringClassRequest(update: CreateRecurringClassRequest.() -> CreateRecurringClassRequest) {
+    _createRecurringGymClassRequest.value = update(_createRecurringGymClassRequest.value ?: CreateRecurringClassRequest())
   }
 
   fun submitReview(
@@ -147,6 +155,36 @@ class GymClassViewModel : ViewModel() {
 
       try {
         ApiClient.apiService.createGymClass(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          gymId,
+          request,
+        )
+        onSuccess()
+      } catch (e: Exception) {
+        onError(e.message ?: "An error occurred")
+      }
+    }
+
+  fun createRecurringGymClass(
+    context: Context,
+    gymId: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      val request =
+        CreateRecurringClassRequest(
+          name = _createGymClassRequest.value!!.name ?: "",
+          description = _createGymClassRequest.value!!.description ?: "",
+          duration = _createGymClassRequest.value!!.duration ?: "0",
+          maxParticipants = createGymClassRequest.value!!.maxParticipants ?: 0,
+          dateTime = _createGymClassRequest.value!!.dateTime ?: "",
+          maxNumOfOccurrences = _createRecurringGymClassRequest.value!!.maxNumOfOccurrences,
+          daysOfWeek = _createRecurringGymClassRequest.value!!.daysOfWeek,
+        )
+
+      try {
+        ApiClient.apiService.createRecurringGymClass(
           "Bearer ${TokenManager.getAccessToken(context)}",
           gymId,
           request,

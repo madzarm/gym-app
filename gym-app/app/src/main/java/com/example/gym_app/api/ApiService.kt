@@ -1,6 +1,7 @@
 package com.example.gym_app.api
 
 import org.gymapp.library.request.CreateGymRequest
+import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
@@ -61,6 +62,9 @@ interface ApiService {
 
     @POST("/trainers/gyms/{gymId}/classes")
     suspend fun createGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: UpdateClassRequest): GymTrainerDto
+
+    @POST("/trainers/gyms/{gymId}/classes/recurring")
+    suspend fun createRecurringGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: CreateRecurringClassRequest): GymTrainerDto
 
     @GET("/gyms/{gymId}/classes")
     suspend fun getGymClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
