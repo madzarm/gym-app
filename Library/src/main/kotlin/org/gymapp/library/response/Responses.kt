@@ -100,7 +100,7 @@ data class GymClassReviewDto(
     val id: String,
     val review: String,
     val rating: Int,
-    val gymClassId: String,
+    val gymClassInstanceId: String,
     val memberId: String,
     val date: String,
 )

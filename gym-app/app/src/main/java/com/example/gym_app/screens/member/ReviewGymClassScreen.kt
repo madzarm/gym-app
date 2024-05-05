@@ -48,7 +48,7 @@ fun ReviewGymClassScreen(
   navHostController: NavHostController,
 ) {
 
-  val gymClass = viewModel.selectedGymClass.observeAsState()
+  val instance = viewModel.selectedInstanceDto.observeAsState()
   val gymClassReview = viewModel.gymClassReview.observeAsState()
   val trainerReview = viewModel.trainerReview.observeAsState()
   val user = sharedViewModel.selectedGymUser.value
@@ -56,7 +56,7 @@ fun ReviewGymClassScreen(
 
   println(viewModel.selectedGymClass.value?.id ?: "Unknown")
 
-  CustomBackground(title = "Reviewing class: ${gymClass.value?.name ?: "Unknown"}") {
+  CustomBackground(title = "Reviewing class: ${instance.value?.name ?: "Unknown"}") {
     Scaffold(
       modifier =
         Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp))

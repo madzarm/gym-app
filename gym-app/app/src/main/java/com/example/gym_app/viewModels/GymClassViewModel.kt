@@ -18,7 +18,7 @@ import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymMemberDto
 import retrofit2.HttpException
 
-data class GymClassReview(val gymClassDto: GymClassDto, val rating: Int, val review: String)
+data class GymClassReview(val gymClassInstanceDto: GymClassInstanceDto, val rating: Int, val review: String)
 
 data class TrainerReview(val trainerId: String, val rating: Int, val review: String)
 
@@ -97,7 +97,7 @@ class GymClassViewModel : ViewModel() {
     _gymClassReview.value =
       update(
         _gymClassReview.value
-          ?: GymClassReview(gymClassDto = _selectedGymClass.value!!, rating = 1, review = "")
+          ?: GymClassReview(gymClassInstanceDto = _selectedInstanceDto.value!!, rating = 1, review = "")
       )
   }
 
@@ -128,14 +128,14 @@ class GymClassViewModel : ViewModel() {
         ReviewGymClassRequest(
           review = _gymClassReview.value?.review ?: "",
           rating = _gymClassReview.value?.rating ?: 1,
-          classId = _selectedGymClass.value?.id ?: "",
+          gymClassInstanceId = _selectedInstanceDto.value?.id ?: "",
           memberId = memberId,
         )
       val trainerReview =
         ReviewTrainerRequest(
           review = _trainerReview.value?.review ?: "",
           rating = _trainerReview.value?.rating ?: 1,
-          trainerId = _selectedGymClass.value?.trainerId ?: "",
+          trainerId = _selectedInstanceDto.value?.trainerId ?: "",
           memberId = memberId,
         )
       try {

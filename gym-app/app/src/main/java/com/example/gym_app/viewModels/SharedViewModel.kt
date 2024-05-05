@@ -11,6 +11,7 @@ import com.example.gym_app.common.TokenManager
 import kotlinx.coroutines.launch
 import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymUserDto
 
 class SharedViewModel : ViewModel() {
@@ -23,8 +24,8 @@ class SharedViewModel : ViewModel() {
     private val _gymClasses = MutableLiveData<List<GymClassDto>>()
     val gymClasses: LiveData<List<GymClassDto>> = _gymClasses
 
-    private val _gymClassesForReview = MutableLiveData<List<GymClassDto>>()
-    val gymClassesForReview: LiveData<List<GymClassDto>> = _gymClassesForReview
+    private val _gymClassesForReview = MutableLiveData<List<GymClassInstanceDto>>()
+    val gymClassesForReview: LiveData<List<GymClassInstanceDto>> = _gymClassesForReview
 
     private val _liveStatus = MutableLiveData<Int>()
     val liveStatus: LiveData<Int> = _liveStatus
@@ -60,7 +61,7 @@ class SharedViewModel : ViewModel() {
 
     fun getGymClassesForReview(context: Context, gymId: String) {
         viewModelScope.launch {
-            val gymClasses: List<GymClassDto> = ApiClient.apiService.getGymClassesForReview("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            val gymClasses: List<GymClassInstanceDto> = ApiClient.apiService.getGymClassesForReview("Bearer ${TokenManager.getAccessToken(context)}", gymId)
             _gymClassesForReview.value = gymClasses
         }
     }

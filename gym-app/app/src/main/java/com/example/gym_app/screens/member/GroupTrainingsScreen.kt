@@ -49,7 +49,7 @@ sealed class ListItem {
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (GymClassInstanceDto, GymClassDto) -> Unit, onGymClassReviewClick: (GymClassDto) -> Unit) {
+fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (GymClassInstanceDto, GymClassDto) -> Unit, onGymClassReviewClick: (GymClassInstanceDto) -> Unit) {
   val context = LocalContext.current
 
   val selectedGymUser = sharedViewModel.selectedGymUser.value
@@ -76,9 +76,7 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
         val combinedList =
           combineLists(
             filterOldClasses(gymClasses.value ?: emptyList()),
-            // TODO fix this later... should add functionality for reviewing ocurrances on backend
-            //  gymClassesForReview.value ?: emptyList(),
-            emptyList()
+            gymClassesForReview.value ?: emptyList(),
           )
 
         items(combinedList) { item ->
@@ -209,11 +207,10 @@ fun GymClassInstance(gymClass: GymClassInstanceDto, gymClassDto: GymClassDto, on
 }
 
 @Composable
-fun GymClassReview(gymClass: GymClassInstanceDto, onClick: (GymClassDto) -> Unit) {
+fun GymClassReview(gymClass: GymClassInstanceDto, onClick: (GymClassInstanceDto) -> Unit) {
   TextButton(
     onClick = {
-              // TODO fix on backend
-      // onClick(gymClass)
+      onClick(gymClass)
               },
     modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp),
     shape = RoundedCornerShape(20.dp),

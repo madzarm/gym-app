@@ -87,8 +87,8 @@ fun GymHomeScreen(navController: NavController) {
             gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
             navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
           },
-        ) {
-          //TODO change when backend is fixed
+        ) { gymClassInstanceDto: GymClassInstanceDto ->
+          gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
           navHostController.navigate(AppRoutes.REVIEW_GYM_CLASS_SCREEN)
         }
       }
@@ -111,7 +111,7 @@ fun GymHomeScreen(navController: NavController) {
       }
       composable(AppRoutes.CALENDAR_SCREEN_MEMBER) {
         CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel) {
-            navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+          navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
         }
       }
       composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {

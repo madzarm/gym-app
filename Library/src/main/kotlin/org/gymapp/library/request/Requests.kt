@@ -51,7 +51,7 @@ data class UpdateGymClassInstanceRequest(
 data class ReviewGymClassRequest (
     var review: String = "",
     var rating: Int = 0,
-    var classId: String = "",
+    var gymClassInstanceId: String = "",
     var memberId: String = ""
 )
 
