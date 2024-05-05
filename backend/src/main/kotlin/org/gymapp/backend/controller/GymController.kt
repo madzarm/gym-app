@@ -35,11 +35,11 @@ class GymController(
     }
 
     @GetMapping("/{gymId}/classes")
-    fun getGymClasses(
+    fun getUpcomingGymClasses(
         @PathVariable gymId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<List<GymClassDto>> {
-        return ResponseEntity.ok(gymService.getGymClasses(common.getCurrentUser(jwt), gymId))
+        return ResponseEntity.ok(gymService.getUpcomingGymClasses(common.getCurrentUser(jwt), gymId))
     }
 
     @GetMapping("/members/{memberId}")

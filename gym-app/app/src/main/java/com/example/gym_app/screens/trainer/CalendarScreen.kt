@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.viewModels.GymClassViewModel
+import com.example.gym_app.viewModels.SharedViewModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -60,6 +61,20 @@ import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 import kotlinx.datetime.DayOfWeek
 import org.gymapp.library.response.GymClassDto
+import kotlin.random.Random
+
+val colorPalette = listOf(
+  0xFFFF6347, // Tomato
+  0xFF4682B4, // Steel Blue
+  0xFF32CD32, // Lime Green
+  0xFFFFD700, // Gold
+  0xFF6A5ACD, // Slate Blue
+  0xFFFF4500, // Orange Red
+  0xFF9ACD32, // Yellow Green
+  0xFF40E0D0, // Turquoise
+  0xFFEE82EE, // Violet
+  0xFFFFC0CB  // Pink
+)
 
 private val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 private val DayFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
@@ -71,9 +86,9 @@ private var eventPositions = mapOf<Event, Pair<Int, Int>>()
 fun CalendarScreen(
   navHostController: NavHostController,
   viewModel: GymClassViewModel,
-  onClassClicked: () -> Unit = {
-    navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
-  },
+  sharedViewModel: SharedViewModel? = null,
+  shouldUseAllData: Boolean = false,
+  onClassClicked: () -> Unit = { navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN) },
 ) {
   val gymClass = viewModel.selectedGymClass.observeAsState().value
   var events = remember(gymClass) { mutableStateListOf<Event>() }
@@ -82,12 +97,26 @@ fun CalendarScreen(
     mutableStateOf(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
   }
 
-  // When gymClass changes, update events for the calendar
-  LaunchedEffect(gymClass) {
-    if (gymClass != null && gymClass.isRecurring) {
+  if (shouldUseAllData) {
+    LaunchedEffect(true) {
       events.clear()
-      events.addAll(mapGymClassToEvents(gymClass))
+      sharedViewModel?.gymClasses?.value?.forEach { gymClass ->
+        events.addAll(
+          mapGymClassToEvents(
+            gymClass
+          )
+        )
+      }
       eventPositions = calculateEventPositions(events)
+    }
+  } else {
+
+    LaunchedEffect(true) {
+      if (gymClass != null && gymClass.isRecurring) {
+        events.clear()
+        events.addAll(mapGymClassToEvents(gymClass))
+        eventPositions = calculateEventPositions(events)
+      }
     }
   }
 
@@ -105,19 +134,14 @@ fun CalendarScreen(
         minDate = currentWeekStart,
         maxDate = currentWeekStart.plusDays(6),
         eventContent = { event ->
-          BasicEvent(event = event) { onEventClicked(navHostController, viewModel, event, onClassClicked) }
+          BasicEvent(event = event) { onEventClicked(viewModel, event, onClassClicked) }
         },
       )
     }
   }
 }
 
-fun onEventClicked(
-  navHostController: NavHostController,
-  viewModel: GymClassViewModel,
-  event: Event,
-  onClassClicked: () -> Unit,
-) {
+fun onEventClicked(viewModel: GymClassViewModel, event: Event, onClassClicked: () -> Unit) {
   viewModel.updateInstance {
     copy(
       name = event.name,
@@ -149,6 +173,7 @@ fun onEventClicked(
 }
 
 fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
+  val color = Color((colorPalette[Random.nextInt(colorPalette.size)]))
   val events = mutableListOf<Event>()
   if (gymClass.isRecurring && gymClass.recurringPattern != null) {
     val dateTime = LocalDateTime.parse(gymClass.dateTime)
@@ -159,9 +184,11 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
         val eventDate =
           startDate.plusWeeks(i.toLong()).with(TemporalAdjusters.nextOrSame(dayOfWeek))
 
-        if (!gymClass.instances.any {
+        if (
+          !gymClass.instances.any {
             LocalDateTime.parse(it.dateTime).toLocalDate().isEqual(eventDate)
-          }) {
+          }
+        ) {
           events.add(
             Event(
               classId = gymClass.id,
@@ -176,7 +203,7 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
                     .toLocalTime()
                     .plusMinutes(gymClass.duration?.toLong() ?: 60),
                 ),
-              color = Color(0xFF1B998B),
+              color = color,
               originalDateTime =
                 LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime()),
               duration = gymClass.duration,
@@ -197,7 +224,8 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
       val instanceDescription = modifiedInstance?.description ?: instance.description
       val instanceName = instance.name
       val trainerId = modifiedInstance?.trainerId ?: instance.trainerId
-      val maxParticipants = Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
+      val maxParticipants =
+        Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
 
       events.add(
         Event(
@@ -206,12 +234,12 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
           description = instanceDescription,
           start = startDateTime,
           end = endDateTime,
-          color = if (modifiedInstance != null) Color(0xFFF4BFDB) else Color(0xFFAFBBF2), // Different color if modified
+          color = color,
           originalDateTime = LocalDateTime.parse(instance.dateTime),
           duration = duration,
           maxParticipants = maxParticipants,
           trainerId = trainerId,
-          participantsIds = instance.participantsIds
+          participantsIds = instance.participantsIds,
         )
       )
     }

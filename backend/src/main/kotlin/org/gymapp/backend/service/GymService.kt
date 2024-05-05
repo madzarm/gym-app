@@ -12,6 +12,7 @@ import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
@@ -67,9 +68,10 @@ class GymService(
         return gymMemberMapper.modelToDtoFull(gymMember)
     }
 
-    fun getGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
+    fun getUpcomingGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
         val gym = findById(gymId)
-        return gymClassMapper.modelsToDtos(gym.classes)
+        val classes = gym.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) && !it.isDeleted }
+        return gymClassMapper.modelsToDtos(classes)
     }
 
     fun findUserGyms(user: User): List<GymDto> {

@@ -2,6 +2,7 @@ package com.example.gym_app.screens.member
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -24,19 +27,23 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.common.formatDuration
 import com.example.gym_app.screens.trainer.CustomBackground
 import com.example.gym_app.viewModels.SharedViewModel
-import kotlinx.datetime.DayOfWeek
+import com.google.android.material.R
 import java.time.LocalDateTime
-import org.gymapp.library.response.GymClassDto
-import org.gymapp.library.response.GymClassInstanceDto
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
+import kotlinx.datetime.DayOfWeek
+import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassInstanceDto
 
 sealed class ListItem {
   data class GymClassItem(val gymClassDto: GymClassInstanceDto) : ListItem()
@@ -46,7 +53,12 @@ sealed class ListItem {
 
 @SuppressLint("UnrememberedGetBackStackEntry")
 @Composable
-fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (GymClassInstanceDto, GymClassDto) -> Unit, onGymClassReviewClick: (GymClassInstanceDto) -> Unit) {
+fun GroupTrainingsScreen(
+  navHostController: NavHostController,
+  sharedViewModel: SharedViewModel,
+  onGymClassClick: (GymClassInstanceDto, GymClassDto) -> Unit,
+  onGymClassReviewClick: (GymClassInstanceDto) -> Unit,
+) {
   val context = LocalContext.current
 
   val selectedGymUser = sharedViewModel.selectedGymUser.value
@@ -58,13 +70,20 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
     sharedViewModel.getGymClassesForReview(context, selectedGymUser?.gym?.id ?: "")
   }
 
-  CustomBackground(title = "All classes") {
+  CustomBackground(title = "Upcoming classes") {
+    IconButton(onClick = { navHostController.navigate(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_MEMBER) }) {
+      Icon(
+        painter = painterResource(id = R.drawable.material_ic_calendar_black_24dp),
+        contentDescription = "View Calendar",
+      )
+    }
     val listState = rememberLazyListState()
 
     Scaffold(
       modifier =
         Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp))
     ) { padding ->
+
       LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize().padding(padding),
@@ -78,8 +97,14 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
 
         items(combinedList) { item ->
           when (item) {
-            is ListItem.GymClassItem -> GymClassInstance(item.gymClassDto,gymClasses.value?.find { it.id == item.gymClassDto.classId }!!, onGymClassClick, )
-            is ListItem.GymClassReviewItem -> GymClassReview(item.gymClassDto, onGymClassReviewClick)
+            is ListItem.GymClassItem ->
+              GymClassInstance(
+                item.gymClassDto,
+                gymClasses.value?.find { it.id == item.gymClassDto.classId }!!,
+                onGymClassClick,
+              )
+            is ListItem.GymClassReviewItem ->
+              GymClassReview(item.gymClassDto, onGymClassReviewClick)
           }
         }
       }
@@ -106,9 +131,10 @@ fun filterOldClasses(gymClasses: List<GymClassDto>): List<GymClassInstanceDto> {
       val nextClassDateTime = calculateNextOccurrenceDateTime(gymClass)
 
       // Check if there's already an existing instance for the next occurrence
-      val existingInstance = gymClass.instances.find {
-        LocalDateTime.parse(it.dateTime).toLocalDate() == nextClassDateTime.toLocalDate()
-      }
+      val existingInstance =
+        gymClass.instances.find {
+          LocalDateTime.parse(it.dateTime).toLocalDate() == nextClassDateTime.toLocalDate()
+        }
       if (existingInstance != null) {
         instances.add(existingInstance)
       } else if (nextClassDateTime.isAfter(LocalDateTime.now())) {
@@ -147,7 +173,10 @@ fun calculateNextOccurrenceDateTime(gymClass: GymClassDto): LocalDateTime {
   return nextDateTime
 }
 
-fun createInstanceFromGymClass(gymClass: GymClassDto, dateTime: LocalDateTime): GymClassInstanceDto {
+fun createInstanceFromGymClass(
+  gymClass: GymClassDto,
+  dateTime: LocalDateTime,
+): GymClassInstanceDto {
   return GymClassInstanceDto(
     id = "",
     classId = gymClass.id ?: "",
@@ -158,12 +187,16 @@ fun createInstanceFromGymClass(gymClass: GymClassDto, dateTime: LocalDateTime): 
     maxParticipants = gymClass.maxParticipants ?: "0",
     participantsIds = listOf(),
     trainerId = gymClass.trainerId,
-    gymClassModifiedInstance = null
+    gymClassModifiedInstance = null,
   )
 }
 
 @Composable
-fun GymClassInstance(gymClass: GymClassInstanceDto, gymClassDto: GymClassDto, onClick: (GymClassInstanceDto, GymClassDto) -> Unit) {
+fun GymClassInstance(
+  gymClass: GymClassInstanceDto,
+  gymClassDto: GymClassDto,
+  onClick: (GymClassInstanceDto, GymClassDto) -> Unit,
+) {
   TextButton(
     onClick = { onClick(gymClass, gymClassDto) },
     modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp),
@@ -173,12 +206,12 @@ fun GymClassInstance(gymClass: GymClassInstanceDto, gymClassDto: GymClassDto, on
       verticalAlignment = Alignment.CenterVertically,
       horizontalArrangement = Arrangement.SpaceBetween,
       modifier =
-      Modifier.clip(RoundedCornerShape(20.dp))
-        .background(
-          brush = Brush.horizontalGradient(colors = listOf(Color(0xFF00d4ff), Color(0xFF0051bf)))
-        )
-        .fillMaxWidth()
-        .fillMaxSize(),
+        Modifier.clip(RoundedCornerShape(20.dp))
+          .background(
+            brush = Brush.horizontalGradient(colors = listOf(Color(0xFF00d4ff), Color(0xFF0051bf)))
+          )
+          .fillMaxWidth()
+          .fillMaxSize(),
     ) {
       Column(
         modifier = Modifier.fillMaxWidth().padding(20.dp),
@@ -206,9 +239,7 @@ fun GymClassInstance(gymClass: GymClassInstanceDto, gymClassDto: GymClassDto, on
 @Composable
 fun GymClassReview(gymClass: GymClassInstanceDto, onClick: (GymClassInstanceDto) -> Unit) {
   TextButton(
-    onClick = {
-      onClick(gymClass)
-              },
+    onClick = { onClick(gymClass) },
     modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp),
     shape = RoundedCornerShape(20.dp),
   ) {

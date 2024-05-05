@@ -81,6 +81,7 @@ fun GymHomeScreen(navController: NavController) {
     ) {
       composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
         GroupTrainingsScreen(
+          navHostController = navHostController,
           sharedViewModel = viewModel,
           onGymClassClick = { gymClassInstanceDto: GymClassInstanceDto, gymClassDto: GymClassDto ->
             gymClassViewModel.setSelectedGymClass(gymClassDto)
@@ -111,6 +112,12 @@ fun GymHomeScreen(navController: NavController) {
       }
       composable(AppRoutes.CALENDAR_SCREEN_MEMBER) {
         CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel) {
+          navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        }
+      }
+      composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_MEMBER) {
+        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel,
+          sharedViewModel = viewModel, shouldUseAllData = true) {
           navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
         }
       }
