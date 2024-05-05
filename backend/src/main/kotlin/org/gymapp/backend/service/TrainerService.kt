@@ -224,16 +224,57 @@ class TrainerService(
     }
 
     @Transactional
-    fun deleteClassInstance(currentUser: User, classId: String): GymTrainerDto {
-        val gymClassInstance = gymClassInstanceRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
+    fun cancelClass(currentUser: User, classId: String, dateTime: String): GymTrainerDto {
+        val date = LocalDateTime.parse(dateTime).toLocalDate()
+        val gymClassInstanceOptional = gymClassInstanceRepository.findByGymClassIdAndDateTime(classId, date)
+
+        if (gymClassInstanceOptional.isPresent) {
+            val gymClassInstance = gymClassInstanceOptional.get()
+            val gymClass = gymClassInstance.gymClass
+            val trainer = gymClass.trainer
+
+            gymClassInstance.gymClassModifiedInstance?.let {
+                it.isCanceled = true
+
+                gymClassModifiedInstanceRepository.save(it)
+                return gymTrainerMapper.modelToDto(trainer)
+            }
+
+            val gymClassModifiedInstance = createCanceledModifiedClassInstance(gymClassInstance)
+
+            gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
+            return gymTrainerMapper.modelToDto(trainer)
+        }
+
+        val gymClassInstance = createCanceledClassInstance(classId, dateTime)
+
+        val gymClassModifiedInstance = createCanceledModifiedClassInstance(gymClassInstance)
+        gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
+
         val trainer = gymClassInstance.gymClass.trainer
-
-        gymClassInstanceRepository.delete(gymClassInstance)
-
-        val fcmTokens = gymClassInstance.getParticipantsFcmTokens()
-        notificationService.sendNotifications(fcmTokens, "Class cancelled!", "The class ${gymClassInstance.gymClass.name} has been cancelled!")
-
+        gymClassInstance.gymClass.addInstance(gymClassInstance)
         return gymTrainerMapper.modelToDto(trainer)
+    }
+
+    private fun createCanceledClassInstance(gymClassId: String, dateTime: String): GymClassInstance {
+        val gymClass = gymClassRepository.findById(gymClassId).orElseThrow { IllegalArgumentException("Class not found!") }
+        return GymClassInstance(
+            dateTime = LocalDateTime.parse(dateTime),
+            gymClass = gymClass
+        )
+    }
+
+    private fun createCanceledModifiedClassInstance(gymClassInstance: GymClassInstance): GymClassModifiedInstance {
+        val gymClass = gymClassInstance.gymClass
+        return GymClassModifiedInstance(
+            dateTime = gymClassInstance.dateTime,
+            duration = gymClass.duration,
+            maxParticipants = gymClass.maxParticipants,
+            trainer = gymClass.trainer,
+            isCanceled = true,
+            gymClassInstance = gymClassInstance,
+            description = gymClass.description
+        )
     }
 
     fun findTrainerById(id: String): GymTrainer {

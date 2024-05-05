@@ -1,5 +1,6 @@
 package org.gymapp.backend.controller
 
+import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.TrainerService
 import org.gymapp.library.request.CreateClassRequest
@@ -65,11 +66,12 @@ class TrainerController(
         return trainerService.updateClass(common.getCurrentUser(jwt), classId, request)
     }
 
-    @DeleteMapping("/gyms/classes/{classId}")
-    fun deleteClass(
+    @DeleteMapping("/gyms/classes/{classId}/cancel")
+    fun cancelClass(
         @AuthenticationPrincipal jwt: Jwt,
-        @PathVariable("classId") classId: String
+        @PathVariable("classId") classId: String,
+        @PathParam("dateTime") dateTime: String,
     ): GymTrainerDto {
-        return trainerService.deleteClassInstance(common.getCurrentUser(jwt), classId)
+        return trainerService.cancelClass(common.getCurrentUser(jwt), classId, dateTime)
     }
 }

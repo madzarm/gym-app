@@ -158,11 +158,10 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
       dayOfWeeks.forEach { dayOfWeek ->
         val eventDate =
           startDate.plusWeeks(i.toLong()).with(TemporalAdjusters.nextOrSame(dayOfWeek))
-        if (
-          !gymClass.instances.any {
+
+        if (!gymClass.instances.any {
             LocalDateTime.parse(it.dateTime).toLocalDate().isEqual(eventDate)
-          }
-        ) {
+          }) {
           events.add(
             Event(
               classId = gymClass.id,
@@ -190,33 +189,32 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
     }
   }
   gymClass.instances.forEach { instance ->
-    val modifiedInstance = instance.gymClassModifiedInstance
-    val startDateTime = LocalDateTime.parse(modifiedInstance?.dateTime ?: instance.dateTime)
-    val duration = modifiedInstance?.duration ?: instance.duration
-    val endDateTime = startDateTime.plusMinutes(duration.toLong())
-    val instanceDescription = modifiedInstance?.description ?: instance.description
-    val instanceName = instance.name
-    val trainerId = modifiedInstance?.trainerId ?: instance.trainerId
-    val maxParticipants =
-      Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
+    if (instance.gymClassModifiedInstance?.isCanceled != true) {
+      val modifiedInstance = instance.gymClassModifiedInstance
+      val startDateTime = LocalDateTime.parse(modifiedInstance?.dateTime ?: instance.dateTime)
+      val duration = modifiedInstance?.duration ?: instance.duration
+      val endDateTime = startDateTime.plusMinutes(duration.toLong())
+      val instanceDescription = modifiedInstance?.description ?: instance.description
+      val instanceName = instance.name
+      val trainerId = modifiedInstance?.trainerId ?: instance.trainerId
+      val maxParticipants = Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
 
-    events.add(
-      Event(
-        classId = gymClass.id,
-        name = instanceName,
-        description = instanceDescription,
-        start = startDateTime,
-        end = endDateTime,
-        color =
-          if (modifiedInstance != null) Color(0xFFF4BFDB)
-          else Color(0xFFAFBBF2), // Different color if modified
-        originalDateTime = LocalDateTime.parse(instance.dateTime),
-        duration = duration,
-        maxParticipants = maxParticipants,
-        participantsIds = instance.participantsIds,
-        trainerId = trainerId,
+      events.add(
+        Event(
+          classId = gymClass.id,
+          name = instanceName,
+          description = instanceDescription,
+          start = startDateTime,
+          end = endDateTime,
+          color = if (modifiedInstance != null) Color(0xFFF4BFDB) else Color(0xFFAFBBF2), // Different color if modified
+          originalDateTime = LocalDateTime.parse(instance.dateTime),
+          duration = duration,
+          maxParticipants = maxParticipants,
+          trainerId = trainerId,
+          participantsIds = instance.participantsIds
+        )
       )
-    )
+    }
   }
   return events
 }

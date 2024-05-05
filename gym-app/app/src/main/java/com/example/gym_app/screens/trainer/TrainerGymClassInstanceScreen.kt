@@ -109,10 +109,10 @@ fun TrainerGymClassInstanceScreen(
               confirmButton = {
                 Button(
                   onClick = {
-                    viewModel.deleteGymClass(
+                    viewModel.cancelGymClass(
                       context = context,
                       onSuccess = {
-                        Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                        Toast.makeText(context, "Gym class canceled", Toast.LENGTH_LONG).show()
                         navHostController.popBackStack()
                       },
                       onFailure = { Toast.makeText(context, it, Toast.LENGTH_LONG).show() },
@@ -134,10 +134,10 @@ fun TrainerGymClassInstanceScreen(
               if (participantsCount > 0) {
                 showConfirmationDialog = true
               } else {
-                viewModel.deleteGymClass(
+                viewModel.cancelGymClass(
                   context = context,
                   onSuccess = {
-                    Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, "Gym class canceled", Toast.LENGTH_LONG).show()
                     navHostController.popBackStack()
                   },
                   onFailure = { Toast.makeText(context, it, Toast.LENGTH_LONG).show() },

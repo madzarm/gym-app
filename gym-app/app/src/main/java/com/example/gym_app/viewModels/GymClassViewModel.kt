@@ -288,4 +288,22 @@ class GymClassViewModel : ViewModel() {
       }
     }
   }
+
+  fun cancelGymClass(
+    context: Context,
+    onSuccess: () -> Unit,
+    onFailure: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      try {
+        ApiClient.apiService.cancelGymClass(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          _selectedInstance.value?.classId ?: "",
+          _selectedInstance.value?.originalDateTime ?: "",
+        )
+        onSuccess()
+      } catch (e: HttpException) {
+        onFailure(readErrorMessage(e))
+      }
+    }
 }

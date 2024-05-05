@@ -65,6 +65,9 @@ interface ApiService {
     @DELETE("/trainers/gyms/classes/{classId}")
     suspend fun deleteGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String): GymTrainerDto
 
+    @DELETE("/trainers/gyms/classes/{classId}/cancel")
+    suspend fun cancelGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Query("dateTime") dateTime: String): GymTrainerDto
+
     @POST("/trainers/gyms/{gymId}/classes")
     suspend fun createGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: UpdateClassRequest): GymTrainerDto
 
