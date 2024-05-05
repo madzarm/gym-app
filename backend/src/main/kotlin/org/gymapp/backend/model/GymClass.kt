@@ -40,4 +40,8 @@ class GymClass (
     fun addInstance(instance: GymClassInstance) {
         this.instances.add(instance)
     }
+
+    fun removeInstance(instance: GymClassInstance) {
+        this.instances.remove(instance)
+    }
 }

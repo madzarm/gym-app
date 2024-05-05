@@ -148,6 +148,7 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
+    @Transactional
     fun updateClass(currentUser: User, classId: String, request: UpdateClassRequest): GymTrainerDto {
         val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
         val trainer = gymClass.trainer
@@ -191,7 +192,7 @@ class TrainerService(
             return gymTrainerMapper.modelToDto(trainer)
         }
 
-        val gymClassInstance = createClassInstance(classId, request)
+        val gymClassInstance = createClassInstance(classId, request.originalDateTime)
 
         val gymClassModifiedInstance = createModifiedClassInstance(gymClassInstance, request)
         gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
@@ -201,10 +202,10 @@ class TrainerService(
         return gymTrainerMapper.modelToDto(trainer)
     }
 
-    private fun createClassInstance(gymClassId: String, request: UpdateGymClassInstanceRequest): GymClassInstance {
+    private fun createClassInstance(gymClassId: String, dateTime: String): GymClassInstance {
         val gymClass = gymClassRepository.findById(gymClassId).orElseThrow { IllegalArgumentException("Class not found!") }
         return GymClassInstance(
-            dateTime = LocalDateTime.parse(request.originalDateTime),
+            dateTime = LocalDateTime.parse(dateTime),
             gymClass = gymClass
         )
     }
