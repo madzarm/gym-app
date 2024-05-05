@@ -48,12 +48,23 @@ data class RecurringPatternDto (
 data class GymClassInstanceDto (
     val id: String,
     val name: String,
-    val description: String,
-    val dateTime: String,
-    val duration: String,
-    val maxParticipants: String,
-    val participantsIds: List<String>,
-    val trainerId: String,
+    var description: String,
+    var dateTime: String,
+    var duration: String,
+    var maxParticipants: String,
+    var participantsIds: List<String>,
+    var trainerId: String,
+    var gymClassModifiedInstance: GymClassModifiedInstanceDto?
+)
+
+data class GymClassModifiedInstanceDto(
+    val id: String,
+    var description: String,
+    var dateTime: String,
+    var duration: String,
+    var maxParticipants: String,
+    var isCanceled: Boolean,
+    var trainerId: String,
 )
 
 data class GymMemberDto (

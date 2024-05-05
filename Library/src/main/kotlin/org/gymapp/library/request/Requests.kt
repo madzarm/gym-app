@@ -21,12 +21,31 @@ class CreateClassRequest {
     val maxParticipants: Int = 0
 }
 
+data class CreateRecurringClassRequest(
+    val name: String,
+    val description: String,
+    val dateTime: String,
+    val duration: String,
+    val maxParticipants: Int,
+    val maxNumOfOccurrences: Int,
+    val daysOfWeek: List<Int>,
+)
+
 data class UpdateClassRequest(
     val name: String? = null,
     val description: String? = null,
     val dateTime: String? = null,
     val duration: String? = null,
     val maxParticipants: Int? = null
+)
+
+data class UpdateGymClassInstanceRequest(
+    val description: String? = null,
+    val originalDateTime: String,
+    val dateTime: String? = null,
+    val duration: String? = null,
+    val maxParticipants: Int? = null,
+    val isCanceled: Boolean? = false,
 )
 
 data class ReviewGymClassRequest (
