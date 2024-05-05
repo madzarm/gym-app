@@ -38,7 +38,10 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
   val context = LocalContext.current
   val gymClass = viewModel.selectedGymClass.observeAsState()
   var showConfirmationDialog by remember { mutableStateOf(false) }
-  val participantsCount = gymClass.value?.participantsIds?.size ?: 0
+
+  val participantsCount = if (gymClass.value!!.isRecurring) { 0 } else {
+    gymClass.value?.instances!!.get(0).participantsIds.size
+  }
   val gymClassUpdatable = viewModel.updatedGymClass.observeAsState()
   CustomBackground(title = gymClass.value?.name ?: "Unknown class") {
     Scaffold(
@@ -80,7 +83,9 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         )
         ShowDatePicker(viewModel)
         ShowTimePicker(viewModel)
-        Text(text = "Participants registered: ${gymClass.value?.participantsIds?.size ?: 0}")
+        if (!gymClass.value!!.isRecurring) {
+          Text(text = "Participants registered: ${participantsCount}")
+        }
         Row {
           Button(
             onClick = {
@@ -97,7 +102,11 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
               onDismissRequest = { showConfirmationDialog = false },
               title = { Text("Confirm Deletion") },
               text = {
-                Text("Are you sure you want to delete a class that has $participantsCount participants? Participants will be notified!")
+                if (gymClass.value!!.isRecurring) {
+                  Text("Are you sure you want to delete a recurring class?")
+                } else {
+                  Text("Are you sure you want to delete a class that has $participantsCount participants? Participants will be notified!")
+                }
               },
               confirmButton = {
                 Button(
@@ -124,7 +133,7 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
 
           Button(
             onClick = {
-              if (participantsCount > 0) {
+              if (gymClass.value!!.isRecurring || participantsCount > 0) {
                 showConfirmationDialog = true
               } else {
                 viewModel.deleteGymClass(context = context, onSuccess = {
