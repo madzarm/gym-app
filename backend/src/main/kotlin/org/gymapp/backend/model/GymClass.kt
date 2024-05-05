@@ -28,9 +28,6 @@ class GymClass (
     val gym: Gym,
 
     @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
-    val reviews: List<GymClassReview> = mutableListOf(),
-
-    @OneToMany(mappedBy = "gymClass", cascade = [CascadeType.ALL])
     var instances: MutableList<GymClassInstance> = mutableListOf(),
 
     @OneToOne(mappedBy = "gymClass", cascade = [CascadeType.ALL])

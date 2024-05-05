@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface GymClassReviewMapper {
 
-    @Mapping(target = "gymClassId", source = "gymClass.id")
+    @Mapping(target = "gymClassInstanceId", source = "gymClassInstance.id")
     @Mapping(target = "memberId", source = "member.id")
     GymClassReviewDto modelToDto(GymClassReview gymClassReview);
 }

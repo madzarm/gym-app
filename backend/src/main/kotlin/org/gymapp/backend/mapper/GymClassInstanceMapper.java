@@ -33,6 +33,8 @@ public interface GymClassInstanceMapper {
     @Mapping(target = "classId", source = "gymClass.id")
     GymClassInstanceDto modelToDto(GymClassInstance gymClassInstance);
 
+    List<GymClassInstanceDto> instancesToDtos(List<GymClassInstance> gymClassInstances);
+
     List<GymClassDto> modelsToDtos(List<GymClass> gymClasses);
 
     @Named("participantsToIds")

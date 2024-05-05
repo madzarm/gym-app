@@ -14,7 +14,7 @@ class GymClassReview (
     val rating: Int,
     val date: LocalDateTime = LocalDateTime.now(),
     @ManyToOne
-    val gymClass: GymClass,
+    val gymClassInstance: GymClassInstance,
     @ManyToOne
     val member: GymMember
 ) {

@@ -81,7 +81,7 @@ class MemberController (
     fun getClassesForReview(
         @PathVariable gymId: String,
         @AuthenticationPrincipal jwt: Jwt
-    ): ResponseEntity<List<GymClassDto>> {
+    ): ResponseEntity<List<GymClassInstanceDto>> {
         return ResponseEntity.ok().body(memberService.getClassesForReview(common.getCurrentUser(jwt), gymId))
     }
 

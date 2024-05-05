@@ -18,6 +18,9 @@ open class GymClassInstance (
     @ManyToOne
     val gymClass: GymClass,
 
+    @OneToMany(mappedBy = "gymClassInstance", cascade = [CascadeType.ALL])
+    val reviews: List<GymClassReview> = mutableListOf(),
+
     @ManyToMany
     @JoinTable(
         name = "gym_member_classes",

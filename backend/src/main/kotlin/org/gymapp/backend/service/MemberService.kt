@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addParticipant
 import org.gymapp.backend.extensions.getMember
+import org.gymapp.backend.mapper.GymClassInstanceMapper
 import org.gymapp.backend.mapper.GymClassMapper
 import org.gymapp.backend.mapper.GymMemberMapper
 import org.gymapp.backend.mapper.GymUserMapper
@@ -31,6 +32,7 @@ class MemberService(
     @Autowired private val gymClassMapper: GymClassMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
     @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
+    @Autowired private val gymClassInstanceMapper: GymClassInstanceMapper,
 ) {
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
@@ -126,16 +128,15 @@ class MemberService(
         return gymVisitMapper.modelToDto(visit)
     }
 
-    fun getClassesForReview(currentUser: User, gymId: String): List<GymClassDto> {
+    fun getClassesForReview(currentUser: User, gymId: String): List<GymClassInstanceDto> {
         val member = currentUser.getMember(gymId)
 
         // TODO uncomment this when testing is finished
         // val finishedClasses = member.classes.filter { it.dateTime.plusMinutes(it.duration.toMinutes()).isBefore(LocalDateTime.now()) }
         val finishedClassesInstances = member.classes.filter { it.dateTime.isBefore(LocalDateTime.now()) }
-        val finishedClasses = finishedClassesInstances.map { it.gymClass }
-        val nonReviewedFinishedClasses = finishedClasses.filter { it.reviews.none { review -> review.member.id == member.id } }
+        val nonReviewedFinishedClasses = finishedClassesInstances.filter { it.reviews.none { review -> review.member.id == member.id } }
 
-        return gymClassMapper.modelsToDtos(nonReviewedFinishedClasses)
+        return gymClassInstanceMapper.instancesToDtos(nonReviewedFinishedClasses)
     }
 
 
