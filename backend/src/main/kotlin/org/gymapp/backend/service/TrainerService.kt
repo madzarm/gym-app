@@ -130,18 +130,18 @@ class TrainerService(
 
         val gymClass = GymClass(
             id = UUID.randomUUID().toString(),
-            name = request.name,
-            description = request.description,
+            name = request.name ?: "",
+            description = request.description ?: "",
             dateTime = LocalDateTime.parse(request.dateTime),
-            duration = Duration.ofMinutes(request.duration.toLong()),
-            maxParticipants = request.maxParticipants,
+            duration = Duration.ofMinutes(request.duration!!.toLong()),
+            maxParticipants = request.maxParticipants ?: 0,
             trainer = trainer,
             gym = gym,
             isRecurring = true,
         )
         gymClassRepository.save(gymClass)
 
-        val recurringPattern = recurringPatternService.createRecurringPattern(request.maxNumOfOccurrences, request.daysOfWeek, gymClass)
+        val recurringPattern = recurringPatternService.createRecurringPattern(request.maxNumOfOccurrences ?: 0, request.daysOfWeek ?: emptyList(), gymClass)
         gymClass.recurringPattern = recurringPattern
         gymClassRepository.save(gymClass)
 

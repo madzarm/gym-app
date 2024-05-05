@@ -30,7 +30,7 @@ fun GymClassInstance.getParticipantsFcmTokens(): List<String> {
 }
 
 fun GymTrainer.getUpcomingClasses(): List<GymClass> {
-    return this.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) }
+    return this.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) || it.isRecurring }
 }
 
 fun LocalDateTime.readStringToDate(): LocalDateTime {
