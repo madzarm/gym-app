@@ -15,6 +15,8 @@ class GymClass (
 
     var dateTime: LocalDateTime,
 
+    var isDeleted: Boolean,
+
     var duration: Duration,
 
     var maxParticipants: Int,

@@ -66,6 +66,14 @@ class TrainerController(
         return trainerService.updateClass(common.getCurrentUser(jwt), classId, request)
     }
 
+    @DeleteMapping("/gyms/classes/{classId}")
+    fun deleteClass(
+        @AuthenticationPrincipal jwt: Jwt,
+        @PathVariable("classId") classId: String,
+    ): GymTrainerDto {
+        return trainerService.deleteClass(common.getCurrentUser(jwt), classId)
+    }
+
     @DeleteMapping("/gyms/classes/{classId}/cancel")
     fun cancelClass(
         @AuthenticationPrincipal jwt: Jwt,

@@ -75,7 +75,7 @@ interface ApiService {
     suspend fun createRecurringGymClass(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String, @Body request: CreateRecurringClassRequest): GymTrainerDto
 
     @GET("/gyms/{gymId}/classes")
-    suspend fun getGymClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
+    suspend fun getUpcomingGymClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
 
     @POST("/members/classes/{classId}")
     suspend fun registerToClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Query("dateTime") dateTime: String): GymMemberDto

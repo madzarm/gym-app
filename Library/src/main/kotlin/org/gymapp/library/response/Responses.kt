@@ -37,6 +37,7 @@ data class GymClassDto(
     val trainerId: String,
     val instances: List<GymClassInstanceDto>,
     val recurringPattern: RecurringPatternDto?,
+    val isDeleted: Boolean?,
 )
 
 data class RecurringPatternDto (

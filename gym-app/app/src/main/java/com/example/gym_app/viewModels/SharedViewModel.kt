@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
@@ -52,9 +51,9 @@ class SharedViewModel : ViewModel() {
             _gymClasses.value = gymClasses
         }
 
-    fun getGymClasses(context: Context, gymId: String) {
+    fun getUpcomingGymClasses(context: Context, gymId: String) {
         viewModelScope.launch {
-            val gymClasses: List<GymClassDto> = ApiClient.apiService.getGymClasses("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            val gymClasses: List<GymClassDto> = ApiClient.apiService.getUpcomingGymClasses("Bearer ${TokenManager.getAccessToken(context)}", gymId)
             _gymClasses.value = gymClasses
         }
     }

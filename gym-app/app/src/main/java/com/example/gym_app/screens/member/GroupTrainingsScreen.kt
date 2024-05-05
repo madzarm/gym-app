@@ -29,15 +29,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.common.formatDuration
-import com.example.gym_app.common.localDateTimeFromString
 import com.example.gym_app.screens.trainer.CustomBackground
-import com.example.gym_app.screens.trainer.GymClass
 import com.example.gym_app.viewModels.SharedViewModel
 import kotlinx.datetime.DayOfWeek
 import java.time.LocalDateTime
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
 
@@ -57,7 +54,7 @@ fun GroupTrainingsScreen(sharedViewModel: SharedViewModel, onGymClassClick: (Gym
   val gymClassesForReview = sharedViewModel.gymClassesForReview.observeAsState()
 
   LaunchedEffect(true) {
-    sharedViewModel.getGymClasses(context, selectedGymUser?.gym?.id ?: "")
+    sharedViewModel.getUpcomingGymClasses(context, selectedGymUser?.gym?.id ?: "")
     sharedViewModel.getGymClassesForReview(context, selectedGymUser?.gym?.id ?: "")
   }
 

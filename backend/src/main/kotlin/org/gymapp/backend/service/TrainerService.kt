@@ -105,7 +105,8 @@ class TrainerService(
             maxParticipants = request.maxParticipants,
             trainer = trainer,
             gym = gym,
-            isRecurring = false
+            isRecurring = false,
+            isDeleted = false
         )
 
         val gymClassInstance = GymClassInstance(
@@ -138,6 +139,7 @@ class TrainerService(
             trainer = trainer,
             gym = gym,
             isRecurring = true,
+            isDeleted = false
         )
         gymClassRepository.save(gymClass)
 
@@ -172,7 +174,7 @@ class TrainerService(
 
         if (gymClassInstanceOptional.isPresent) {
             val gymClassInstance = gymClassInstanceOptional.get()
-            val gymClass = gymClassInstance.gymClass
+            val gymClass = gymClassInstance.gymClass!!
             val trainer = gymClass.trainer
 
             gymClassInstance.gymClassModifiedInstance?.let {
@@ -221,6 +223,16 @@ class TrainerService(
             isCanceled = request.isCanceled ?: false,
             gymClassInstance = gymClassInstance
         )
+    }
+
+    @Transactional
+    fun deleteClass(currentUser: User, classId: String): GymTrainerDto {
+        val gymClass = gymClassRepository.findById(classId).orElseThrow { IllegalArgumentException("Class not found!") }
+        val trainer = gymClass.trainer
+
+        gymClass.isDeleted = true
+        gymClassRepository.save(gymClass)
+        return gymTrainerMapper.modelToDto(trainer)
     }
 
     @Transactional
