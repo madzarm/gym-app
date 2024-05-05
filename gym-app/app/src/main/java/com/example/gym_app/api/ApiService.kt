@@ -6,6 +6,7 @@ import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
+import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassReviewDto
@@ -56,6 +57,9 @@ interface ApiService {
 
     @PUT("/trainers/gyms/classes/{classId}")
     suspend fun updateGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Body request: UpdateClassRequest): GymTrainerDto
+
+    @PUT("/trainers/gyms/classes/{classId}/instances")
+    suspend fun updateRecurringGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Body request: UpdateGymClassInstanceRequest): GymTrainerDto
 
     @DELETE("/trainers/gyms/classes/{classId}")
     suspend fun deleteGymClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String): GymTrainerDto

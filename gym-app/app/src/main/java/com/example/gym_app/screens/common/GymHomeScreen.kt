@@ -33,6 +33,7 @@ import com.example.gym_app.screens.owner.StatisticsScreen
 import com.example.gym_app.screens.trainer.CalendarScreen
 import com.example.gym_app.screens.trainer.CreateClassScreen
 import com.example.gym_app.screens.trainer.ManageClassesScreen
+import com.example.gym_app.screens.trainer.TrainerGymClassInstanceScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
@@ -102,9 +103,17 @@ fun GymHomeScreen(navController: NavController) {
       composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
         TrainerGymClassScreen(navHostController, gymClassViewModel)
       }
-      composable(AppRoutes.CALENDAR_SCREEN) { CalendarScreen(viewModel = gymClassViewModel) }
+      composable(AppRoutes.CALENDAR_SCREEN) {
+        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel)
+      }
       composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
         ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
+      }
+      composable(AppRoutes.GYM_CLASS_INSTANCE_SCREEN) {
+        TrainerGymClassInstanceScreen(
+          navHostController = navHostController,
+         viewModel = gymClassViewModel
+        )
       }
       composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
       composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }

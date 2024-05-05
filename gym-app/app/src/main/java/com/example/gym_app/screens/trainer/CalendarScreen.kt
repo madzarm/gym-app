@@ -1,6 +1,7 @@
 package com.example.gym_app.screens.trainer
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,10 +48,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.viewModels.GymClassViewModel
-import kotlinx.datetime.DayOfWeek
-import kotlinx.datetime.toLocalDate
-import org.gymapp.library.response.GymClassDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -58,6 +58,8 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
+import kotlinx.datetime.DayOfWeek
+import org.gymapp.library.response.GymClassDto
 
 private val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 private val DayFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
@@ -87,15 +89,14 @@ private val sampleEvents =
       start = LocalDateTime.parse("2024-05-05T07:00:00"),
       end = LocalDateTime.parse("2024-05-05T09:00:00"),
       description =
-      "Learn about the latest updates to our developer products and platforms from Google Developers.",
+        "Learn about the latest updates to our developer products and platforms from Google Developers.",
     ),
     Event(
       name = "HIIT",
       color = Color(0xFFAFBBF2),
       start = LocalDateTime.parse("2024-05-05T10:00:00"),
       end = LocalDateTime.parse("2024-05-05T11:00:00"),
-      description =
-      "Hiit training",
+      description = "Hiit training",
     ),
     Event(
       name = "What's new in Android",
@@ -135,7 +136,7 @@ private val sampleEvents =
       start = LocalDateTime.parse("2024-05-04T09:30:00"),
       end = LocalDateTime.parse("2024-05-04T11:00:00"),
       description =
-      "Learnn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
+        "Learnn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
     ),
     Event(
       name = "What's anew in Material Design",
@@ -143,7 +144,7 @@ private val sampleEvents =
       start = LocalDateTime.parse("2024-05-04T11:00:00"),
       end = LocalDateTime.parse("2024-05-04T12:15:00"),
       description =
-      "Learnn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
+        "Learnn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
     ),
     Event(
       name = "Jetpack Caompose Basics",
@@ -151,7 +152,7 @@ private val sampleEvents =
       start = LocalDateTime.parse("2024-05-04T12:00:00"),
       end = LocalDateTime.parse("2024-05-04T13:00:00"),
       description =
-      "Thiss Workshop will take you through the basics of building your first app with Jetpack Compose, Android's new modern UI toolkit that simplifies and accelerates UI development on Android.",
+        "Thiss Workshop will take you through the basics of building your first app with Jetpack Compose, Android's new modern UI toolkit that simplifies and accelerates UI development on Android.",
     ),
   )
 
@@ -164,7 +165,7 @@ fun EventPreview() {
 }
 
 @Composable
-fun CalendarScreen(viewModel: GymClassViewModel) {
+fun CalendarScreen(navHostController: NavHostController, viewModel: GymClassViewModel) {
   val gymClass = viewModel.selectedGymClass.observeAsState().value
   var events = remember(gymClass) { mutableStateListOf<Event>() }
 
@@ -187,15 +188,41 @@ fun CalendarScreen(viewModel: GymClassViewModel) {
         currentWeekStart = newWeekStart
       }
       Schedule(
-        events = events.filter { event ->
-          val eventDate = event.start.toLocalDate()
-          eventDate >= currentWeekStart && eventDate <= currentWeekStart.plusDays(6)
-        },
+        events =
+          events.filter { event ->
+            val eventDate = event.start.toLocalDate()
+            eventDate >= currentWeekStart && eventDate <= currentWeekStart.plusDays(6)
+          },
         minDate = currentWeekStart,
-        maxDate = currentWeekStart.plusDays(6)
+        maxDate = currentWeekStart.plusDays(6),
+        eventContent = { event ->
+          BasicEvent(event = event) { onEventClicked(navHostController, viewModel, event) }
+        },
       )
     }
   }
+}
+
+fun onEventClicked(
+  navHostController: NavHostController,
+  viewModel: GymClassViewModel,
+  event: Event,
+) {
+  viewModel.updateInstance {
+    copy(
+      name = event.name,
+      classId = event.classId ?: "",
+      description = event.description ?: "",
+      originalDateTime = event.originalDateTime.toString(),
+      dateTime = event.start.toString(),
+      duration = event.duration ?: "0",
+      maxParticipants = event.maxParticipants?.toString() ?: "0",
+      participantsIds = event.participantsIds,
+      trainerId = event.trainerId,
+      isCanceled = false,
+    )
+  }
+  navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
 }
 
 fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
@@ -206,16 +233,35 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
     val dayOfWeeks = gymClass.recurringPattern!!.dayOfWeeks.map { DayOfWeek.of(it + 1) }
     for (i in 0 until (gymClass.recurringPattern!!.maxNumOfOccurrences ?: 52)) {
       dayOfWeeks.forEach { dayOfWeek ->
-        val eventDate = startDate.plusWeeks(i.toLong()).with(TemporalAdjusters.nextOrSame(dayOfWeek))
-        if (!gymClass.instances.any {
-          LocalDateTime.parse(it.dateTime).toLocalDate().isEqual(eventDate) }) {
-          events.add(Event(
-            name = gymClass.name ?: "Class",
-            description = gymClass.description ?: "",
-            start = LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime()),
-            end = LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime().plusMinutes(gymClass.duration?.toLong() ?: 60)),
-            color = Color(0xFF1B998B)
-          ))
+        val eventDate =
+          startDate.plusWeeks(i.toLong()).with(TemporalAdjusters.nextOrSame(dayOfWeek))
+        if (
+          !gymClass.instances.any {
+            LocalDateTime.parse(it.dateTime).toLocalDate().isEqual(eventDate)
+          }
+        ) {
+          events.add(
+            Event(
+              classId = gymClass.id,
+              name = gymClass.name ?: "Class",
+              description = gymClass.description ?: "",
+              start =
+                LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime()),
+              end =
+                LocalDateTime.of(
+                  eventDate,
+                  LocalDateTime.parse(gymClass.dateTime)
+                    .toLocalTime()
+                    .plusMinutes(gymClass.duration?.toLong() ?: 60),
+                ),
+              color = Color(0xFF1B998B),
+              originalDateTime =
+                LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime()),
+              duration = gymClass.duration,
+              maxParticipants = gymClass.maxParticipants?.let { Integer.parseInt(it) } ?: 0,
+              trainerId = gymClass.trainerId ?: "",
+            )
+          )
         }
       }
     }
@@ -226,15 +272,27 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
     val duration = modifiedInstance?.duration ?: instance.duration
     val endDateTime = startDateTime.plusMinutes(duration.toLong())
     val instanceDescription = modifiedInstance?.description ?: instance.description
-    val instanceName = modifiedInstance?.let { "${instance.name} (Modified)" } ?: instance.name
+    val instanceName = instance.name
+    val trainerId = modifiedInstance?.trainerId ?: instance.trainerId
+    val maxParticipants = Integer.parseInt(modifiedInstance?.maxParticipants ?: instance.maxParticipants)
 
-    events.add(Event(
-      name = instanceName,
-      description = instanceDescription,
-      start = startDateTime,
-      end = endDateTime,
-      color = if (modifiedInstance != null) Color(0xFFF4BFDB) else Color(0xFFAFBBF2)  // Different color if modified
-    ))
+    events.add(
+      Event(
+        classId = gymClass.id,
+        name = instanceName,
+        description = instanceDescription,
+        start = startDateTime,
+        end = endDateTime,
+        color =
+          if (modifiedInstance != null) Color(0xFFF4BFDB)
+          else Color(0xFFAFBBF2), // Different color if modified
+        originalDateTime = LocalDateTime.parse(instance.dateTime),
+        duration = duration,
+        maxParticipants = maxParticipants,
+        participantsIds = instance.participantsIds,
+        trainerId = trainerId,
+      )
+    )
   }
   return events
 }
@@ -242,15 +300,18 @@ fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
 @Composable
 fun WeekNavigationRow(currentWeekStart: LocalDate, onWeekChanged: (LocalDate) -> Unit) {
   Row(
-    modifier = Modifier
-      .fillMaxWidth()
-      .padding(16.dp),
-    horizontalArrangement = Arrangement.SpaceBetween
+    modifier = Modifier.fillMaxWidth().padding(16.dp),
+    horizontalArrangement = Arrangement.SpaceBetween,
   ) {
     IconButton(onClick = { onWeekChanged(currentWeekStart.minusWeeks(1)) }) {
       Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Week")
     }
-    Text(currentWeekStart.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " + currentWeekStart.plusDays(6).format(DateTimeFormatter.ofPattern("MMM dd")), textAlign = TextAlign.Center)
+    Text(
+      currentWeekStart.format(DateTimeFormatter.ofPattern("MMM dd")) +
+        " - " +
+        currentWeekStart.plusDays(6).format(DateTimeFormatter.ofPattern("MMM dd")),
+      textAlign = TextAlign.Center,
+    )
     IconButton(onClick = { onWeekChanged(currentWeekStart.plusWeeks(1)) }) {
       Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Week")
     }
@@ -261,7 +322,7 @@ fun WeekNavigationRow(currentWeekStart: LocalDate, onWeekChanged: (LocalDate) ->
 fun Schedule(
   events: List<Event>,
   modifier: Modifier = Modifier,
-  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it) },
+  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it, onClick = {}) },
   minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
   maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
 ) {
@@ -276,16 +337,17 @@ fun Schedule(
       minDate = minDate,
       maxDate = maxDate,
       dayWidth = dayWidth,
-      modifier = Modifier
-        .padding(start = with(LocalDensity.current) { sidebarWidth.toDp() })
-        .horizontalScroll(horizontalScrollState),
+      modifier =
+        Modifier.padding(start = with(LocalDensity.current) { sidebarWidth.toDp() })
+          .horizontalScroll(horizontalScrollState),
     )
     Row(modifier = Modifier.weight(1f)) {
       ScheduleSidebar(
         hourHeight = hourHeight,
-        modifier = Modifier
-          .verticalScroll(verticalScrollState)
-          .onGloballyPositioned { sidebarWidth = it.size.width }
+        modifier =
+          Modifier.verticalScroll(verticalScrollState).onGloballyPositioned {
+            sidebarWidth = it.size.width
+          },
       )
       BasicSchedule(
         events = events,
@@ -294,10 +356,10 @@ fun Schedule(
         maxDate = maxDate,
         dayWidth = dayWidth,
         hourHeight = hourHeight,
-        modifier = Modifier
-          .weight(1f)
-          .verticalScroll(verticalScrollState)
-          .horizontalScroll(horizontalScrollState)
+        modifier =
+          Modifier.weight(1f)
+            .verticalScroll(verticalScrollState)
+            .horizontalScroll(horizontalScrollState),
       )
     }
   }
@@ -307,7 +369,7 @@ fun Schedule(
 fun BasicSchedule(
   events: List<Event>,
   modifier: Modifier = Modifier,
-  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it) },
+  eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it){} },
   minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
   maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
   dayWidth: Dp,
@@ -322,14 +384,14 @@ fun BasicSchedule(
         Box(modifier = Modifier.eventData(event)) { eventContent(event) }
       }
     },
-    modifier = modifier
-      .drawBehind {
+    modifier =
+      modifier.drawBehind {
         repeat(23) {
           drawLine(
             dividerColor,
             start = Offset(0f, (it + 1) * hourHeight.toPx()),
             end = Offset(size.width, (it + 1) * hourHeight.toPx()),
-            strokeWidth = 1.dp.toPx()
+            strokeWidth = 1.dp.toPx(),
           )
         }
         repeat(numDays - 1) {
@@ -337,7 +399,7 @@ fun BasicSchedule(
             dividerColor,
             start = Offset((it + 1) * dayWidth.toPx(), 0f),
             end = Offset((it + 1) * dayWidth.toPx(), size.height),
-            strokeWidth = 1.dp.toPx()
+            strokeWidth = 1.dp.toPx(),
           )
         }
       },
@@ -363,8 +425,12 @@ fun BasicSchedule(
       }
     layout(width, height) {
       placeablesWithEvents.forEach { (placeable, event, slotInfo) ->
-        val startY = ((event.start.toLocalTime().toSecondOfDay() / 3600f) * hourHeight.toPx()).roundToInt()
-        val startX = dayWidth.roundToPx() * ChronoUnit.DAYS.between(minDate, event.start.toLocalDate()).toInt() + slotInfo.first * (dayWidth.roundToPx() / slotInfo.second)
+        val startY =
+          ((event.start.toLocalTime().toSecondOfDay() / 3600f) * hourHeight.toPx()).roundToInt()
+        val startX =
+          dayWidth.roundToPx() *
+            ChronoUnit.DAYS.between(minDate, event.start.toLocalDate()).toInt() +
+            slotInfo.first * (dayWidth.roundToPx() / slotInfo.second)
         placeable.place(startX, startY)
       }
     }
@@ -390,7 +456,7 @@ fun calculateEventPositions(events: List<Event>): Map<Event, Pair<Int, Int>> {
     // Add the current event into the active events list
     activeEvents.add(currentEvent)
     // Assign the current event to the available slot
-    eventPositions[currentEvent] = Pair(availableSlot, 0)  // Temporarily set total slots as 0
+    eventPositions[currentEvent] = Pair(availableSlot, 0) // Temporarily set total slots as 0
 
     // Update the total slots count: all active events need to have the updated total
     val totalSlots = activeEvents.map { eventPositions[it]!!.first }.maxOrNull()!! + 1
@@ -402,7 +468,6 @@ fun calculateEventPositions(events: List<Event>): Map<Event, Pair<Int, Int>> {
 
   return eventPositions
 }
-
 
 @Composable
 fun ScheduleHeader(
@@ -479,10 +544,11 @@ fun BasicSidebarLabelPreview() {
 }
 
 @Composable
-fun BasicEvent(event: Event, modifier: Modifier = Modifier) {
+fun BasicEvent(event: Event, modifier: Modifier = Modifier, onClick: () -> Unit) {
   Column(
     modifier =
       modifier
+        .clickable(onClick = onClick)
         .fillMaxSize()
         .padding(end = 2.dp, bottom = 2.dp)
         .background(event.color, shape = RoundedCornerShape(4.dp))
@@ -517,9 +583,15 @@ private class EventDataModifier(val event: Event) : ParentDataModifier {
 private fun Modifier.eventData(event: Event) = this.then(EventDataModifier(event))
 
 data class Event(
+  val classId: String? = "",
   val name: String,
   val color: Color,
   val start: LocalDateTime,
   val end: LocalDateTime,
   val description: String? = null,
-)
+  val originalDateTime: LocalDateTime? = null,
+  val duration: String? = "0",
+  val maxParticipants: Int? = 0,
+  val participantsIds: List<String> = emptyList(),
+  val trainerId: String = "",
+  )

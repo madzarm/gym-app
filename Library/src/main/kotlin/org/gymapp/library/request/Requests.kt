@@ -22,13 +22,13 @@ class CreateClassRequest {
 }
 
 data class CreateRecurringClassRequest(
-    val name: String,
-    val description: String,
-    val dateTime: String,
-    val duration: String,
-    val maxParticipants: Int,
-    val maxNumOfOccurrences: Int,
-    val daysOfWeek: List<Int>,
+    val name: String? = null,
+    val description: String? = null,
+    val dateTime: String? = null,
+    val duration: String? = null,
+    val maxParticipants: Int? = null,
+    val maxNumOfOccurrences: Int? = null,
+    val daysOfWeek: List<Int>? = mutableListOf(),
 )
 
 data class UpdateClassRequest(

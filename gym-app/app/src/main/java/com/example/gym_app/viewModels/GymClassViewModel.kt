@@ -12,6 +12,7 @@ import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
+import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymMemberDto
 import retrofit2.HttpException
@@ -20,6 +21,19 @@ data class GymClassReview(val gymClassDto: GymClassDto, val rating: Int, val rev
 
 data class TrainerReview(val trainerId: String, val rating: Int, val review: String)
 
+data class GymClassInstanceModel(
+  val classId: String = "",
+  val name: String = "",
+  var description: String = "",
+  var dateTime: String = "",
+  var originalDateTime: String = "",
+  var duration: String = "",
+  var maxParticipants: String = "",
+  var participantsIds: List<String> = emptyList(),
+  var trainerId: String = "",
+  var isCanceled: Boolean = false,
+)
+
 class GymClassViewModel : ViewModel() {
   private val _selectedGymClass = MutableLiveData<GymClassDto>()
   val selectedGymClass: MutableLiveData<GymClassDto> = _selectedGymClass
@@ -27,11 +41,15 @@ class GymClassViewModel : ViewModel() {
   private val _updatedGymClass = MutableLiveData<GymClassDto>()
   val updatedGymClass: MutableLiveData<GymClassDto> = _updatedGymClass
 
+  private val _selectedInstance = MutableLiveData<GymClassInstanceModel>()
+  val selectedInstance: MutableLiveData<GymClassInstanceModel> = _selectedInstance
+
   private val _createGymClassRequest = MutableLiveData<UpdateClassRequest>()
   val createGymClassRequest: MutableLiveData<UpdateClassRequest> = _createGymClassRequest
 
   private val _createRecurringGymClassRequest = MutableLiveData<CreateRecurringClassRequest>()
-  val createRecurringGymClassRequest: MutableLiveData<CreateRecurringClassRequest> = _createRecurringGymClassRequest
+  val createRecurringGymClassRequest: MutableLiveData<CreateRecurringClassRequest> =
+    _createRecurringGymClassRequest
 
   private val _gymClassReview = MutableLiveData<GymClassReview>()
   val gymClassReview: MutableLiveData<GymClassReview> = _gymClassReview
@@ -46,6 +64,10 @@ class GymClassViewModel : ViewModel() {
 
   fun updateGymClass(update: GymClassDto.() -> GymClassDto) {
     _updatedGymClass.value = update(_updatedGymClass.value!!)
+  }
+
+  fun updateInstance(update: GymClassInstanceModel.() -> GymClassInstanceModel) {
+    _selectedInstance.value = update(_selectedInstance.value ?: GymClassInstanceModel())
   }
 
   fun updateGymClassReview(update: GymClassReview.() -> GymClassReview) {
@@ -65,8 +87,11 @@ class GymClassViewModel : ViewModel() {
     _createGymClassRequest.value = update(_createGymClassRequest.value ?: UpdateClassRequest())
   }
 
-  fun updateRecurringClassRequest(update: CreateRecurringClassRequest.() -> CreateRecurringClassRequest) {
-    _createRecurringGymClassRequest.value = update(_createRecurringGymClassRequest.value ?: CreateRecurringClassRequest())
+  fun updateRecurringClassRequest(
+    update: CreateRecurringClassRequest.() -> CreateRecurringClassRequest
+  ) {
+    _createRecurringGymClassRequest.value =
+      update(_createRecurringGymClassRequest.value ?: CreateRecurringClassRequest())
   }
 
   fun submitReview(
@@ -84,15 +109,21 @@ class GymClassViewModel : ViewModel() {
           memberId = memberId,
         )
       val trainerReview =
-        ReviewTrainerRequest (
-            review = _trainerReview.value?.review ?: "",
-            rating = _trainerReview.value?.rating ?: 1,
-            trainerId = _selectedGymClass.value?.trainerId ?: "",
-            memberId = memberId,
+        ReviewTrainerRequest(
+          review = _trainerReview.value?.review ?: "",
+          rating = _trainerReview.value?.rating ?: 1,
+          trainerId = _selectedGymClass.value?.trainerId ?: "",
+          memberId = memberId,
         )
       try {
-        ApiClient.apiService.reviewGymClass("Bearer ${TokenManager.getAccessToken(context)}", classReview)
-        ApiClient.apiService.reviewTrainer("Bearer ${TokenManager.getAccessToken(context)}", trainerReview)
+        ApiClient.apiService.reviewGymClass(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          classReview,
+        )
+        ApiClient.apiService.reviewTrainer(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          trainerReview,
+        )
         onSuccess()
       } catch (e: HttpException) {
         onFailure(readErrorMessage(e))
@@ -115,6 +146,30 @@ class GymClassViewModel : ViewModel() {
         _selectedGymClass.value?.id!!,
         request,
       )
+    }
+
+  fun updateGymClassInstance(context: Context, onSuccess: () -> Unit, onFailure: (String) -> Unit) =
+    viewModelScope.launch {
+      val request =
+        UpdateGymClassInstanceRequest(
+          originalDateTime = _selectedInstance.value!!.originalDateTime,
+          description = _selectedInstance.value!!.description,
+          duration = _selectedInstance.value!!.duration,
+          maxParticipants = _selectedInstance.value!!.maxParticipants.toInt(),
+          dateTime = _selectedInstance.value!!.dateTime,
+          isCanceled = _selectedInstance.value!!.isCanceled,
+        )
+      try {
+        print(_selectedInstance.value.toString())
+        ApiClient.apiService.updateRecurringGymClass(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          _selectedInstance.value?.classId!!,
+          request,
+        )
+        onSuccess()
+      } catch (e: HttpException) {
+        onFailure(readErrorMessage(e))
+      }
     }
 
   fun joinGymClass(

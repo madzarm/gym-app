@@ -44,9 +44,12 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
   val gymClass = viewModel.selectedGymClass.observeAsState()
   var showConfirmationDialog by remember { mutableStateOf(false) }
 
-  val participantsCount = if (gymClass.value!!.isRecurring) { 0 } else {
-    gymClass.value?.instances!!.get(0).participantsIds.size
-  }
+  val participantsCount =
+    if (gymClass.value!!.isRecurring) {
+      0
+    } else {
+      gymClass.value?.instances!!.get(0).participantsIds.size
+    }
   val gymClassUpdatable = viewModel.updatedGymClass.observeAsState()
   CustomBackground(title = gymClass.value?.name ?: "Unknown class") {
     Scaffold(
@@ -62,7 +65,13 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         IconButton(onClick = { navHostController.navigate(AppRoutes.CALENDAR_SCREEN) }) {
-          Icon(painter = painterResource(id = com.google.android.material.R.drawable.material_ic_calendar_black_24dp), contentDescription = "View Calendar")
+          Icon(
+            painter =
+              painterResource(
+                id = com.google.android.material.R.drawable.material_ic_calendar_black_24dp
+              ),
+            contentDescription = "View Calendar",
+          )
         }
         val gymClassValueUpdatable = gymClassUpdatable.value
         OutlinedTextField(
@@ -89,8 +98,8 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
           label = { Text(text = "Max participants") },
           onValueChange = { viewModel.updateGymClass { copy(maxParticipants = it) } },
         )
-        ShowDatePicker(viewModel)
-        ShowTimePicker(viewModel)
+        ShowDatePicker(viewModel, isInstanceDatePicker = false)
+        ShowTimePicker(viewModel, isInstanceTimePicker = false)
         if (!gymClass.value!!.isRecurring) {
           Text(text = "Participants registered: ${participantsCount}")
         }
@@ -113,18 +122,22 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
                 if (gymClass.value!!.isRecurring) {
                   Text("Are you sure you want to delete a recurring class?")
                 } else {
-                  Text("Are you sure you want to delete a class that has $participantsCount participants? Participants will be notified!")
+                  Text(
+                    "Are you sure you want to delete a class that has $participantsCount participants? Participants will be notified!"
+                  )
                 }
               },
               confirmButton = {
                 Button(
                   onClick = {
-                    viewModel.deleteGymClass(context = context, onSuccess = {
-                      Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
-                      navHostController.popBackStack()
-                    }, onFailure = {
-                      Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                    })
+                    viewModel.deleteGymClass(
+                      context = context,
+                      onSuccess = {
+                        Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                        navHostController.popBackStack()
+                      },
+                      onFailure = { Toast.makeText(context, it, Toast.LENGTH_LONG).show() },
+                    )
                     showConfirmationDialog = false
                   }
                 ) {
@@ -132,10 +145,8 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
                 }
               },
               dismissButton = {
-                Button(onClick = { showConfirmationDialog = false }) {
-                  Text("Cancel")
-                }
-              }
+                Button(onClick = { showConfirmationDialog = false }) { Text("Cancel") }
+              },
             )
           }
 
@@ -144,12 +155,14 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
               if (gymClass.value!!.isRecurring || participantsCount > 0) {
                 showConfirmationDialog = true
               } else {
-                viewModel.deleteGymClass(context = context, onSuccess = {
-                  Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
-                  navHostController.popBackStack()
-                }, onFailure = {
-                  Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-                })
+                viewModel.deleteGymClass(
+                  context = context,
+                  onSuccess = {
+                    Toast.makeText(context, "Gym class deleted", Toast.LENGTH_LONG).show()
+                    navHostController.popBackStack()
+                  },
+                  onFailure = { Toast.makeText(context, it, Toast.LENGTH_LONG).show() },
+                )
               }
             },
             modifier = Modifier.padding(top = 16.dp),
@@ -157,20 +170,29 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
             Text(text = "Delete")
           }
         }
-
       }
     }
   }
 }
 
 @Composable
-fun ShowTimePicker(viewModel: GymClassViewModel) {
+fun ShowTimePicker(
+  viewModel: GymClassViewModel,
+  isInstanceTimePicker: Boolean,
+  onTimeSelected: (String) -> Unit = { viewModel.updateGymClass { copy(dateTime = it) } },
+) {
   val context = LocalContext.current
   val calendar = remember { Calendar.getInstance() }
   val gymClass = viewModel.updatedGymClass.observeAsState()
+  val instance = viewModel.selectedInstance.observeAsState()
   val gymClassDto = gymClass.value
 
-  val (date, time) = extractDateAndTime(gymClassDto?.dateTime)
+  val (date, time) =
+    if (isInstanceTimePicker) {
+      extractDateAndTime(instance.value?.dateTime)
+    } else {
+      extractDateAndTime(gymClassDto?.dateTime)
+    }
   var timeText by remember { mutableStateOf(time ?: "") }
 
   OutlinedTextField(
@@ -187,7 +209,8 @@ fun ShowTimePicker(viewModel: GymClassViewModel) {
               { _, hourOfDay, minute ->
                 val selectedTime = String.format("%02d:%02d", hourOfDay, minute)
                 timeText = selectedTime
-                viewModel.updateGymClass { copy(dateTime = "${date}T$selectedTime") }
+                val dateTime = "${date}T$selectedTime"
+                onTimeSelected(dateTime)
               },
               calendar.get(Calendar.HOUR_OF_DAY),
               calendar.get(Calendar.MINUTE),
@@ -203,16 +226,26 @@ fun ShowTimePicker(viewModel: GymClassViewModel) {
 }
 
 @Composable
-fun ShowDatePicker(viewModel: GymClassViewModel) {
+fun ShowDatePicker(
+  viewModel: GymClassViewModel,
+  isInstanceDatePicker: Boolean,
+  onDateSelected: (String) -> Unit = { viewModel.updateGymClass { copy(dateTime = it) } },
+) {
   val context = LocalContext.current
   val calendar = remember { Calendar.getInstance() }
   val year = calendar.get(Calendar.YEAR)
   val month = calendar.get(Calendar.MONTH)
   val day = calendar.get(Calendar.DAY_OF_MONTH)
   val gymClass = viewModel.updatedGymClass.observeAsState()
+  val gymClassInstance = viewModel.selectedInstance.observeAsState()
   val gymClassDto = gymClass.value
 
-  val (date, time) = extractDateAndTime(gymClassDto?.dateTime)
+  val (date, time) =
+    if (isInstanceDatePicker) {
+      extractDateAndTime(gymClassInstance.value?.dateTime)
+    } else {
+      extractDateAndTime(gymClassDto?.dateTime)
+    }
   OutlinedTextField(
     value = date!!,
     label = { Text(text = "Date") },
@@ -228,7 +261,9 @@ fun ShowDatePicker(viewModel: GymClassViewModel) {
                 val selectedDate = String.format("%d-%02d-%02d", year, month, dayOfMonth)
 
                 Toast.makeText(context, "Selected date: $selectedDate", Toast.LENGTH_LONG).show()
-                viewModel.updateGymClass { copy(dateTime = "${selectedDate}T${time}") }
+
+                val dateTime = "${selectedDate}T${time}"
+                onDateSelected(dateTime)
               },
               year,
               month,
