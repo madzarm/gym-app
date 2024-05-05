@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -25,10 +27,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.gym_app.R
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.viewModels.GymClassViewModel
 import java.util.Calendar
@@ -56,6 +61,9 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
+        IconButton(onClick = { navHostController.navigate(AppRoutes.CALENDAR_SCREEN) }) {
+          Icon(painter = painterResource(id = com.google.android.material.R.drawable.material_ic_calendar_black_24dp), contentDescription = "View Calendar")
+        }
         val gymClassValueUpdatable = gymClassUpdatable.value
         OutlinedTextField(
           modifier = Modifier,

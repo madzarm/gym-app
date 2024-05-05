@@ -2,6 +2,7 @@ package com.example.gym_app.screens.trainer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,11 +16,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -38,11 +47,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.gym_app.viewModels.GymClassViewModel
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.toLocalDate
+import org.gymapp.library.response.GymClassDto
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
 
 private val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
@@ -54,67 +68,193 @@ private val sampleEvents =
     Event(
       name = "Google I/O Keynote",
       color = Color(0xFFAFBBF2),
-      start = LocalDateTime.parse("2021-05-18T05:00:00"),
-      end = LocalDateTime.parse("2021-05-18T07:00:00"),
+      start = LocalDateTime.parse("2024-05-05T05:00:00"),
+      end = LocalDateTime.parse("2024-05-05T07:00:00"),
       description =
         "Tune in to find out about how we're furthering our mission to organize the world’s information and make it universally accessible and useful.",
     ),
     Event(
       name = "Developer Keynote",
       color = Color(0xFFAFBBF2),
-      start = LocalDateTime.parse("2021-05-18T05:00:00"),
-      end = LocalDateTime.parse("2021-05-18T07:00:00"),
+      start = LocalDateTime.parse("2024-05-05T06:00:00"),
+      end = LocalDateTime.parse("2024-05-05T08:00:00"),
       description =
         "Learn about the latest updates to our developer products and platforms from Google Developers.",
     ),
     Event(
       name = "Something new",
       color = Color(0xFFAFBBF2),
-      start = LocalDateTime.parse("2021-05-18T05:00:00"),
-      end = LocalDateTime.parse("2021-05-18T07:00:00"),
+      start = LocalDateTime.parse("2024-05-05T07:00:00"),
+      end = LocalDateTime.parse("2024-05-05T09:00:00"),
       description =
       "Learn about the latest updates to our developer products and platforms from Google Developers.",
     ),
     Event(
+      name = "HIIT",
+      color = Color(0xFFAFBBF2),
+      start = LocalDateTime.parse("2024-05-05T10:00:00"),
+      end = LocalDateTime.parse("2024-05-05T11:00:00"),
+      description =
+      "Hiit training",
+    ),
+    Event(
       name = "What's new in Android",
       color = Color(0xFF1B998B),
-      start = LocalDateTime.parse("2021-05-18T16:50:00"),
-      end = LocalDateTime.parse("2021-05-18T17:00:00"),
+      start = LocalDateTime.parse("2024-05-05T16:50:00"),
+      end = LocalDateTime.parse("2024-05-05T17:00:00"),
       description =
         "In this Keynote, Chet Haase, Dan Sandler, and Romain Guy discuss the latest Android features and enhancements for developers.",
     ),
     Event(
       name = "What's new in Machine Learning",
       color = Color(0xFFF4BFDB),
-      start = LocalDateTime.parse("2021-05-19T09:30:00"),
-      end = LocalDateTime.parse("2021-05-19T11:00:00"),
+      start = LocalDateTime.parse("2024-05-06T09:30:00"),
+      end = LocalDateTime.parse("2024-05-06T11:00:00"),
       description =
         "Learn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
     ),
     Event(
       name = "What's new in Material Design",
       color = Color(0xFF6DD3CE),
-      start = LocalDateTime.parse("2021-05-19T11:00:00"),
-      end = LocalDateTime.parse("2021-05-19T12:15:00"),
+      start = LocalDateTime.parse("2024-05-06T11:00:00"),
+      end = LocalDateTime.parse("2024-05-06T12:15:00"),
       description =
         "Learn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
     ),
     Event(
       name = "Jetpack Compose Basics",
       color = Color(0xFF1B998B),
-      start = LocalDateTime.parse("2021-05-20T12:00:00"),
-      end = LocalDateTime.parse("2021-05-20T13:00:00"),
+      start = LocalDateTime.parse("2024-05-06T12:00:00"),
+      end = LocalDateTime.parse("2024-05-06T13:00:00"),
       description =
         "This Workshop will take you through the basics of building your first app with Jetpack Compose, Android's new modern UI toolkit that simplifies and accelerates UI development on Android.",
     ),
+    Event(
+      name = "What'sanew in Machine Learning",
+      color = Color(0xFFF4BFDB),
+      start = LocalDateTime.parse("2024-05-04T09:30:00"),
+      end = LocalDateTime.parse("2024-05-04T11:00:00"),
+      description =
+      "Learnn about the latest and greatest in ML from Google. We’ll cover what’s available to developers when it comes to creating, understanding, and deploying models for a variety of different applications.",
+    ),
+    Event(
+      name = "What's anew in Material Design",
+      color = Color(0xFF6DD3CE),
+      start = LocalDateTime.parse("2024-05-04T11:00:00"),
+      end = LocalDateTime.parse("2024-05-04T12:15:00"),
+      description =
+      "Learnn about the latest design improvements to help you build personal dynamic experiences with Material Design.",
+    ),
+    Event(
+      name = "Jetpack Caompose Basics",
+      color = Color(0xFF1B998B),
+      start = LocalDateTime.parse("2024-05-04T12:00:00"),
+      end = LocalDateTime.parse("2024-05-04T13:00:00"),
+      description =
+      "Thiss Workshop will take you through the basics of building your first app with Jetpack Compose, Android's new modern UI toolkit that simplifies and accelerates UI development on Android.",
+    ),
   )
 
-private val eventPositions = calculateEventPositions(sampleEvents)
+private var eventPositions = calculateEventPositions(sampleEvents)
 
 @Preview(showBackground = true)
 @Composable
 fun EventPreview() {
   Surface { Schedule(sampleEvents) }
+}
+
+@Composable
+fun CalendarScreen(viewModel: GymClassViewModel) {
+  val gymClass = viewModel.selectedGymClass.observeAsState().value
+  var events = remember(gymClass) { mutableStateListOf<Event>() }
+
+  var currentWeekStart by remember {
+    mutableStateOf(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
+  }
+
+  // When gymClass changes, update events for the calendar
+  LaunchedEffect(gymClass) {
+    if (gymClass != null && gymClass.isRecurring) {
+      events.clear()
+      events.addAll(mapGymClassToEvents(gymClass))
+      eventPositions = calculateEventPositions(events)
+    }
+  }
+
+  Surface {
+    Column {
+      WeekNavigationRow(currentWeekStart = currentWeekStart) { newWeekStart ->
+        currentWeekStart = newWeekStart
+      }
+      Schedule(
+        events = events.filter { event ->
+          val eventDate = event.start.toLocalDate()
+          eventDate >= currentWeekStart && eventDate <= currentWeekStart.plusDays(6)
+        },
+        minDate = currentWeekStart,
+        maxDate = currentWeekStart.plusDays(6)
+      )
+    }
+  }
+}
+
+fun mapGymClassToEvents(gymClass: GymClassDto): List<Event> {
+  val events = mutableListOf<Event>()
+  if (gymClass.isRecurring && gymClass.recurringPattern != null) {
+    val dateTime = LocalDateTime.parse(gymClass.dateTime)
+    val startDate = dateTime.toLocalDate()
+    val dayOfWeeks = gymClass.recurringPattern!!.dayOfWeeks.map { DayOfWeek.of(it + 1) }
+    for (i in 0 until (gymClass.recurringPattern!!.maxNumOfOccurrences ?: 52)) {
+      dayOfWeeks.forEach { dayOfWeek ->
+        val eventDate = startDate.plusWeeks(i.toLong()).with(TemporalAdjusters.nextOrSame(dayOfWeek))
+        if (!gymClass.instances.any {
+          LocalDateTime.parse(it.dateTime).toLocalDate().isEqual(eventDate) }) {
+          events.add(Event(
+            name = gymClass.name ?: "Class",
+            description = gymClass.description ?: "",
+            start = LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime()),
+            end = LocalDateTime.of(eventDate, LocalDateTime.parse(gymClass.dateTime).toLocalTime().plusMinutes(gymClass.duration?.toLong() ?: 60)),
+            color = Color(0xFF1B998B)
+          ))
+        }
+      }
+    }
+  }
+  gymClass.instances.forEach { instance ->
+    val modifiedInstance = instance.gymClassModifiedInstance
+    val startDateTime = LocalDateTime.parse(modifiedInstance?.dateTime ?: instance.dateTime)
+    val duration = modifiedInstance?.duration ?: instance.duration
+    val endDateTime = startDateTime.plusMinutes(duration.toLong())
+    val instanceDescription = modifiedInstance?.description ?: instance.description
+    val instanceName = modifiedInstance?.let { "${instance.name} (Modified)" } ?: instance.name
+
+    events.add(Event(
+      name = instanceName,
+      description = instanceDescription,
+      start = startDateTime,
+      end = endDateTime,
+      color = if (modifiedInstance != null) Color(0xFFF4BFDB) else Color(0xFFAFBBF2)  // Different color if modified
+    ))
+  }
+  return events
+}
+
+@Composable
+fun WeekNavigationRow(currentWeekStart: LocalDate, onWeekChanged: (LocalDate) -> Unit) {
+  Row(
+    modifier = Modifier
+      .fillMaxWidth()
+      .padding(16.dp),
+    horizontalArrangement = Arrangement.SpaceBetween
+  ) {
+    IconButton(onClick = { onWeekChanged(currentWeekStart.minusWeeks(1)) }) {
+      Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Previous Week")
+    }
+    Text(currentWeekStart.format(DateTimeFormatter.ofPattern("MMM dd")) + " - " + currentWeekStart.plusDays(6).format(DateTimeFormatter.ofPattern("MMM dd")), textAlign = TextAlign.Center)
+    IconButton(onClick = { onWeekChanged(currentWeekStart.plusWeeks(1)) }) {
+      Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = "Next Week")
+    }
+  }
 }
 
 @Composable
