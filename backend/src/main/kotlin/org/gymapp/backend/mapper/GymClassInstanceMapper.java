@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {GymClassModifiedInstanceMapper.class})
 public interface GymClassInstanceMapper {
 
     @Mapping(target = "duration", source = "gymClass.duration", qualifiedByName = "durationToString")
@@ -31,18 +31,6 @@ public interface GymClassInstanceMapper {
     @Mapping(target = "description", source = "gymClass.description")
     @Mapping(target = "maxParticipants", source = "gymClass.maxParticipants")
     GymClassInstanceDto modelToDto(GymClassInstance gymClassInstance);
-
-    @AfterMapping
-    default void handleModifiedInstance(GymClassInstance gymClassInstance, @MappingTarget GymClassInstanceDto dto) {
-        if (gymClassInstance.getGymClassModifiedInstance() != null) {
-            GymClassModifiedInstance modified = gymClassInstance.getGymClassModifiedInstance();
-            dto.setDateTime(modified.getDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
-            dto.setDuration(String.valueOf(modified.getDuration().toMinutes()));
-            dto.setMaxParticipants(String.valueOf(modified.getMaxParticipants()));
-            dto.setDescription(modified.getDescription());
-            dto.setTrainerId(modified.getTrainer().getId() == null ? "" : modified.getTrainer().getId());
-        }
-    }
 
     List<GymClassDto> modelsToDtos(List<GymClass> gymClasses);
 

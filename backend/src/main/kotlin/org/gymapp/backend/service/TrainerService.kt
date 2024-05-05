@@ -214,7 +214,7 @@ class TrainerService(
         val gymClass = gymClassInstance.gymClass
         return GymClassModifiedInstance(
             description = request.description ?: gymClass.description,
-            dateTime = request.dateTime?.let { LocalDateTime.parse(it) } ?: gymClassInstance.dateTime,
+            dateTime = request.dateTime?.let { LocalDateTime.parse(it) } ?: request.originalDateTime.let { LocalDateTime.parse(it) },
             duration = Duration.ofMinutes(request.duration?.toLong() ?: gymClass.duration.toMinutes()),
             maxParticipants = request.maxParticipants ?: gymClass.maxParticipants,
             trainer = gymClass.trainer,
