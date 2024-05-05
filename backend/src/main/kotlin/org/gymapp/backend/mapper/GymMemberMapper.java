@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {GymMapper.class, UserMapper.class, GymClassMapper.class, GymVisitMapper.class})
+@Mapper(componentModel = "spring", uses = {GymMapper.class, UserMapper.class, GymClassMapper.class, GymVisitMapper.class, GymClassInstanceMapper.class})
 public interface GymMemberMapper {
 
     @Mapping(target = "gymClasses", source = "classes")

@@ -70,8 +70,8 @@ data class GymClassModifiedInstanceDto(
 
 data class GymMemberDto (
     val id: String?,
-    val gymClasses: List<GymClassDto>?
-) 
+    val gymClasses: List<GymClassInstanceDto>?
+)
 
     data class GymOwnerDto(
     val id: String?,
