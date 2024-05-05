@@ -108,7 +108,8 @@ fun GymClassDetailsScreen(
           onClick = {
             gymClassViewModel.joinGymClass(
               context = context,
-              gymClassId = gymClassInstanceDto.value?.id ?: "",
+              gymClassId = gymClassInstanceDto.value?.classId ?: "",
+              dateTime = gymClassInstanceDto.value?.dateTime ?: "",
               onSuccess = { message = "Nice" },
               onError = { msg -> message = msg },
             )

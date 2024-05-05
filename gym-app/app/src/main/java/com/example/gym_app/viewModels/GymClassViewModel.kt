@@ -198,6 +198,7 @@ class GymClassViewModel : ViewModel() {
   fun joinGymClass(
     context: Context,
     gymClassId: String,
+    dateTime: String,
     onSuccess: () -> Unit,
     onError: (String) -> Unit,
   ) =
@@ -207,6 +208,7 @@ class GymClassViewModel : ViewModel() {
           ApiClient.apiService.registerToClass(
             "Bearer ${TokenManager.getAccessToken(context)}",
             gymClassId,
+            dateTime
           )
         onSuccess()
       } catch (e: HttpException) {

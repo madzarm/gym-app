@@ -74,7 +74,7 @@ interface ApiService {
     suspend fun getGymClasses(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassDto>
 
     @POST("/members/classes/{classId}")
-    suspend fun registerToClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String): GymMemberDto
+    suspend fun registerToClass(@Header("Authorization") authHeader: String, @Path("classId") classId: String, @Query("dateTime") dateTime: String): GymMemberDto
 
     @GET("/gyms/{gymId}/live")
     suspend fun getLiveStatus(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): Int
