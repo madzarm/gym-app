@@ -2,6 +2,8 @@ package com.example.gym_app.screens.trainer
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.rememberTransformableState
+import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -59,22 +63,23 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalAdjusters
 import kotlin.math.roundToInt
+import kotlin.random.Random
 import kotlinx.datetime.DayOfWeek
 import org.gymapp.library.response.GymClassDto
-import kotlin.random.Random
 
-val colorPalette = listOf(
-  0xFFFF6347, // Tomato
-  0xFF4682B4, // Steel Blue
-  0xFF32CD32, // Lime Green
-  0xFFFFD700, // Gold
-  0xFF6A5ACD, // Slate Blue
-  0xFFFF4500, // Orange Red
-  0xFF9ACD32, // Yellow Green
-  0xFF40E0D0, // Turquoise
-  0xFFEE82EE, // Violet
-  0xFFFFC0CB  // Pink
-)
+val colorPalette =
+  listOf(
+    0xFFFF6347, // Tomato
+    0xFF4682B4, // Steel Blue
+    0xFF32CD32, // Lime Green
+    0xFFFFD700, // Gold
+    0xFF6A5ACD, // Slate Blue
+    0xFFFF4500, // Orange Red
+    0xFF9ACD32, // Yellow Green
+    0xFF40E0D0, // Turquoise
+    0xFFEE82EE, // Violet
+    0xFFFFC0CB, // Pink
+  )
 
 private val EventTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 private val DayFormatter = DateTimeFormatter.ofPattern("EEE, MMM d")
@@ -92,6 +97,7 @@ fun CalendarScreen(
 ) {
   val gymClass = viewModel.selectedGymClass.observeAsState().value
   var events = remember(gymClass) { mutableStateListOf<Event>() }
+  var zoomLevel by remember { mutableStateOf(1f) }
 
   var currentWeekStart by remember {
     mutableStateOf(LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))
@@ -101,11 +107,7 @@ fun CalendarScreen(
     LaunchedEffect(true) {
       events.clear()
       sharedViewModel?.gymClasses?.value?.forEach { gymClass ->
-        events.addAll(
-          mapGymClassToEvents(
-            gymClass
-          )
-        )
+        events.addAll(mapGymClassToEvents(gymClass))
       }
       eventPositions = calculateEventPositions(events)
     }
@@ -125,18 +127,21 @@ fun CalendarScreen(
       WeekNavigationRow(currentWeekStart = currentWeekStart) { newWeekStart ->
         currentWeekStart = newWeekStart
       }
-      Schedule(
-        events =
-          events.filter { event ->
-            val eventDate = event.start.toLocalDate()
-            eventDate >= currentWeekStart && eventDate <= currentWeekStart.plusDays(6)
+      ZoomableColumn (onZoomChange = {zoomLevel = it}) {
+        Schedule(
+          events =
+            events.filter { event ->
+              val eventDate = event.start.toLocalDate()
+              eventDate >= currentWeekStart && eventDate <= currentWeekStart.plusDays(6)
+            },
+          zoomLevel = zoomLevel,
+          minDate = currentWeekStart,
+          maxDate = currentWeekStart.plusDays(6),
+          eventContent = { event ->
+            BasicEvent(event = event) { onEventClicked(viewModel, event, onClassClicked) }
           },
-        minDate = currentWeekStart,
-        maxDate = currentWeekStart.plusDays(6),
-        eventContent = { event ->
-          BasicEvent(event = event) { onEventClicked(viewModel, event, onClassClicked) }
-        },
-      )
+        )
+      }
     }
   }
 }
@@ -272,12 +277,15 @@ fun WeekNavigationRow(currentWeekStart: LocalDate, onWeekChanged: (LocalDate) ->
 fun Schedule(
   events: List<Event>,
   modifier: Modifier = Modifier,
+  zoomLevel: Float = 1f,
   eventContent: @Composable (event: Event) -> Unit = { BasicEvent(event = it, onClick = {}) },
   minDate: LocalDate = events.minByOrNull(Event::start)!!.start.toLocalDate(),
   maxDate: LocalDate = events.maxByOrNull(Event::end)!!.end.toLocalDate(),
 ) {
-  val dayWidth = 256.dp
-  val hourHeight = 64.dp
+  val dayWidth = 64.dp
+  var baseHourHeight = 64.dp
+  val hourHeight = baseHourHeight * zoomLevel
+
   val verticalScrollState = rememberScrollState()
   val horizontalScrollState = rememberScrollState()
   var sidebarWidth by remember { mutableStateOf(0) }
@@ -393,22 +401,17 @@ fun calculateEventPositions(events: List<Event>): Map<Event, Pair<Int, Int>> {
   val activeEvents = mutableListOf<Event>()
 
   for (currentEvent in sortedEvents) {
-    // Remove events that have finished before the current event starts
     activeEvents.removeIf { it.end <= currentEvent.start }
 
-    // Find the lowest slot number not occupied by overlapping events
     val occupiedSlots = activeEvents.mapNotNull { eventPositions[it]?.first }.toSet()
     var availableSlot = 0
     while (occupiedSlots.contains(availableSlot)) {
       availableSlot++
     }
 
-    // Add the current event into the active events list
     activeEvents.add(currentEvent)
-    // Assign the current event to the available slot
-    eventPositions[currentEvent] = Pair(availableSlot, 0) // Temporarily set total slots as 0
+    eventPositions[currentEvent] = Pair(availableSlot, 0)
 
-    // Update the total slots count: all active events need to have the updated total
     val totalSlots = activeEvents.map { eventPositions[it]!!.first }.maxOrNull()!! + 1
     for (event in activeEvents) {
       val slot = eventPositions[event]!!.first
@@ -476,6 +479,29 @@ fun ScheduleSidebar(
   }
 }
 
+@Composable
+fun ZoomableColumn(
+  onZoomChange: (Float) -> Unit,
+  content: @Composable () -> Unit,
+) {
+  var scale by remember { mutableFloatStateOf(1f) }
+  val state = rememberTransformableState { zoomChange, _, _ ->
+    val newScale = (scale * zoomChange).coerceIn(0.4f, 1f)
+    if (newScale != scale) {
+      scale = newScale
+      onZoomChange(scale)
+    }
+  }
+
+  Column(
+    modifier = Modifier
+      .transformable(state = state)
+      .fillMaxSize()
+  ) {
+    content()
+  }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun ScheduleSidebarPreview() {
@@ -505,14 +531,14 @@ fun BasicEvent(event: Event, modifier: Modifier = Modifier, onClick: () -> Unit)
         .padding(4.dp)
   ) {
     Text(
-      text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
-      style = MaterialTheme.typography.labelMedium,
-    )
-
-    Text(
       text = event.name,
       style = MaterialTheme.typography.bodyLarge,
       fontWeight = FontWeight.Bold,
+    )
+
+    Text(
+      text = "${event.start.format(EventTimeFormatter)} - ${event.end.format(EventTimeFormatter)}",
+      style = MaterialTheme.typography.labelMedium,
     )
 
     if (event.description != null) {
