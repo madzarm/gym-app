@@ -36,6 +36,7 @@ import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.common.formatDuration
 import com.example.gym_app.screens.trainer.CustomBackground
+import com.example.gym_app.screens.trainer.mapGymClassToEvents
 import com.example.gym_app.viewModels.SharedViewModel
 import com.google.android.material.R
 import java.time.LocalDateTime
@@ -123,55 +124,14 @@ fun combineLists(
 }
 
 fun filterOldClasses(gymClasses: List<GymClassDto>): List<GymClassInstanceDto> {
-  return gymClasses.flatMap { gymClass ->
-    val instances = mutableListOf<GymClassInstanceDto>()
-    if (gymClass.isRecurring && gymClass.recurringPattern != null) {
-
-      // Calculate the next occurrence
-      val nextClassDateTime = calculateNextOccurrenceDateTime(gymClass)
-
-      // Check if there's already an existing instance for the next occurrence
-      val existingInstance =
-        gymClass.instances.find {
-          LocalDateTime.parse(it.dateTime).toLocalDate() == nextClassDateTime.toLocalDate()
-        }
-      if (existingInstance != null) {
-        instances.add(existingInstance)
-      } else if (nextClassDateTime.isAfter(LocalDateTime.now())) {
-
-        // If no existing instance, create a new one for future occurrences
-        instances.add(createInstanceFromGymClass(gymClass, nextClassDateTime))
-      }
-    } else {
-
-      // Handle non-recurring classes
-      val dateTime = LocalDateTime.parse(gymClass.dateTime)
-      if (dateTime.isAfter(LocalDateTime.now())) {
-        instances.add(createInstanceFromGymClass(gymClass, dateTime))
-      }
-    }
-    instances
+  return gymClasses.map {
+    mapGymClassToEvents(it)
+      .filter { event -> event.start.isAfter(LocalDateTime.now()) }
+      .map { event -> createInstanceFromGymClass(it, event.start) }
+      .sortedBy { it.dateTime }[0]
   }
 }
 
-fun calculateNextOccurrenceDateTime(gymClass: GymClassDto): LocalDateTime {
-  val now = LocalDateTime.now()
-  var nextDateTime = LocalDateTime.parse(gymClass.dateTime)
-  val daysOfWeek = gymClass.recurringPattern!!.dayOfWeeks.map { DayOfWeek.of(it + 1) }
-
-  // Ensure the next occurrence is actually in the future
-  if (nextDateTime.isBefore(now)) {
-    while (nextDateTime.isBefore(now)) {
-      for (dayOfWeek in daysOfWeek) {
-        nextDateTime = nextDateTime.with(TemporalAdjusters.next(dayOfWeek))
-        if (nextDateTime.isAfter(now)) {
-          return nextDateTime
-        }
-      }
-    }
-  }
-  return nextDateTime
-}
 
 fun createInstanceFromGymClass(
   gymClass: GymClassDto,
