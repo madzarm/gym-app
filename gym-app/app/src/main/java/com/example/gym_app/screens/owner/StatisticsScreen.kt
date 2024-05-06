@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -94,11 +95,14 @@ import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.lineSeries
+import java.time.format.DateTimeFormatter
+import org.gymapp.library.response.GymClassDto
+import org.gymapp.library.response.GymClassReviewDto
+import org.gymapp.library.response.GymClassWithReviewsDto
 import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymTrainerReviewDto
 import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.UserDto
-import java.time.format.DateTimeFormatter
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd. MM. yyyy.")
 
@@ -136,6 +140,41 @@ val sampleTrainerWithReviewsDto =
       ),
   )
 
+val sampleGymClassWithReviewsDto =
+  GymClassWithReviewsDto(
+    gymClass =
+      GymClassDto(
+        id = "a",
+        name = "Some class",
+        description = "Some description",
+        isRecurring = false,
+        trainerId = "some id",
+        instances = emptyList(),
+        dateTime = "2021-10-10T10:00:00",
+        duration = "60",
+        isDeleted = false,
+        maxParticipants = "5",
+        recurringPattern = null,
+      ),
+    reviews =
+      listOf(
+        GymClassReviewDto(
+          id = "",
+          review = "Some review",
+          rating = 4,
+          member =
+            GymMemberDto(
+              id = "",
+              firstName = "Marko",
+              lastName = "Markic",
+              gymClasses = emptyList(),
+            ),
+          date = "2021-10-10T10:00:00",
+          gymClassInstanceId = "Some id",
+        )
+      ),
+  )
+
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
   val modelProducerPerHour = remember { CartesianChartModelProducer.build() }
@@ -146,9 +185,11 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
   val context = LocalContext.current
   val gymId = sharedViewModel.selectedGymUser.value?.gym?.id ?: ""
   val trainers = statisticsViewModel.trainersWithReviews.observeAsState()
+  val classes = statisticsViewModel.gymClassesWithReviews.observeAsState()
 
   LaunchedEffect(Unit) {
-    statisticsViewModel.getTrainersWithReviews(context, gymId)
+    statisticsViewModel.fetchTrainersWithReviews(context, gymId)
+    statisticsViewModel.fetchGymClassesWithReviews(context, gymId)
     statisticsViewModel.getGymVisits(context, gymId)
 
     val (xAxisPerHour, yAxisPerHour) = statisticsViewModel.prepareGraphData()
@@ -162,7 +203,7 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
     }
   }
 
-  Column {
+  Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
     Column {
       Text(
         text = "Gym Visit Trends by Hour",
@@ -224,13 +265,42 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
     )
 
     TrainerReviewsColumn(trainers.value ?: emptyList())
+
+    Text(
+      text = "Classes ratings",
+      style = MaterialTheme.typography.titleMedium,
+      modifier = Modifier.padding(16.dp),
+    )
+
+    ClassReviewsColumn(classes.value ?: emptyList())
+  }
+}
+
+@Composable
+fun ClassReviewsColumn(classesWithReviews: List<GymClassWithReviewsDto>) {
+  val listState = rememberLazyListState()
+  LazyColumn(modifier = Modifier.height(300.dp), state = listState) {
+    items(classesWithReviews) { gymClass ->
+      val averageRating = gymClass.reviews?.map { it.rating }?.average()?.toFloat() ?: 0.0.toFloat()
+      var showGymClassDialog by remember { mutableStateOf(false) }
+
+      if (showGymClassDialog) {
+        GymClassDetailDialog(
+          gymClass = gymClass,
+          averageRating = averageRating,
+          onDismiss = { showGymClassDialog = false },
+        )
+      }
+
+      GymClassItem(gymClass, averageRating) { showGymClassDialog = true }
+    }
   }
 }
 
 @Composable
 fun TrainerReviewsColumn(trainersWithReviews: List<GymTrainerWithReviewsDto>) {
   val listState = rememberLazyListState()
-  LazyColumn(state = listState) {
+  LazyColumn(modifier = Modifier.heightIn(max = 300.dp), state = listState) {
     items(trainersWithReviews) { trainer ->
       val averageRating = trainer.reviews.map { it.rating }.average()
       var showDialog by remember { mutableStateOf(false) }
@@ -255,6 +325,38 @@ fun TrainerReviewsColumnPreview() {
 }
 
 @Composable
+fun GymClassItem(gymClass: GymClassWithReviewsDto, averageRating: Float, onClick: () -> Unit) {
+  Row(
+    modifier = Modifier.padding(16.dp).fillMaxWidth().clickable(onClick = onClick),
+    verticalAlignment = Alignment.CenterVertically,
+    horizontalArrangement = Arrangement.SpaceBetween,
+  ) {
+    Text(
+      modifier = Modifier.padding(start = 16.dp),
+      text = gymClass.gymClass?.name ?: "Unknown class",
+      style = MaterialTheme.typography.titleMedium,
+    )
+    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+      Column( horizontalAlignment = Alignment.CenterHorizontally) {
+        if (gymClass.reviews?.isNotEmpty() == true) {
+          Text(text = String.format("Rating:  %.1f", averageRating))
+          RatingBar(rating = averageRating)
+        } else {
+          Text(text = "No reviews yet")
+        }
+      }
+    }
+
+  }
+}
+
+@Composable
+@Preview
+fun GymClassItemPreview() {
+  GymClassItem(sampleGymClassWithReviewsDto, 4f) {}
+}
+
+@Composable
 fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float, onClick: () -> Unit) {
   Row(
     modifier = Modifier.padding(16.dp).clickable(onClick = onClick),
@@ -270,6 +372,53 @@ fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float, onClick
     Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
       Text(text = String.format("Rating:  %.1f", averageRating))
       RatingBar(rating = averageRating)
+    }
+  }
+}
+
+@Composable
+fun GymClassDetailDialog(
+  gymClass: GymClassWithReviewsDto,
+  averageRating: Float,
+  onDismiss: () -> Unit,
+) {
+  Dialog(onDismissRequest = onDismiss) {
+    Box(
+      modifier =
+        Modifier.fillMaxWidth()
+          .height(400.dp)
+          .padding(horizontal = 32.dp)
+          .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+          .verticalScroll(rememberScrollState())
+    ) {
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Class Details", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+          text = gymClass.gymClass?.name ?: "Unknown class",
+          style = MaterialTheme.typography.titleMedium,
+        )
+
+        Text(
+          text = "Rating: %.1f".format(averageRating),
+          style = MaterialTheme.typography.titleMedium,
+        )
+
+        RatingBar(rating = averageRating)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        gymClass.reviews?.forEach { review ->
+          HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            thickness = 1.dp,
+            color = Color.Gray,
+          )
+          GymClassDialogReview(review = review)
+          Spacer(modifier = Modifier.height(10.dp))
+        }
+      }
     }
   }
 }
@@ -305,14 +454,13 @@ fun TrainerDetailDialog(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Example of adding reviews (expand with actual data)
         trainer.reviews.forEach { review ->
           HorizontalDivider(
             modifier = Modifier.padding(vertical = 8.dp),
             thickness = 1.dp,
             color = Color.Gray,
           )
-          DialogReview(review = review)
+          TrainerDialogReview(review = review)
           Spacer(modifier = Modifier.height(10.dp))
         }
       }
@@ -321,7 +469,29 @@ fun TrainerDetailDialog(
 }
 
 @Composable
-fun DialogReview(review: GymTrainerReviewDto) {
+fun TrainerDialogReview(review: GymTrainerReviewDto) {
+  Column {
+    Text(
+      style = MaterialTheme.typography.titleSmall,
+      text = "${review.member.firstName} ${review.member.lastName}",
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+    Row {
+      repeat(review.rating) {
+        Icon(imageVector = Icons.Filled.Star, contentDescription = "Star", tint = Color.Black)
+      }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(text = review.review, style = MaterialTheme.typography.bodyMedium)
+    Spacer(modifier = Modifier.height(8.dp))
+
+    val localDate = localDateTimeFromString(review.date)
+    Text(text = localDate.format(dateTimeFormatter), style = MaterialTheme.typography.bodySmall)
+  }
+}
+
+@Composable
+fun GymClassDialogReview(review: GymClassReviewDto) {
   Column {
     Text(
       style = MaterialTheme.typography.titleSmall,
