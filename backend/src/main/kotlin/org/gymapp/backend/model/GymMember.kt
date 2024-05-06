@@ -11,6 +11,7 @@ class GymMember (
     val classes: MutableList<GymClassInstance> = mutableListOf(),
 
     @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
+
     val firstJoined: LocalDate = LocalDate.now(),
 
     @OneToMany(mappedBy = "gymMember")

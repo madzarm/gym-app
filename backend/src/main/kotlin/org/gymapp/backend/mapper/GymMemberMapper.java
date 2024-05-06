@@ -12,6 +12,8 @@ import java.util.List;
 public interface GymMemberMapper {
 
     @Mapping(target = "gymClasses", source = "classes")
+    @Mapping(target = "firstName", source = "gymUser.user.firstName")
+    @Mapping(target = "lastName", source = "gymUser.user.lastName")
     GymMemberDto modelToDto(GymMember gymMember);
 
 

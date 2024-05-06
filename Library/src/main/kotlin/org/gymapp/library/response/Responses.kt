@@ -71,6 +71,8 @@ data class GymClassModifiedInstanceDto(
 
 data class GymMemberDto (
     val id: String?,
+    val firstName: String?,
+    val lastName: String?,
     val gymClasses: List<GymClassInstanceDto>?
 )
 
@@ -111,7 +113,7 @@ data class GymTrainerReviewDto (
     val review: String,
     val rating: Int,
     val trainerId: String,
-    val memberId: String,
+    val member: GymMemberDto,
     val date: String,
 )
 
