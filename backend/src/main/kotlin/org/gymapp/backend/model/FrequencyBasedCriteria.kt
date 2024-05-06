@@ -13,6 +13,6 @@ class FrequencyBasedCriteria (
     var frequencyCount: Int,
 
     @OneToOne
-    val challenge: ChallengeCriteria,
+    val baseCriteria: ChallengeCriteria,
 ) {
 }

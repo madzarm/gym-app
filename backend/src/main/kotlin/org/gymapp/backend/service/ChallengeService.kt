@@ -12,6 +12,7 @@ import java.util.UUID
 class ChallengeService (
     @Autowired private val gymService: GymService, private val timeBasedCriteriaRepository: TimeBasedCriteriaRepository,
     private val challengeRepository: ChallengeRepository,
+    private val frequencyBasedCriteriaRepository: FrequencyBasedCriteriaRepository,
 ) {
 
 
@@ -48,5 +49,39 @@ class ChallengeService (
 
         challengeRepository.save(challenge)
         timeBasedCriteriaRepository.save(timeBasedCriteria)
+    }
+
+    fun createFrequencyBasedChallenge(request: CreateFrequencyBasedChallengeRequest, gymId: String, user: User) {
+        val gym = gymService.findById(gymId)
+
+        val criteria = ChallengeCriteria(
+            id = UUID.randomUUID().toString(),
+            type = CriteriaType.FREQUENCY_BASED
+        )
+
+        val frequencyBasedCriteria = FrequencyBasedCriteria(
+            id = UUID.randomUUID().toString(),
+            frequencyCount = request.frequencyCount,
+            baseCriteria = criteria
+        )
+
+        val challenge = Challenge(
+            id = UUID.randomUUID().toString(),
+            name = request.name,
+            description = request.description,
+            expiryDate = request.expiryDate.toLocalDateTime(),
+            pointsValue = request.pointsValue,
+            isDeleted = false,
+            type = ChallengeType.FREQUENCY_BASED,
+            createdAt = LocalDateTime.now(),
+            criteria = criteria,
+            gym = gym,
+        )
+
+        criteria.challenge = challenge
+        gym.challenges.add(challenge)
+
+        challengeRepository.save(challenge)
+        frequencyBasedCriteriaRepository.save(frequencyBasedCriteria)
     }
 }
