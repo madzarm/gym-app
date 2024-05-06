@@ -1,8 +1,7 @@
 package org.gymapp.backend.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
+import jakarta.persistence.*
+import java.util.UUID
 
 enum class CriteriaType {
     TIMED_VISIT_BASED,
@@ -12,10 +11,11 @@ enum class CriteriaType {
 @Entity
 class ChallengeCriteria (
     @Id
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
 
+    @Enumerated(EnumType.STRING)
     var type: CriteriaType,
 
-    @OneToOne(mappedBy = "criteria")
-    val challenge: Challenge,
+    @OneToOne
+    var challenge: Challenge? = null,
 )

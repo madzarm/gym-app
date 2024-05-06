@@ -15,7 +15,7 @@ class TimeBasedCriteria (
     var endTime: LocalTime?,
 
     @OneToOne
-    val challenge: ChallengeCriteria,
+    val baseCriteria: ChallengeCriteria,
 ) {
 
 }

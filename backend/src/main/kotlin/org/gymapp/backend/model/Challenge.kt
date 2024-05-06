@@ -1,9 +1,8 @@
 package org.gymapp.backend.model
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.OneToOne
+import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.UUID
 
 enum class ChallengeType {
     TIMED_VISIT_BASED,
@@ -12,8 +11,9 @@ enum class ChallengeType {
 
 @Entity
 class Challenge (
+
     @Id
-    val id: String,
+    val id: String = UUID.randomUUID().toString(),
 
     var name: String,
 
@@ -23,14 +23,18 @@ class Challenge (
 
     var pointsValue: Int,
 
-    var isDeleted: String,
+    var isDeleted: Boolean,
 
+    @Enumerated(EnumType.STRING)
     var type: ChallengeType,
 
     val createdAt: LocalDateTime,
 
-    @OneToOne(mappedBy = "challenge")
-    var criteria: ChallengeCriteria
+    @OneToOne(mappedBy = "challenge", cascade = [CascadeType.ALL])
+    var criteria: ChallengeCriteria,
+
+    @ManyToOne
+    val gym: Gym,
 ){
 
 

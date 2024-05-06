@@ -1,7 +1,10 @@
 package org.gymapp.backend.extensions
 
 import org.gymapp.backend.model.*
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 fun GymTrainer.addClass(gymClass: GymClass) {
     this.classes.add(gymClass)
@@ -35,4 +38,12 @@ fun GymTrainer.getUpcomingClasses(): List<GymClass> {
 
 fun LocalDateTime.readStringToDate(): LocalDateTime {
     return LocalDateTime.parse(this.toString())
+}
+
+fun String.toLocalDateTime(): LocalDateTime {
+    return LocalDateTime.parse(this, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+}
+
+fun String.toLocalTime(): LocalTime {
+    return LocalTime.parse(this, DateTimeFormatter.ISO_LOCAL_TIME)
 }
