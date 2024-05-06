@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -45,7 +46,7 @@ class ChallengeController (
 
     @DeleteMapping("/{challengeId}")
     fun deleteChallenge(
-        @PathParam("challengeId") challengeId: String,
+        @PathVariable("challengeId") challengeId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<Void> {
         challengeService.deleteChallenge(challengeId, common.getCurrentUser(jwt))
