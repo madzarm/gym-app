@@ -121,6 +121,12 @@ fun GymHomeScreen(navController: NavController) {
           navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
         }
       }
+      composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) {
+        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel,
+          sharedViewModel = viewModel, shouldUseAllData = true) {
+          navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+        }
+      }
       composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
         ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
       }

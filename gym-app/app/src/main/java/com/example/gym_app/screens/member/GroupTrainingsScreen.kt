@@ -2,7 +2,6 @@ package com.example.gym_app.screens.member
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,8 +40,6 @@ import com.example.gym_app.viewModels.SharedViewModel
 import com.google.android.material.R
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.TemporalAdjusters
-import kotlinx.datetime.DayOfWeek
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 

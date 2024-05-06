@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -33,14 +34,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.common.formatDuration
 import com.example.gym_app.viewModels.SharedViewModel
+import com.google.android.material.R
 import org.gymapp.library.response.GymClassDto
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnusedContentLambdaTargetStateParameter")
@@ -57,6 +61,13 @@ fun ManageClassesScreen(
   val gymClasses = viewModel.gymClasses.observeAsState()
 
   CustomBackground(title = "Your classes") {
+    IconButton(onClick = { navController.navigate(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) }) {
+      Icon(
+        painter = painterResource(id = R.drawable.material_ic_calendar_black_24dp),
+        contentDescription = "View Calendar",
+      )
+    }
+
     val listState = rememberLazyListState()
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
 
