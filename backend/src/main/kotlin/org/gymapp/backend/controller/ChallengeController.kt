@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -40,5 +41,14 @@ class ChallengeController (
     ): ResponseEntity<Void> {
         challengeService.createFrequencyBasedChallenge(request, gymId, common.getCurrentUser(jwt))
         return ResponseEntity.status(201).build()
+    }
+
+    @DeleteMapping("/{challengeId}")
+    fun deleteChallenge(
+        @PathParam("challengeId") challengeId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<Void> {
+        challengeService.deleteChallenge(challengeId, common.getCurrentUser(jwt))
+        return ResponseEntity.status(204).build()
     }
 }

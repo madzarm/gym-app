@@ -1,5 +1,6 @@
 package org.gymapp.backend.service
 
+import jakarta.persistence.EntityNotFoundException
 import org.gymapp.backend.extensions.toLocalDateTime
 import org.gymapp.backend.extensions.toLocalTime
 import org.gymapp.backend.model.*
@@ -83,5 +84,17 @@ class ChallengeService (
 
         challengeRepository.save(challenge)
         frequencyBasedCriteriaRepository.save(frequencyBasedCriteria)
+    }
+
+    fun deleteChallenge(challengeId: String, user: User) {
+        val challenge = findById(challengeId)
+        challenge.isDeleted = true
+        challengeRepository.save(challenge)
+    }
+
+
+    fun findById(challengeId: String): Challenge {
+        return challengeRepository.findById(challengeId)
+            .orElseThrow { throw EntityNotFoundException("Challenge not found") }
     }
 }
