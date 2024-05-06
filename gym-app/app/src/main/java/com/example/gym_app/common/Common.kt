@@ -90,6 +90,14 @@ fun localDateTimeFromString(dateTimeStr: String): LocalDateTime {
     return LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
 }
 
+fun getCurrentHour(): Float {
+    return java.time.LocalDateTime.now().hour.toFloat()
+}
+
+fun getCurrentDay(): Float {
+    return java.time.LocalDate.now().dayOfWeek.value.toFloat()
+}
+
 fun formatDuration(durationStr: String?): String? {
     if (durationStr == null) return null
 

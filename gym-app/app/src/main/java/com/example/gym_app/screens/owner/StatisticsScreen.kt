@@ -3,14 +3,12 @@ package com.example.gym_app.screens.owner
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.os.Build
 import android.text.Layout
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,13 +22,23 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,14 +53,18 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.gym_app.R
+import com.example.gym_app.common.getCurrentDay
+import com.example.gym_app.common.getCurrentHour
+import com.example.gym_app.common.localDateTimeFromString
 import com.example.gym_app.viewModels.SharedViewModel
 import com.example.gym_app.viewModels.StatisticsViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -82,8 +94,47 @@ import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.lineSeries
+import org.gymapp.library.response.GymMemberDto
+import org.gymapp.library.response.GymTrainerReviewDto
 import org.gymapp.library.response.GymTrainerWithReviewsDto
+import org.gymapp.library.response.UserDto
+import java.time.format.DateTimeFormatter
 
+private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd. MM. yyyy.")
+
+val sampleTrainerWithReviewsDto =
+  GymTrainerWithReviewsDto(
+    user =
+      UserDto(
+        id = "",
+        email = "Some email",
+        firstName = "John",
+        lastName = "Doe",
+        profilePicUrl =
+          "https://www.google.com/images/branding/googlelogo/1x/googlelogo_color_272x92dp.png",
+        createdAt = "",
+        updatedAt = "",
+        gymUsersIds = emptyList(),
+      ),
+    id = "a",
+    reviews =
+      listOf(
+        GymTrainerReviewDto(
+          id = "",
+          review = "Some review",
+          rating = 4,
+          trainerId = "some id",
+          member =
+            GymMemberDto(
+              id = "",
+              firstName = "Marko",
+              lastName = "Markic",
+              gymClasses = emptyList(),
+            ),
+          date = "Some date",
+        )
+      ),
+  )
 
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
@@ -164,9 +215,7 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
       )
     }
 
-    Spacer(modifier = Modifier
-      .fillMaxWidth()
-      .height(40.dp))
+    Spacer(modifier = Modifier.fillMaxWidth().height(40.dp))
 
     Text(
       text = "Trainers ratings",
@@ -174,34 +223,129 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
       modifier = Modifier.padding(16.dp),
     )
 
-    val listState = rememberLazyListState()
-    LazyColumn(state = listState) {
-      val trainersWithReviews = trainers.value ?: emptyList()
-      items(trainersWithReviews) { trainer ->
-        val averageRating = trainer.reviews.map { it.rating }.average()
-
-        TrainerItem(trainer = trainer, averageRating = averageRating.toFloat())
-      }
-    }
+    TrainerReviewsColumn(trainers.value ?: emptyList())
   }
 }
 
 @Composable
-fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float) {
-  Row (
-    modifier = Modifier.padding(16.dp),
+fun TrainerReviewsColumn(trainersWithReviews: List<GymTrainerWithReviewsDto>) {
+  val listState = rememberLazyListState()
+  LazyColumn(state = listState) {
+    items(trainersWithReviews) { trainer ->
+      val averageRating = trainer.reviews.map { it.rating }.average()
+      var showDialog by remember { mutableStateOf(false) }
+
+      if (showDialog) {
+        TrainerDetailDialog(
+          trainer = trainer,
+          averageRating = averageRating.toFloat(),
+          onDismiss = { showDialog = false },
+        )
+      }
+
+      TrainerItem(trainer = trainer, averageRating = averageRating.toFloat()) { showDialog = true }
+    }
+  }
+}
+
+@Preview
+@Composable
+fun TrainerReviewsColumnPreview() {
+  TrainerReviewsColumn(listOf(sampleTrainerWithReviewsDto))
+}
+
+@Composable
+fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float, onClick: () -> Unit) {
+  Row(
+    modifier = Modifier.padding(16.dp).clickable(onClick = onClick),
     verticalAlignment = Alignment.CenterVertically,
     horizontalArrangement = Arrangement.Start,
   ) {
     TrainerProfileImage(trainer.user.profilePicUrl)
-
-    Text(modifier = Modifier.padding(start = 16.dp), text = "${trainer.user.firstName} ${trainer.user.lastName}")
+    Text(
+      modifier = Modifier.padding(start = 16.dp),
+      text = "${trainer.user.firstName} ${trainer.user.lastName}",
+    )
 
     Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
       Text(text = String.format("Rating:  %.1f", averageRating))
       RatingBar(rating = averageRating)
     }
   }
+}
+
+@Composable
+fun TrainerDetailDialog(
+  trainer: GymTrainerWithReviewsDto,
+  averageRating: Float,
+  onDismiss: () -> Unit,
+) {
+  Dialog(onDismissRequest = onDismiss) {
+    Box(
+      modifier =
+        Modifier.fillMaxWidth()
+          .height(400.dp)
+          .padding(horizontal = 32.dp)
+          .background(color = MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp))
+          .verticalScroll(rememberScrollState())
+    ) {
+      Column(modifier = Modifier.padding(16.dp)) {
+        Text(text = "Trainer Details", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+          text = "${trainer.user.firstName} ${trainer.user.lastName}",
+          style = MaterialTheme.typography.titleMedium,
+        )
+        Text(
+          text = "Rating: %.1f".format(averageRating),
+          style = MaterialTheme.typography.titleMedium,
+        )
+        RatingBar(rating = averageRating)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Example of adding reviews (expand with actual data)
+        trainer.reviews.forEach { review ->
+          HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            thickness = 1.dp,
+            color = Color.Gray,
+          )
+          DialogReview(review = review)
+          Spacer(modifier = Modifier.height(10.dp))
+        }
+      }
+    }
+  }
+}
+
+@Composable
+fun DialogReview(review: GymTrainerReviewDto) {
+  Column {
+    Text(
+      style = MaterialTheme.typography.titleSmall,
+      text = "${review.member.firstName} ${review.member.lastName}",
+    )
+    Spacer(modifier = Modifier.height(32.dp))
+    Row {
+      repeat(review.rating) {
+        Icon(imageVector = Icons.Filled.Star, contentDescription = "Star", tint = Color.Black)
+      }
+    }
+    Spacer(modifier = Modifier.height(8.dp))
+    Text(text = review.review, style = MaterialTheme.typography.bodyMedium)
+    Spacer(modifier = Modifier.height(8.dp))
+
+    val localDate = localDateTimeFromString(review.date)
+    Text(text = localDate.format(dateTimeFormatter), style = MaterialTheme.typography.bodySmall)
+  }
+}
+
+@Preview
+@Composable
+fun TrainerDetailsDialogPreview() {
+  TrainerDetailDialog(sampleTrainerWithReviewsDto, 4f, {})
 }
 
 @Composable
@@ -221,19 +365,13 @@ fun TrainerProfileImage(profilePicUrl: String?) {
 
   Image(
     painter = painter,
-    modifier = Modifier
-      .clip(CircleShape)
-      .size(50.dp),
+    modifier = Modifier.clip(CircleShape).size(50.dp),
     contentDescription = "Profile image",
   )
 }
 
 @Composable
-private fun RatingBar(
-  modifier: Modifier = Modifier,
-  rating: Float,
-  spaceBetween: Dp = 0.dp
-) {
+private fun RatingBar(modifier: Modifier = Modifier, rating: Float, spaceBetween: Dp = 0.dp) {
 
   val image = getImageBitmapFromVector(LocalContext.current, R.drawable.star_empty)!!
   val imageFull = getImageBitmapFromVector(LocalContext.current, R.drawable.star_full)!!
@@ -245,21 +383,18 @@ private fun RatingBar(
   val space = LocalDensity.current.run { spaceBetween.toPx() }
   val totalWidth = width * totalCount + spaceBetween * (totalCount - 1)
 
-
   Box(
-    modifier
-      .width(totalWidth)
-      .height(height)
-      .drawBehind {
-        drawRating(rating, image, imageFull, space)
-      })
+    modifier.width(totalWidth).height(height).drawBehind {
+      drawRating(rating, image, imageFull, space)
+    }
+  )
 }
 
 private fun DrawScope.drawRating(
   rating: Float,
   image: ImageBitmap,
   imageFull: ImageBitmap,
-  space: Float
+  space: Float,
 ) {
 
   val totalCount = 5
@@ -274,19 +409,13 @@ private fun DrawScope.drawRating(
 
     val start = imageWidth * i + space * i
 
-    drawImage(
-      image = image,
-      topLeft = Offset(start, 0f)
-    )
+    drawImage(image = image, topLeft = Offset(start, 0f))
   }
 
   drawWithLayer {
     for (i in 0 until totalCount) {
       val start = imageWidth * i + space * i
-      drawImage(
-        image = imageFull,
-        topLeft = Offset(start, 0f)
-      )
+      drawImage(image = imageFull, topLeft = Offset(start, 0f))
     }
 
     val end = imageWidth * totalCount + space * (totalCount - 1)
@@ -297,7 +426,7 @@ private fun DrawScope.drawRating(
       Color.Transparent,
       topLeft = Offset(start, 0f),
       size = Size(size, height = imageHeight),
-      blendMode = BlendMode.SrcIn
+      blendMode = BlendMode.SrcIn,
     )
   }
 }
@@ -310,17 +439,11 @@ private fun DrawScope.drawWithLayer(block: DrawScope.() -> Unit) {
   }
 }
 
-fun getBitmapFromVector(
-  drawable: Drawable
-): Bitmap {
+fun getBitmapFromVector(drawable: Drawable): Bitmap {
   val bitmap: Bitmap
 
   val size = 70
-  bitmap = Bitmap.createBitmap(
-    size,
-    size,
-    Bitmap.Config.ARGB_8888
-  )
+  bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
 
   val canvas = android.graphics.Canvas(bitmap)
   drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight())
@@ -330,17 +453,7 @@ fun getBitmapFromVector(
 
 fun getImageBitmapFromVector(context: Context, drawableId: Int): ImageBitmap? {
   val drawable = ContextCompat.getDrawable(context, drawableId)
-  return drawable?.let {
-    getBitmapFromVector(it).asImageBitmap()
-  }
-}
-
-fun getCurrentHour(): Float {
-  return java.time.LocalDateTime.now().hour.toFloat()
-}
-
-fun getCurrentDay(): Float {
-  return java.time.LocalDate.now().dayOfWeek.value.toFloat()
+  return drawable?.let { getBitmapFromVector(it).asImageBitmap() }
 }
 
 @Composable
