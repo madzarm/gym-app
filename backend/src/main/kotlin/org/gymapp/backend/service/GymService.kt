@@ -70,7 +70,20 @@ class GymService(
 
     fun getUpcomingGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
         val gym = findById(gymId)
-        val classes = gym.classes.filter { it.dateTime.isAfter(LocalDateTime.now()) && !it.isDeleted }
+        val classes = gym.classes.filter {
+            if (!it.isDeleted) {
+                if (it.isRecurring) {
+                    it.dateTime.plusWeeks(((it.recurringPattern?.maxNumOfOccurrences
+                        ?: (52 / it.recurringPattern?.dayOfWeeks?.size!!))).toLong()).isAfter(LocalDateTime.now())
+                } else {
+                    it.dateTime.isAfter(LocalDateTime.now())
+                }
+            } else {
+                false
+            }
+
+        }
+
         return gymClassMapper.modelsToDtos(classes)
     }
 
