@@ -1,10 +1,9 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.service.GymService
 import org.gymapp.backend.service.OwnerService
 import org.gymapp.library.response.AccessCodeDto
-import org.gymapp.library.response.GymTrainerDto
+import org.gymapp.library.response.GymClassWithReviewsDto
 import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -36,5 +35,13 @@ class OwnerController (
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<List<GymTrainerWithReviewsDto>> {
         return ResponseEntity.ok(ownerService.getTrainersWithReviews(gymId, common.getCurrentUser(jwt)))
+    }
+
+    @GetMapping("/gyms/{gymId}/classes")
+    fun getGymClassesWithReviews(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<GymClassWithReviewsDto>> {
+        return ResponseEntity.ok(ownerService.getGymClassesWithReviews(gymId, common.getCurrentUser(jwt)))
     }
 }

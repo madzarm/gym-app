@@ -1,19 +1,17 @@
 package org.gymapp.backend.mapper;
 
-import org.gymapp.backend.model.DayOfWeek;
 import org.gymapp.backend.model.GymClass;
-import org.gymapp.backend.model.GymMember;
+import org.gymapp.backend.model.GymClassReview;
 import org.gymapp.backend.model.RecurringPattern;
 import org.gymapp.library.response.GymClassDto;
+import org.gymapp.library.response.GymClassWithReviewsDto;
 import org.gymapp.library.response.RecurringPatternDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
-import java.time.Duration;
 import java.util.List;
 
-@Mapper(componentModel = "spring", uses = {GymClassInstanceMapper.class})
+@Mapper(componentModel = "spring", uses = {GymClassInstanceMapper.class, GymClassReviewMapper.class, GymClassMapper.class})
 public interface GymClassMapper {
 
     @Mapping(target = "duration", source = "duration", qualifiedByName = "durationToString")
@@ -25,5 +23,9 @@ public interface GymClassMapper {
     List<GymClassDto> modelsToDtos(List<GymClass> gymClasses);
 
     RecurringPatternDto modelToDto(RecurringPattern recurringPattern);
+
+    @Mapping(target = "reviews", source = "reviews")
+    @Mapping(target = "gymClass", source = "gymClass")
+    GymClassWithReviewsDto modelToDtoWithReviews(GymClass gymClass, List<GymClassReview> reviews);
 
 }

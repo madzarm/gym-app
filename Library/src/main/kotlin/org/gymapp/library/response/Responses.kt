@@ -104,8 +104,13 @@ data class GymClassReviewDto(
     val review: String,
     val rating: Int,
     val gymClassInstanceId: String,
-    val memberId: String,
+    val member: GymMemberDto,
     val date: String,
+)
+
+data class GymClassWithReviewsDto(
+    val gymClass: GymClassDto?,
+    val reviews: List<GymClassReviewDto>?,
 )
 
 data class GymTrainerReviewDto (

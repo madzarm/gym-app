@@ -5,10 +5,9 @@ import org.gymapp.library.response.GymClassReviewDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {GymMemberMapper.class})
 public interface GymClassReviewMapper {
 
     @Mapping(target = "gymClassInstanceId", source = "gymClassInstance.id")
-    @Mapping(target = "memberId", source = "member.id")
     GymClassReviewDto modelToDto(GymClassReview gymClassReview);
 }
