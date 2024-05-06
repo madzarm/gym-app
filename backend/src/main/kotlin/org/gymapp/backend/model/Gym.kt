@@ -18,5 +18,4 @@ class Gym(
 
     @OneToMany(mappedBy = "gym") val challenges: MutableList<Challenge> = mutableListOf(),
 ) {
-
 }

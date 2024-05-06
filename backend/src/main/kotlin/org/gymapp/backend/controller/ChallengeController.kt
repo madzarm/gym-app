@@ -2,6 +2,7 @@ package org.gymapp.backend.controller
 
 import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
+import org.gymapp.backend.model.ChallengeDto
 import org.gymapp.backend.model.CreateFrequencyBasedChallengeRequest
 import org.gymapp.backend.model.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.backend.service.ChallengeService
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -51,5 +53,13 @@ class ChallengeController (
     ): ResponseEntity<Void> {
         challengeService.deleteChallenge(challengeId, common.getCurrentUser(jwt))
         return ResponseEntity.status(204).build()
+    }
+
+    @GetMapping
+    fun getAllActiveChallenges(
+        @PathParam("gymId") gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<ChallengeDto>> {
+        return ResponseEntity.ok(challengeService.getAllActiveChallenges(gymId, common.getCurrentUser(jwt)))
     }
 }

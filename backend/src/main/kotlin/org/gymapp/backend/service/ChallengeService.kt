@@ -1,8 +1,10 @@
 package org.gymapp.backend.service
 
 import jakarta.persistence.EntityNotFoundException
+import org.gymapp.backend.extensions.getActiveChallenges
 import org.gymapp.backend.extensions.toLocalDateTime
 import org.gymapp.backend.extensions.toLocalTime
+import org.gymapp.backend.mapper.ChallengeMapper
 import org.gymapp.backend.model.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -11,9 +13,11 @@ import java.util.UUID
 
 @Service
 class ChallengeService (
-    @Autowired private val gymService: GymService, private val timeBasedCriteriaRepository: TimeBasedCriteriaRepository,
-    private val challengeRepository: ChallengeRepository,
-    private val frequencyBasedCriteriaRepository: FrequencyBasedCriteriaRepository,
+    @Autowired private val gymService: GymService,
+    @Autowired private val timeBasedCriteriaRepository: TimeBasedCriteriaRepository,
+    @Autowired private val challengeRepository: ChallengeRepository,
+    @Autowired private val frequencyBasedCriteriaRepository: FrequencyBasedCriteriaRepository,
+    @Autowired private val challengeMapper: ChallengeMapper,
 ) {
 
 
@@ -90,6 +94,13 @@ class ChallengeService (
         val challenge = findById(challengeId)
         challenge.isDeleted = true
         challengeRepository.save(challenge)
+    }
+
+    fun getAllActiveChallenges(gymId: String, user: User): List<ChallengeDto> {
+        val gym = gymService.findById(gymId)
+        val challenges = gym.getActiveChallenges()
+        val challengeDtos = challengeMapper.modelsToDtos(challenges)
+        return challengeDtos
     }
 
 

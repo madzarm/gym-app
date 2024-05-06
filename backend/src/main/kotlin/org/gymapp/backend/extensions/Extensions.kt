@@ -47,3 +47,7 @@ fun String.toLocalDateTime(): LocalDateTime {
 fun String.toLocalTime(): LocalTime {
     return LocalTime.parse(this, DateTimeFormatter.ISO_LOCAL_TIME)
 }
+
+fun Gym.getActiveChallenges(): List<Challenge> {
+    return this.challenges.filter { !it.isDeleted && it.expiryDate.isAfter(LocalDateTime.now()) }
+}
