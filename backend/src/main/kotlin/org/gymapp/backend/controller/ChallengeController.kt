@@ -82,4 +82,13 @@ class ChallengeController (
     ): ResponseEntity<List<ChallengeDto>> {
         return ResponseEntity.ok(challengeService.getUnclaimedChallenges(gymId, common.getCurrentUser(jwt)))
     }
+
+    @PostMapping("/{challengeId}/claim")
+    fun claimChallenge(
+        @PathVariable("challengeId") challengeId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<Void> {
+        challengeService.claimChallenge(challengeId, common.getCurrentUser(jwt))
+        return ResponseEntity.status(204).build()
+    }
 }
