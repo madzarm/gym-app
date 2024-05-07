@@ -6,6 +6,12 @@ import org.gymapp.backend.extensions.toLocalDateTime
 import org.gymapp.backend.extensions.toLocalTime
 import org.gymapp.backend.mapper.ChallengeMapper
 import org.gymapp.backend.model.*
+import org.gymapp.backend.repository.ChallengeRepository
+import org.gymapp.backend.repository.FrequencyBasedCriteriaRepository
+import org.gymapp.backend.repository.TimeBasedCriteriaRepository
+import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
+import org.gymapp.library.response.ChallengeDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

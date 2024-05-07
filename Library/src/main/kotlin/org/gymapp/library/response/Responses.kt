@@ -143,3 +143,24 @@ data class AccessCodeDto (
     val expiryDateTime: String,
     val gymId: String,
 )
+
+data class ChallengeDto(
+    var id: String,
+    var name: String,
+    var description: String,
+    var expiryDate: String,
+    var pointsValue: Int,
+    var createdAt: String,
+    var isDeleted: Boolean,
+    var type: String,
+    var gymId: String,
+    var criteriaDto: CriteriaDto?
+)
+
+data class CriteriaDto (
+    var criteriaId: String,
+    var type: String,
+    var frequencyCount: Int?,
+    var startTimeCriteria: String?,
+    var endTimeCriteria: String?
+)

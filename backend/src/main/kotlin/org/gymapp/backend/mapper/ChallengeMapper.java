@@ -1,7 +1,7 @@
 package org.gymapp.backend.mapper;
 
 import org.gymapp.backend.model.Challenge;
-import org.gymapp.backend.model.ChallengeDto;
+import org.gymapp.library.response.ChallengeDto;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

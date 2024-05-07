@@ -1,5 +1,6 @@
-package org.gymapp.backend.model;
+package org.gymapp.backend.repository;
 
+import org.gymapp.backend.model.FrequencyBasedCriteria
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 import java.util.*

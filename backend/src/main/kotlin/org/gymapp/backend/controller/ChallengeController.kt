@@ -2,10 +2,10 @@ package org.gymapp.backend.controller
 
 import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.model.ChallengeDto
-import org.gymapp.backend.model.CreateFrequencyBasedChallengeRequest
-import org.gymapp.backend.model.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.backend.service.ChallengeService
+import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
+import org.gymapp.library.response.ChallengeDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
