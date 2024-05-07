@@ -7,6 +7,7 @@ enum class Role {
 
 object AppRoutes {
     const val CALENDAR_SCREEN = "CalendarScreen"
+    const val MANAGE_CHALLENGES_SCREEN = "ManageChallengesScreen"
     const val CALENDAR_SCREEN_ALL_CLASSES_MEMBER = "CalendarScreenAllClassesMember"
     const val CALENDAR_SCREEN_ALL_CLASSES_TRAINER = "CalendarScreenAllClassesTrainer"
     const val CALENDAR_SCREEN_MEMBER = "CalendarScreenMember"

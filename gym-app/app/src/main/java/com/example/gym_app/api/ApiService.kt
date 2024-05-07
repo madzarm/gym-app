@@ -1,13 +1,16 @@
 package com.example.gym_app.api
 
+import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.request.CreateRecurringClassRequest
+import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.ChallengeDto
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymClassReviewDto
@@ -101,4 +104,16 @@ interface ApiService {
 
     @GET("/owners/gyms/{gymId}/classes")
     suspend fun getGymClassesWithReviews(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<GymClassWithReviewsDto>
+
+    @GET("/challenges")
+    suspend fun fetchActiveChallenges(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String): List<ChallengeDto>
+
+    @POST("/challenges/timed-visit-based")
+    suspend fun createTimedBasedChallenge(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String, @Body request: CreateTimedVisitBasedChallengeRequest): Response<Unit>
+
+    @POST("/challenges/frequency-based")
+    suspend fun createFrequencyBasedChallenge(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String, @Body request: CreateFrequencyBasedChallengeRequest): Response<Unit>
+
+    @DELETE("/challenges/{challengeId}")
+    suspend fun deleteChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String): Response<Unit>
 }

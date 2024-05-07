@@ -8,10 +8,27 @@ import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
 import kotlinx.coroutines.launch
+import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.ChallengeDto
+import org.gymapp.library.response.ChallengeType
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymUserDto
+import java.time.LocalDateTime
+import java.time.LocalTime
+
+data class UpdatableChallenge(
+    var name: String? = "",
+    var description: String? = "",
+    var expiryDate: LocalDateTime? = null,
+    var pointsValue: Int? = 0,
+    var type: ChallengeType? = null,
+    var frequencyCount: Int? = 0,
+    var startTimeCriteria: LocalTime? = null,
+    var endTimeCriteria: LocalTime? = null,
+)
 
 class SharedViewModel : ViewModel() {
     private val _selectedGymUser = MutableLiveData<GymUserDto>()
@@ -29,9 +46,20 @@ class SharedViewModel : ViewModel() {
     private val _liveStatus = MutableLiveData<Int>()
     val liveStatus: LiveData<Int> = _liveStatus
 
+    private val _challengeDtos = MutableLiveData<List<ChallengeDto>>()
+    val challengeDtos: LiveData<List<ChallengeDto>> = _challengeDtos
+
+    private val _updatableChallenge = MutableLiveData<UpdatableChallenge>()
+    val updatableChallenge: LiveData<UpdatableChallenge> = _updatableChallenge
+
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
     }
+
+    fun updateChallenge(update: UpdatableChallenge.() -> UpdatableChallenge) {
+        _updatableChallenge.value = update(_updatableChallenge.value ?: UpdatableChallenge())
+    }
+
 
     fun getLiveStatus(context: Context) =
         viewModelScope.launch {
@@ -62,6 +90,103 @@ class SharedViewModel : ViewModel() {
         viewModelScope.launch {
             val gymClasses: List<GymClassInstanceDto> = ApiClient.apiService.getGymClassesForReview("Bearer ${TokenManager.getAccessToken(context)}", gymId)
             _gymClassesForReview.value = gymClasses
+        }
+    }
+
+    fun fetchActiveChallenges(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+
+            try {
+                val challengeDtos: List<ChallengeDto> = ApiClient.apiService.fetchActiveChallenges("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+                _challengeDtos.value = challengeDtos
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+
+            }
+        }
+    }
+
+    fun createTimeBasedChallenge(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = CreateTimedVisitBasedChallengeRequest(
+                    name = _updatableChallenge.value?.name ?: "",
+                    description = _updatableChallenge.value?.description ?: "",
+                    expiryDate = _updatableChallenge.value?.expiryDate?.toString() ?: "",
+                    pointsValue = _updatableChallenge.value?.pointsValue ?: 0,
+                    startTime = _updatableChallenge.value?.startTimeCriteria?.toString() ?: "",
+                    endTime = _updatableChallenge.value?.endTimeCriteria?.toString() ?: ""
+                )
+                val response = ApiClient.apiService.createTimedBasedChallenge("Bearer ${TokenManager.getAccessToken(context)}", gymId, request)
+                val code = response.code()
+                if (code == 201) {
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "An error occurred")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+            }
+        }
+    }
+
+    fun createFrequencyBasedChallenge(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = CreateFrequencyBasedChallengeRequest(
+                    name = _updatableChallenge.value?.name ?: "",
+                    description = _updatableChallenge.value?.description ?: "",
+                    expiryDate = _updatableChallenge.value?.expiryDate?.toString() ?: "",
+                    pointsValue = _updatableChallenge.value?.pointsValue ?: 0,
+                    frequencyCount = _updatableChallenge.value?.frequencyCount ?: 0
+                )
+                val response = ApiClient.apiService.createFrequencyBasedChallenge("Bearer ${TokenManager.getAccessToken(context)}", gymId, request)
+                val code = response.code()
+                if (code == 201) {
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "An error occurred")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+            }
+        }
+    }
+
+    fun deleteChallenge(
+        context: Context,
+        challengeId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val response = ApiClient.apiService.deleteChallenge("Bearer ${TokenManager.getAccessToken(context)}", challengeId)
+                val code = response.code()
+                if (code == 204) {
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "An error occurred")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+            }
         }
     }
 }
