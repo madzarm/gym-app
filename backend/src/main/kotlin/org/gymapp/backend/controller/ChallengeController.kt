@@ -5,6 +5,7 @@ import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.ChallengeService
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
+import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.ChallengeDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -61,5 +63,15 @@ class ChallengeController (
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<List<ChallengeDto>> {
         return ResponseEntity.ok(challengeService.getAllActiveChallenges(gymId, common.getCurrentUser(jwt)))
+    }
+
+    @PutMapping("/{challengeId}")
+    fun updateChallenge(
+        @PathVariable("challengeId") challengeId: String,
+        @RequestBody request: UpdateChallengeRequest,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<Void> {
+        challengeService.updateChallenge(challengeId, request, common.getCurrentUser(jwt))
+        return ResponseEntity.status(204).build()
     }
 }

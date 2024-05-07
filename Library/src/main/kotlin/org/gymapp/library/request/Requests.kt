@@ -78,3 +78,14 @@ data class CreateTimedVisitBasedChallengeRequest(
     val startTime: String,
     val endTime: String
 )
+
+data class UpdateChallengeRequest(
+    var name: String? = null,
+    var description: String? = null,
+    var expiryDate: String? = null,
+    var pointsValue: Int? = null,
+    var type: String,
+    var frequencyCount: Int? = null,
+    var startTimeCriteria: String? = null,
+    var endTimeCriteria: String? = null 
+)

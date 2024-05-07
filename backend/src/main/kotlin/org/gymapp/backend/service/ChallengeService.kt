@@ -11,11 +11,13 @@ import org.gymapp.backend.repository.FrequencyBasedCriteriaRepository
 import org.gymapp.backend.repository.TimeBasedCriteriaRepository
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
+import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.ChallengeDto
 import org.gymapp.library.response.ChallengeType
 import org.gymapp.library.response.CriteriaType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -109,6 +111,33 @@ class ChallengeService (
         val challenges = gym.getActiveChallenges()
         val challengeDtos = challengeMapper.modelsToDtos(challenges)
         return challengeDtos
+    }
+
+    @Transactional
+    fun updateChallenge(challengeId: String, request: UpdateChallengeRequest, user: User) {
+        val challenge = findById(challengeId)
+
+        request.name?.let { challenge.name = it }
+        request.description?.let { challenge.description = it }
+        request.expiryDate?.let { challenge.expiryDate = it.toLocalDateTime() }
+        request.pointsValue?.let { challenge.pointsValue = it }
+
+        val baseCriteriaId = challenge.criteria.id
+        when (challenge.type) {
+            ChallengeType.TIMED_VISIT_BASED -> {
+                val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId).orElseThrow()
+                request.startTimeCriteria?.let { timeBasedCriteria.startTime = it.toLocalTime() }
+                request.endTimeCriteria?.let { timeBasedCriteria.endTime = it.toLocalTime() }
+                timeBasedCriteriaRepository.save(timeBasedCriteria)
+            }
+            ChallengeType.FREQUENCY_BASED -> {
+                val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId).orElseThrow()
+                request.frequencyCount?.let { frequencyBasedCriteria.frequencyCount = it }
+                frequencyBasedCriteriaRepository.save(frequencyBasedCriteria)
+            }
+        }
+
+        challengeRepository.save(challenge)
     }
 
 
