@@ -91,4 +91,12 @@ class ChallengeController (
         challengeService.claimChallenge(challengeId, common.getCurrentUser(jwt))
         return ResponseEntity.status(204).build()
     }
+
+    @GetMapping("/points")
+    fun getMemberPoints(
+        @PathParam("gymId") gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<Int> {
+        return ResponseEntity.ok(challengeService.getMemberPoints(gymId, common.getCurrentUser(jwt)))
+    }
 }

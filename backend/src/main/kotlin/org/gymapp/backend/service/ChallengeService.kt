@@ -220,4 +220,12 @@ class ChallengeService (
         memberChallenge.isClaimed = true
         memberChallengeRepository.save(memberChallenge)
     }
+
+    fun getMemberPoints(gymId: String, currentUser: User): Int {
+        val gym = gymService.findById(gymId)
+        val member = gym.getMember(currentUser)
+
+        val points = member?.completedChallenges?.filter { it.isClaimed }?.sumOf { it.challenge.pointsValue }
+        return points ?: 0
+    }
 }
