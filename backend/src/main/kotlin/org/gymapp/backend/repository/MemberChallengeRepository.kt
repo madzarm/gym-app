@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface MemberChallengeRepository : JpaRepository<MemberChallenge, String> {
+
+    fun findByMemberId(memberId: String): List<MemberChallenge>
 }

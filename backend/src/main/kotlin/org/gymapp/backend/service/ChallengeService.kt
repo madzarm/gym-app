@@ -193,4 +193,19 @@ class ChallengeService (
         return challengeRepository.findById(challengeId)
             .orElseThrow { throw EntityNotFoundException("Challenge not found") }
     }
+
+    fun getUnclaimedChallenges(gymId: String, currentUser: User): List<ChallengeDto> {
+        val gym = gymService.findById(gymId)
+        val member = gym.getMember(currentUser)
+
+        val memberChallenges = memberChallengeRepository.findByMemberId(member?.id ?: "")
+
+        val unclaimedMemberChallenges = memberChallenges.filter { challenge ->
+            !challenge.isClaimed
+        }
+
+        val unclaimedChallenges = unclaimedMemberChallenges.map { it.challenge }
+
+        return challengeMapper.modelsToDtos(unclaimedChallenges)
+    }
 }
