@@ -164,3 +164,13 @@ data class CriteriaDto (
     var startTimeCriteria: String?,
     var endTimeCriteria: String?
 )
+
+enum class ChallengeType {
+    TIMED_VISIT_BASED,
+    FREQUENCY_BASED
+}
+
+enum class CriteriaType {
+    TIMED_VISIT_BASED,
+    FREQUENCY_BASED
+}

@@ -12,6 +12,8 @@ import org.gymapp.backend.repository.TimeBasedCriteriaRepository
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.response.ChallengeDto
+import org.gymapp.library.response.ChallengeType
+import org.gymapp.library.response.CriteriaType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime

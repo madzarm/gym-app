@@ -1,13 +1,11 @@
 package org.gymapp.backend.model
 
 import jakarta.persistence.*
+import org.gymapp.library.response.ChallengeType
 import java.time.LocalDateTime
 import java.util.UUID
 
-enum class ChallengeType {
-    TIMED_VISIT_BASED,
-    FREQUENCY_BASED
-}
+
 
 @Entity
 class Challenge (

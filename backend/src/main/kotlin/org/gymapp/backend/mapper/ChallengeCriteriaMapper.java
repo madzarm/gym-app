@@ -1,10 +1,10 @@
 package org.gymapp.backend.mapper;
 
 import org.gymapp.backend.model.ChallengeCriteria;
-import org.gymapp.backend.model.CriteriaType;
 import org.gymapp.backend.repository.FrequencyBasedCriteriaRepository;
 import org.gymapp.backend.repository.TimeBasedCriteriaRepository;
 import org.gymapp.library.response.CriteriaDto;
+import org.gymapp.library.response.CriteriaType;
 import org.mapstruct.Mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 

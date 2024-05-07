@@ -1,12 +1,9 @@
 package org.gymapp.backend.model
 
 import jakarta.persistence.*
+import org.gymapp.library.response.CriteriaType
 import java.util.UUID
 
-enum class CriteriaType {
-    TIMED_VISIT_BASED,
-    FREQUENCY_BASED
-}
 
 @Entity
 class ChallengeCriteria (
