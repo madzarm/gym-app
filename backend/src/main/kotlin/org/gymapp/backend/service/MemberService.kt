@@ -33,6 +33,7 @@ class MemberService(
     @Autowired private val gymVisitRepository: GymVisitRepository,
     @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
     @Autowired private val gymClassInstanceMapper: GymClassInstanceMapper,
+    @Autowired private val challengeService: ChallengeService,
 ) {
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
@@ -114,6 +115,8 @@ class MemberService(
         )
 
         gymVisitRepository.save(visit)
+
+        challengeService.checkForChallenges(member, visit)
         return gymVisitMapper.modelToDto(visit)
     }
 

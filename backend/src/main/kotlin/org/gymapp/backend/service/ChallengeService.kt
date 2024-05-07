@@ -1,13 +1,12 @@
 package org.gymapp.backend.service
 
 import jakarta.persistence.EntityNotFoundException
-import org.gymapp.backend.extensions.getActiveChallenges
-import org.gymapp.backend.extensions.toLocalDateTime
-import org.gymapp.backend.extensions.toLocalTime
+import org.gymapp.backend.extensions.*
 import org.gymapp.backend.mapper.ChallengeMapper
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.ChallengeRepository
 import org.gymapp.backend.repository.FrequencyBasedCriteriaRepository
+import org.gymapp.backend.repository.MemberChallengeRepository
 import org.gymapp.backend.repository.TimeBasedCriteriaRepository
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
@@ -19,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.util.UUID
 
 @Service
@@ -28,6 +28,7 @@ class ChallengeService (
     @Autowired private val challengeRepository: ChallengeRepository,
     @Autowired private val frequencyBasedCriteriaRepository: FrequencyBasedCriteriaRepository,
     @Autowired private val challengeMapper: ChallengeMapper,
+    private val memberChallengeRepository: MemberChallengeRepository,
 ) {
 
 
@@ -138,6 +139,53 @@ class ChallengeService (
         }
 
         challengeRepository.save(challenge)
+    }
+
+    fun checkForChallenges(member: GymMember, visit: GymVisit) {
+        val gym = gymService.findById(visit.gym?.id ?: "")
+        val challenges = gym.getActiveChallenges()
+
+        val defaultStart: LocalTime = LocalTime.of(0, 0);
+        val defaultEnd: LocalTime = LocalTime.of(23, 59);
+
+        val numOfVisitsThisMonth = member.getNumberOfGymVisitsThisMonth()
+
+        for (challenge in challenges) {
+            when (challenge.type) {
+                ChallengeType.TIMED_VISIT_BASED -> {
+                    val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria.id).orElseThrow()
+
+                    val start = timeBasedCriteria.startTime ?: defaultStart
+                    val end = timeBasedCriteria.endTime ?: defaultEnd
+                    val visitTime = visit.date.toLocalTime()
+
+                    if (visitTime in start..end) {
+                        if (!member.alreadyCompletedChallengeToday(challenge)) {
+                            completedChallenge(member, challenge, visit)
+                        }
+                    }
+                }
+                ChallengeType.FREQUENCY_BASED -> {
+                    val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria.id).orElseThrow()
+                    if (numOfVisitsThisMonth >= frequencyBasedCriteria.frequencyCount) {
+                        if (!member.alreadyCompletedChallengeThisMonth(challenge)) {
+                            completedChallenge(member, challenge, visit)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun completedChallenge(member: GymMember, challenge: Challenge, visit: GymVisit) {
+        val memberChallenge = MemberChallenge(
+            id = UUID.randomUUID().toString(),
+            member = member,
+            challenge = challenge,
+            dateCompleted = visit.date,
+            isClaimed = false
+        )
+        memberChallengeRepository.save(memberChallenge)
     }
 
 

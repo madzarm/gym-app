@@ -33,6 +33,9 @@ class Challenge (
 
     @ManyToOne
     val gym: Gym,
+
+    @OneToMany(mappedBy = "challenge", cascade = [CascadeType.ALL])
+    val memberChallenges: List<MemberChallenge> = mutableListOf()
 ){
 
 

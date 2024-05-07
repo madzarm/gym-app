@@ -21,7 +21,10 @@ class GymMember (
     val gymClassReviews: MutableList<GymClassReview> = mutableListOf(),
 
     @OneToMany(mappedBy = "member")
-    val gymTrainerReviews: MutableList<GymTrainerReview> = mutableListOf()
+    val gymTrainerReviews: MutableList<GymTrainerReview> = mutableListOf(),
+
+    @OneToMany(mappedBy = "member")
+    val completedChallenges: MutableList<MemberChallenge> = mutableListOf()
 ) {
 
 }

@@ -23,6 +23,26 @@ fun Gym.getMember(user: User): GymMember? {
     return null
 }
 
+fun GymMember.getNumberOfGymVisitsThisMonth(): Int {
+    val now = LocalDateTime.now()
+    val startOfMonth = LocalDate.of(now.year, now.month, 1)
+    return this.visits.filter { it.date.isAfter(startOfMonth.atStartOfDay()) }.size
+}
+
+fun GymMember.alreadyCompletedChallenge(challenge: Challenge): Boolean {
+    return this.completedChallenges.any { it.challenge.id == challenge.id }
+}
+
+fun GymMember.alreadyCompletedChallengeToday(challenge: Challenge): Boolean {
+    return this.completedChallenges.any { it.challenge.id == challenge.id && it.dateCompleted.toLocalDate() == LocalDate.now() }
+}
+
+fun GymMember.alreadyCompletedChallengeThisMonth(challenge: Challenge): Boolean {
+    val now = LocalDateTime.now()
+    val startOfMonth = LocalDate.of(now.year, now.month, 1)
+    return this.completedChallenges.any { it.challenge.id == challenge.id && it.dateCompleted.toLocalDate().isAfter(startOfMonth) }
+}
+
 fun GymClassInstance.addParticipant(member: GymMember) {
     member.classes.add(this)
     this.participants.add(member)
