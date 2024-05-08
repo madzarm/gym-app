@@ -2,6 +2,7 @@ package com.example.gym_app
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -20,6 +21,7 @@ import com.example.gym_app.screens.member.EnterGymCodeScreen
 import com.example.gym_app.screens.trainer.EnterTrainerAccessCodeScreen
 import com.example.gym_app.screens.common.GymHomeScreen
 import com.example.gym_app.screens.common.HomeScreen
+import com.example.gym_app.screens.common.ProfileScreen
 import com.example.gym_app.screens.common.RoleSelectionScreen
 import com.example.gym_app.screens.common.SignupRoleSelectionScreen
 import com.example.gym_app.screens.common.WelcomeScreen
@@ -52,15 +54,14 @@ fun GymApp(
   }
   )
 
-
-
+  val isLoggedIn = viewModel.isLoggedIn.observeAsState()
 
   NavHost(
     navController = navController,
     startDestination = if (!isNotificationPermissionGranted(context)) {
       AppRoutes.REQUEST_PERMISSION_SCREEN
     } else {
-      if (TokenManager.isTokenActive(LocalContext.current)) {
+      if (TokenManager.isTokenActive(LocalContext.current) || isLoggedIn.value == true) {
         AppRoutes.HOME
       } else {
         TokenManager.removeToken(LocalContext.current)
@@ -87,6 +88,19 @@ fun GymApp(
           navController = navController,
           onAddGymClicked = { navController.navigate(AppRoutes.ROLE_SELECTION_SCREEN) },
           homeViewModel = homeViewModel
+        )
+      }
+      composable(AppRoutes.PROFILE_SCREEN) {
+        ProfileScreen(
+          navHostController = navController,
+          viewModel = homeViewModel,
+          onLogout = {
+            TokenManager.removeToken(context)
+            viewModel.setLoggedIn(false)
+            navController.navigate(AppRoutes.WELCOME_SCREEN) {
+              popUpTo(AppRoutes.WELCOME_SCREEN) { inclusive = true }
+            }
+          }
         )
       }
       composable(AppRoutes.ROLE_SELECTION_SCREEN) {

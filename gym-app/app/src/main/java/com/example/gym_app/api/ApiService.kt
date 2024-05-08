@@ -37,6 +37,9 @@ interface ApiService {
     @POST("/users")
     suspend fun createUser(@Body request: CreateUserRequest, @Header("Authorization") authHeader: String): Response<Void>
 
+    @PUT("/users")
+    suspend fun updateUser(@Header("Authorization") authHeader: String, @Body request: CreateUserRequest): Response<Void>
+
     @GET("/users/current")
     suspend fun getCurrentUser(@Header("Authorization") authHeader: String): Response<UserDto>
 

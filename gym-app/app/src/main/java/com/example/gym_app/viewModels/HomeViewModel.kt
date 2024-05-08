@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateGymRequest
+import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.UserDto
 import retrofit2.HttpException
@@ -24,9 +25,43 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
   private val _currentUser = MutableStateFlow<UserDto?>(null)
   val currentUser: StateFlow<UserDto?> = _currentUser
 
-  init {
-    loadItems(accessToken)
+
+  fun updateUserDto(update: UserDto.() -> UserDto) {
+    _currentUser.value =
+      update(
+        _currentUser.value
+          ?: UserDto(
+            id = null,
+            firstName = "",
+            lastName = "",
+            email = "",
+            profilePicUrl = "",
+            createdAt = "",
+            updatedAt = "",
+            gymUsersIds = emptyList(),
+          )
+      )
   }
+
+  fun updateUser(context: Context, onSuccess: () -> Unit, onError: (String) -> Unit) =
+    viewModelScope.launch {
+      try {
+        ApiClient.apiService.updateUser(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          CreateUserRequest(
+            id = null,
+            firstName = _currentUser.value?.firstName ?: "",
+            lastName = _currentUser.value?.lastName ?: "",
+            email = null,
+            profilePicUrl = null,
+          ),
+        )
+        onSuccess()
+      } catch (e: HttpException) {
+        val errorMessage = readErrorMessage(e)
+        onError(errorMessage)
+      }
+    }
 
   fun joinGymAsTrainer(
     context: Context,

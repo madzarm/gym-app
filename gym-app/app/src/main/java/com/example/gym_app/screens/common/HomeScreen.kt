@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -48,6 +50,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.gym_app.common.AppRoutes
+import com.example.gym_app.common.TokenManager
 import com.example.gym_app.common.base64StringToImageBitmap
 import com.example.gym_app.viewModels.HomeViewModel
 import com.example.gym_app.viewModels.SharedViewModel
@@ -66,6 +69,10 @@ fun HomeScreen(
 
   val gymUserDtos by homeViewModel.gymUserDtos.collectAsState()
   val currentUser by homeViewModel.currentUser.collectAsState()
+  val context = LocalContext.current
+  LaunchedEffect(true) {
+    homeViewModel.loadItems(TokenManager.getAccessToken(context) ?: "")
+  }
 
   Column(
     modifier =
@@ -105,7 +112,8 @@ fun HomeScreen(
 
       Image(
         painter = painter,
-        modifier = Modifier.align(Alignment.CenterEnd).clip(CircleShape).size(50.dp),
+        modifier = Modifier.align(Alignment.CenterEnd).clip(CircleShape).size(50.dp)
+          .clickable(onClick = { navController.navigate(AppRoutes.PROFILE_SCREEN) }),
         contentDescription = "Profile image",
       )
     }

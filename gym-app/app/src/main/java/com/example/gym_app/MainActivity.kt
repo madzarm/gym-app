@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationException
@@ -33,12 +34,12 @@ class MainActivity : ComponentActivity() {
     account = Auth0("Ro2WqbNVwQMZIIYVNVX5POPqHK0EIcGH", "dev-jj2awpllib7dacna.us.auth0.com")
     FirebaseApp.initializeApp(this)
     val authViewModel: AuthViewModel by viewModels()
-
     setContent {
       GymappTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
           GymApp(
-            onLoginWithAuthClicked = { loginWithBrowser(authViewModel) },
+            onLoginWithAuthClicked = { loginWithBrowser(authViewModel)
+                                     },
             viewModel = authViewModel,
           )
         }
@@ -83,7 +84,7 @@ class MainActivity : ComponentActivity() {
                 lastName = lastName,
                 profilePicUrl = profilePicUrl,
               )
-
+            authViewModel.setLoggedIn(true)
             CoroutineScope(Dispatchers.IO).launch {
               try {
                 val response =

@@ -1,10 +1,19 @@
 package com.example.gym_app.viewModels
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import org.gymapp.library.request.CreateUserRequest
 
 class AuthViewModel : ViewModel() {
+
+    private val _isLoggedIn = MutableLiveData<Boolean>()
+    val isLoggedIn: LiveData<Boolean> = _isLoggedIn
+
+    fun setLoggedIn(loggedIn: Boolean) {
+        _isLoggedIn.value = loggedIn
+    }
 
     private val _accessToken = mutableStateOf("")
     val accessToken = _accessToken
