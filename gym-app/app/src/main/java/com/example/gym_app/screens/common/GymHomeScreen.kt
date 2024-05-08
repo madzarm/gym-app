@@ -39,6 +39,7 @@ import com.example.gym_app.screens.trainer.CreateClassScreen
 import com.example.gym_app.screens.trainer.ManageClassesScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassInstanceScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
+import com.example.gym_app.viewModels.GymClassInstanceModel
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
 import org.gymapp.library.response.GymClassDto
@@ -105,7 +106,22 @@ fun GymHomeScreen(navController: NavController) {
           { navHostController.navigate(AppRoutes.CREATE_CLASS_SCREEN) },
         ) {
           gymClassViewModel.setSelectedGymClass(it)
-          navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+          if (!it.isRecurring) {
+            val instance = it.instances?.firstOrNull()
+            gymClassViewModel.updateInstance {
+              copy(
+                name = instance?.name ?: "",
+                description = instance?.description ?: "",
+                duration = instance?.duration ?: "",
+                maxParticipants = instance?.maxParticipants ?: "",
+                dateTime = instance?.dateTime ?: "",
+                participantsIds = instance?.participantsIds ?: emptyList()
+              )
+            }
+            navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+          } else {
+            navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+          }
         }
       }
       composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {

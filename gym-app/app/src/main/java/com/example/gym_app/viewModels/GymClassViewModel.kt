@@ -16,6 +16,7 @@ import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymMemberDto
+import org.gymapp.library.response.GymMemberDtoFull
 import retrofit2.HttpException
 
 data class GymClassReview(val gymClassInstanceDto: GymClassInstanceDto, val rating: Int, val review: String)
@@ -61,6 +62,9 @@ class GymClassViewModel : ViewModel() {
   private val _trainerReview = MutableLiveData<TrainerReview>()
   val trainerReview: MutableLiveData<TrainerReview> = _trainerReview
 
+  private val _classParticipants = MutableLiveData<List<GymMemberDtoFull>>()
+  val classParticipants: MutableLiveData<List<GymMemberDtoFull>> = _classParticipants
+
   fun setSelectedGymClass(gymClass: GymClassDto) {
     _selectedGymClass.value = gymClass
     _updatedGymClass.value = gymClass
@@ -68,6 +72,10 @@ class GymClassViewModel : ViewModel() {
 
   fun setSelectedInstanceDto(gymClassInstanceDto: GymClassInstanceDto) {
     _selectedInstanceDto.value = gymClassInstanceDto
+  }
+
+  fun setSelectedInstance(gymClassInstanceModel: GymClassInstanceModel) {
+    _selectedInstance.value = gymClassInstanceModel
   }
 
   fun updateGymClass(update: GymClassDto.() -> GymClassDto) {
@@ -116,6 +124,21 @@ class GymClassViewModel : ViewModel() {
     _createRecurringGymClassRequest.value =
       update(_createRecurringGymClassRequest.value ?: CreateRecurringClassRequest())
   }
+
+  fun fetchClassParticipants(context: Context) =
+    viewModelScope.launch {
+      val participantsIds = _selectedInstance.value?.participantsIds ?: emptyList()
+      try {
+        val participants: List<GymMemberDtoFull> =
+          ApiClient.apiService.getGymMembers(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            participantsIds,
+          )
+        _classParticipants.value = participants
+      } catch (e: HttpException) {
+        readErrorMessage(e)
+      }
+    }
 
   fun submitReview(
     context: Context,

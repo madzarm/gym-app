@@ -36,6 +36,7 @@ import com.example.gym_app.R
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.extractDateAndTime
 import com.example.gym_app.viewModels.GymClassViewModel
+import java.time.LocalDate
 import java.util.Calendar
 
 @Composable
@@ -103,7 +104,7 @@ fun TrainerGymClassScreen(navHostController: NavHostController, viewModel: GymCl
         if (!gymClass.value!!.isRecurring) {
           Text(text = "Participants registered: ${participantsCount}")
         }
-        Row {
+        Row (horizontalArrangement = Arrangement.spacedBy(16.dp)){
           Button(
             onClick = {
               viewModel.updateGymClass(context)
@@ -247,7 +248,7 @@ fun ShowDatePicker(
       extractDateAndTime(gymClassDto?.dateTime)
     }
   OutlinedTextField(
-    value = date!!,
+    value = date ?: LocalDate.now().toString(),
     label = { Text(text = "Date") },
     readOnly = true,
     onValueChange = { viewModel.updateGymClass { copy(dateTime = "${date}T${time}") } },

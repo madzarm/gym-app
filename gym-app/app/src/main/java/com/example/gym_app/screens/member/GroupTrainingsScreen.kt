@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -179,6 +180,7 @@ fun GymClassInstance(
         val duration = formatDuration(gymClass.duration)
         Text(
           fontSize = 32.sp,
+          textAlign = TextAlign.Center,
           modifier = Modifier.padding(bottom = 8.dp),
           fontWeight = FontWeight.Bold,
           color = Color.White,

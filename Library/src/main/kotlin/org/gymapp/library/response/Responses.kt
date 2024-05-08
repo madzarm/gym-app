@@ -46,6 +46,13 @@ data class RecurringPatternDto (
     val dayOfWeeks: List<Int> = mutableListOf(),
 ) 
 
+data class GymMemberDtoFull (
+    val user: UserDto?,
+    val classes: List<GymClassInstanceDto>? = mutableListOf(),
+    val firstJoined: String?,
+    val visits: List<GymVisitDto>? = mutableListOf()
+)
+
 data class GymClassInstanceDto (
     val id: String,
     val classId: String,

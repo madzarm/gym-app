@@ -1,13 +1,9 @@
 package org.gymapp.backend.controller
 
 import org.gymapp.backend.common.Common
-import org.gymapp.backend.model.GymMemberDtoFull
 import org.gymapp.backend.service.GymService
 import org.gymapp.library.request.CreateGymRequest
-import org.gymapp.library.response.GymClassDto
-import org.gymapp.library.response.GymDto
-import org.gymapp.library.response.GymUserDto
-import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -47,6 +43,13 @@ class GymController(
         @PathVariable memberId: String,
     ): ResponseEntity<GymMemberDtoFull> {
         return ResponseEntity.ok(gymService.getGymMemberFull(memberId))
+    }
+
+    @PostMapping("/members")
+    fun getGymMembersFull(
+        @RequestBody memberIds: List<String>
+    ): ResponseEntity<List<GymMemberDtoFull>> {
+        return ResponseEntity.ok(gymService.getGymMembersFull(memberIds))
     }
 
     @GetMapping("/{gymId}/live")

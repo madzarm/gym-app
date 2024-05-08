@@ -6,10 +6,7 @@ import org.gymapp.backend.mapper.*
 import org.gymapp.backend.model.*
 import org.gymapp.backend.repository.*
 import org.gymapp.library.request.CreateGymRequest
-import org.gymapp.library.response.GymClassDto
-import org.gymapp.library.response.GymDto
-import org.gymapp.library.response.GymUserDto
-import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -65,7 +62,12 @@ class GymService(
         val gymMember = gymMemberRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("Member not found") }
 
-        return gymMemberMapper.modelToDtoFull(gymMember)
+        return gymMemberMapper.modelToDtoFullNoVisits(gymMember)
+    }
+
+    fun getGymMembersFull(userIds: List<String>): List<GymMemberDtoFull> {
+        val gymMembers = gymMemberRepository.findAllById(userIds)
+        return gymMemberMapper.modelsToDtosFull(gymMembers)
     }
 
     fun getUpcomingGymClasses(currentUser: User, gymId: String): List<GymClassDto> {
