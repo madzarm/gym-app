@@ -29,6 +29,7 @@ import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.member.QeCodeScreen
 import com.example.gym_app.screens.member.ReviewGymClassScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
+import com.example.gym_app.screens.owner.ChallengeDetailsScreen
 import com.example.gym_app.screens.owner.ManageChallengesScreen
 import com.example.gym_app.screens.owner.StatisticsScreen
 import com.example.gym_app.screens.trainer.CalendarScreen
@@ -130,6 +131,9 @@ fun GymHomeScreen(navController: NavController) {
       }
       composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
         ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
+      }
+      composable(AppRoutes.CHALLENGE_DETAILS_SCREEN) {
+        ChallengeDetailsScreen(navHostController, viewModel)
       }
       composable(AppRoutes.MANAGE_CHALLENGES_SCREEN) {
         ManageChallengesScreen(navHostController, viewModel)

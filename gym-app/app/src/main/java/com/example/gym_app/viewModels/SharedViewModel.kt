@@ -10,6 +10,7 @@ import com.example.gym_app.common.TokenManager
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
+import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.AccessCodeDto
 import org.gymapp.library.response.ChallengeDto
 import org.gymapp.library.response.ChallengeType
@@ -20,12 +21,13 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 
 data class UpdatableChallenge(
+    var id: String? = "",
     var name: String? = "",
     var description: String? = "",
     var expiryDate: LocalDateTime? = null,
-    var pointsValue: Int? = 0,
+    var pointsValue: String? = "",
     var type: ChallengeType? = null,
-    var frequencyCount: Int? = 0,
+    var frequencyCount: String? = null,
     var startTimeCriteria: LocalTime? = null,
     var endTimeCriteria: LocalTime? = null,
 )
@@ -56,7 +58,7 @@ class SharedViewModel : ViewModel() {
         _selectedGymUser.value = gymUserDto
     }
 
-    fun updateChallenge(update: UpdatableChallenge.() -> UpdatableChallenge) {
+    fun updateSelectedChallenge(update: UpdatableChallenge.() -> UpdatableChallenge) {
         _updatableChallenge.value = update(_updatableChallenge.value ?: UpdatableChallenge())
     }
 
@@ -124,7 +126,7 @@ class SharedViewModel : ViewModel() {
                     name = _updatableChallenge.value?.name ?: "",
                     description = _updatableChallenge.value?.description ?: "",
                     expiryDate = _updatableChallenge.value?.expiryDate?.toString() ?: "",
-                    pointsValue = _updatableChallenge.value?.pointsValue ?: 0,
+                    pointsValue = _updatableChallenge.value?.pointsValue?.toInt() ?: 0,
                     startTime = _updatableChallenge.value?.startTimeCriteria?.toString() ?: "",
                     endTime = _updatableChallenge.value?.endTimeCriteria?.toString() ?: ""
                 )
@@ -153,8 +155,8 @@ class SharedViewModel : ViewModel() {
                     name = _updatableChallenge.value?.name ?: "",
                     description = _updatableChallenge.value?.description ?: "",
                     expiryDate = _updatableChallenge.value?.expiryDate?.toString() ?: "",
-                    pointsValue = _updatableChallenge.value?.pointsValue ?: 0,
-                    frequencyCount = _updatableChallenge.value?.frequencyCount ?: 0
+                    pointsValue = _updatableChallenge.value?.pointsValue?.toInt() ?: 0,
+                    frequencyCount = _updatableChallenge.value?.frequencyCount?.toInt() ?: 0
                 )
                 val response = ApiClient.apiService.createFrequencyBasedChallenge("Bearer ${TokenManager.getAccessToken(context)}", gymId, request)
                 val code = response.code()
@@ -169,15 +171,49 @@ class SharedViewModel : ViewModel() {
         }
     }
 
-    fun deleteChallenge(
+    fun updateChallenge(
         context: Context,
-        challengeId: String,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
             try {
-                val response = ApiClient.apiService.deleteChallenge("Bearer ${TokenManager.getAccessToken(context)}", challengeId)
+                val request = UpdateChallengeRequest(
+                    name = _updatableChallenge.value?.name,
+                    description = _updatableChallenge.value?.description,
+                    expiryDate = _updatableChallenge.value?.expiryDate?.toString(),
+                    pointsValue = _updatableChallenge.value?.pointsValue?.toInt(),
+                    frequencyCount = if (_updatableChallenge.value?.frequencyCount.isNullOrEmpty()) _updatableChallenge.value?.frequencyCount?.toInt() else null,
+                    startTimeCriteria = _updatableChallenge.value?.startTimeCriteria?.toString(),
+                    endTimeCriteria = _updatableChallenge.value?.endTimeCriteria?.toString(),
+                    type = _updatableChallenge.value?.type.toString()
+                )
+                val challengeId = _updatableChallenge.value?.id ?: ""
+                val auth = "Bearer ${TokenManager.getAccessToken(context)}"
+                val response = ApiClient.apiService.updateChallenge(auth, challengeId, request)
+                val code = response.code()
+                if (code == 204) {
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "An error occurred")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+                throw e
+            }
+        }
+    }
+
+    fun deleteChallenge(
+        context: Context,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val challengeId = _updatableChallenge.value?.id ?: ""
+                val auth = "Bearer ${TokenManager.getAccessToken(context)}"
+                val response = ApiClient.apiService.deleteChallenge(auth, challengeId)
                 val code = response.code()
                 if (code == 204) {
                     onSuccess()

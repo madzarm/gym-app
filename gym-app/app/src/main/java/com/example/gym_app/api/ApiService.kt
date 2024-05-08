@@ -7,6 +7,7 @@ import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.CreateUserRequest
 import org.gymapp.library.request.ReviewGymClassRequest
 import org.gymapp.library.request.ReviewTrainerRequest
+import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.AccessCodeDto
@@ -116,4 +117,7 @@ interface ApiService {
 
     @DELETE("/challenges/{challengeId}")
     suspend fun deleteChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String): Response<Unit>
+
+    @PUT("/challenges/{challengeId}")
+    suspend fun updateChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String, @Body request: UpdateChallengeRequest): Response<Unit>
 }

@@ -30,14 +30,17 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.screens.trainer.CustomBackground
 import com.example.gym_app.viewModels.SharedViewModel
 import kotlinx.datetime.toLocalDateTime
 import org.gymapp.library.response.ChallengeDto
+import org.gymapp.library.response.ChallengeType
 import org.gymapp.library.response.CriteriaDto
 import org.gymapp.library.response.CriteriaType
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 private val sampleChallenges =
   listOf(
@@ -87,7 +90,20 @@ fun ManageChallengesScreen(navHostController: NavHostController, viewModel: Shar
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
         items(challenges.value ?: emptyList()) { challenge ->
-          ChallengeItem(challenge = challenge, onClick = { /*TODO*/})
+          ChallengeItem(challenge = challenge, onClick = {
+            viewModel.updateSelectedChallenge { copy(
+                id = challenge.id,
+                name = challenge.name,
+                description = challenge.description,
+                pointsValue = challenge.pointsValue.toString(),
+                type = ChallengeType.valueOf(challenge.type),
+                expiryDate = LocalDateTime.parse(challenge.expiryDate),
+                frequencyCount = challenge.criteriaDto?.frequencyCount.toString(),
+                startTimeCriteria = challenge.criteriaDto?.startTimeCriteria?.let { LocalTime.parse(it) },
+                endTimeCriteria = challenge.criteriaDto?.endTimeCriteria?.let { LocalTime.parse(it) }
+            ) }
+            navHostController.navigate(AppRoutes.CHALLENGE_DETAILS_SCREEN)
+          })
         }
       }
     }
@@ -95,9 +111,11 @@ fun ManageChallengesScreen(navHostController: NavHostController, viewModel: Shar
 }
 
 @Composable
-fun ChallengeItem(challenge: ChallengeDto, onClick: () -> Unit) {
+fun ChallengeItem(challenge: ChallengeDto, onClick: (ChallengeDto) -> Unit) {
   TextButton(
-    onClick = {},
+    onClick = {
+        onClick(challenge)
+    },
     modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp),
     shape = RoundedCornerShape(20.dp),
   ) {
@@ -148,7 +166,7 @@ fun ChallengeItem(challenge: ChallengeDto, onClick: () -> Unit) {
           color = Color.White,
           modifier =
             Modifier.align(Alignment.TopEnd)
-              .padding(end = 8.dp, top = 8.dp), // Aligns the Text to the top-right corner of the Box
+              .padding(end = 8.dp, top = 8.dp),
         )
       }
     }
