@@ -126,4 +126,7 @@ interface ApiService {
 
     @GET("/challenges/points")
     suspend fun fetchPoints(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String): Int
+
+    @POST("/challenges/{challengeId}/claim")
+    suspend fun claimChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String): Response<Unit>
 }

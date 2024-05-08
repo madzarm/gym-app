@@ -284,12 +284,20 @@ class SharedViewModel : ViewModel() {
         }
     }
 
-    fun removeUnclaimedChallenge(challenge: ChallengeDto) {
+    fun claimChallenge(
+        context: Context,
+        challenge: ChallengeDto
+    ) {
         viewModelScope.launch {
             delay(3500)
             val updatedUnclaimedChallenges = _unclaimedChallenges.value?.toMutableList()
             updatedUnclaimedChallenges?.remove(challenge)
             _unclaimedChallenges.value = updatedUnclaimedChallenges ?: emptyList()
+
+            val challengeId = challenge.id
+            val auth = "Bearer ${TokenManager.getAccessToken(context)}"
+            val response = ApiClient.apiService.claimChallenge(auth, challengeId)
+            _points.value = (_points.value ?: 0) + challenge.pointsValue
         }
 
     }

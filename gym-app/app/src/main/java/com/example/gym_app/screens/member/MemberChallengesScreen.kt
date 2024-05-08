@@ -10,7 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -64,6 +63,7 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
   val context = LocalContext.current
   val activeChallenges = viewModel.challengeDtos.observeAsState()
   val unclaimedChallenges = viewModel.unclaimedChallenges.observeAsState()
+  val totalPoints = viewModel.points.observeAsState()
 
   LaunchedEffect(true) {
     viewModel.fetchActiveChallenges(
@@ -83,7 +83,7 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
     )
   }
 
-  CustomBackground(title = "Upcoming classes") {
+  CustomBackground(title = "Points: ${totalPoints.value ?: "0"}") {
     val listState = rememberLazyListState()
 
     Scaffold(
@@ -105,7 +105,7 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
           when (item) {
             is ChallengeListItem.UnclaimedChallengeItem -> {
               UnclaimedChallengeItem(challenge = item.challenge, onClick = {
-                viewModel.removeUnclaimedChallenge(item.challenge)
+                viewModel.claimChallenge(context, item.challenge)
               })
             }
             is ChallengeListItem.ActiveChallengeItem -> {
