@@ -61,7 +61,9 @@ fun ManageClassesScreen(
   val gymClasses = viewModel.gymClasses.observeAsState()
 
   CustomBackground(title = "Your classes") {
-    IconButton(onClick = { navController.navigate(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) }) {
+    IconButton(
+      onClick = { navController.navigate(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) }
+    ) {
       Icon(
         painter = painterResource(id = R.drawable.material_ic_calendar_black_24dp),
         contentDescription = "View Calendar",
@@ -84,7 +86,6 @@ fun ManageClassesScreen(
       },
       floatingActionButtonPosition = FabPosition.End,
     ) {
-
       LazyColumn(
         state = listState,
         modifier = Modifier.fillMaxSize(),
@@ -115,24 +116,37 @@ fun GymClass(gymClass: GymClassDto, onClick: (GymClassDto) -> Unit) {
           .fillMaxWidth()
           .fillMaxSize(),
     ) {
-      Column(
-        modifier = Modifier.fillMaxWidth().padding(20.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-      ) {
-        val (date, time) = extractDateAndTime(gymClass.dateTime)
-        val duration = formatDuration(gymClass.duration)
-        Text(
-          fontSize = 32.sp,
-          modifier = Modifier.padding(bottom = 8.dp),
-          fontWeight = FontWeight.Bold,
-          color = Color.White,
-          text = gymClass.name ?: "Unknown",
-          lineHeight = 30.sp,
-        )
-        Text(color = Color.White, text = "Date: ${date ?: "Unknown"}")
-        Text(color = Color.White, text = "Time: ${time ?: "Unknown"}")
-        Text(color = Color.White, text = "Duration ${duration ?: "Unknown"}")
+      Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+          modifier = Modifier.fillMaxWidth().padding(20.dp),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          val (date, time) = extractDateAndTime(gymClass.dateTime)
+          val duration = formatDuration(gymClass.duration)
+          Text(
+            textAlign = TextAlign.Center,
+            fontSize = 32.sp,
+            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp),
+            fontWeight = FontWeight.Bold,
+            color = Color.White,
+            text = gymClass.name ?: "Unknown",
+            lineHeight = 30.sp,
+          )
+          Text(color = Color.White, text = "Date: ${date ?: "Unknown"}")
+          Text(color = Color.White, text = "Time: ${time ?: "Unknown"}")
+          Text(color = Color.White, text = "Duration ${duration ?: "Unknown"}")
+        }
+        if (gymClass.isRecurring) {
+          Text(
+            text = "Recurring class",
+            color = Color.White,
+            modifier =
+            Modifier.align(Alignment.TopEnd)
+              .padding(end = 8.dp, top = 8.dp),
+          )
+        }
+
       }
     }
   }
