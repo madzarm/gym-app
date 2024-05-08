@@ -54,6 +54,12 @@ class SharedViewModel : ViewModel() {
     private val _updatableChallenge = MutableLiveData<UpdatableChallenge>()
     val updatableChallenge: LiveData<UpdatableChallenge> = _updatableChallenge
 
+    private val _points = MutableLiveData<Int>()
+    val points: LiveData<Int> = _points
+
+    private val _unclaimedChallenges = MutableLiveData<List<ChallengeDto>>()
+    val unclaimedChallenges: LiveData<List<ChallengeDto>> = _unclaimedChallenges
+
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
     }
@@ -98,7 +104,7 @@ class SharedViewModel : ViewModel() {
     fun fetchActiveChallenges(
         context: Context,
         gymId: String,
-        onSuccess: () -> Unit,
+        onSuccess: () -> Unit = {},
         onError: (String) -> Unit
     ) {
         viewModelScope.launch {
@@ -106,6 +112,44 @@ class SharedViewModel : ViewModel() {
             try {
                 val challengeDtos: List<ChallengeDto> = ApiClient.apiService.fetchActiveChallenges("Bearer ${TokenManager.getAccessToken(context)}", gymId)
                 _challengeDtos.value = challengeDtos
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+
+            }
+        }
+    }
+
+    fun fetchPoints(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+
+            try {
+                val points = ApiClient.apiService.fetchPoints("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+                _points.value = points
+                onSuccess()
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+            }
+        }
+    }
+
+    fun fetchUnclaimedChallenges(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit = {},
+        onError: (String) -> Unit = {}
+    ) {
+        viewModelScope.launch {
+
+            try {
+                val auth = "Bearer ${TokenManager.getAccessToken(context)}"
+                val challengeDtos: List<ChallengeDto> = ApiClient.apiService.fetchUnclaimedChallenges(auth, gymId)
+                _unclaimedChallenges.value = challengeDtos
                 onSuccess()
             } catch (e: Exception) {
                 onError(e.message ?: "An error occurred")

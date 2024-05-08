@@ -120,4 +120,10 @@ interface ApiService {
 
     @PUT("/challenges/{challengeId}")
     suspend fun updateChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String, @Body request: UpdateChallengeRequest): Response<Unit>
+
+    @GET("/challenges/unclaimed")
+    suspend fun fetchUnclaimedChallenges(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String): List<ChallengeDto>
+
+    @GET("/challenges/points")
+    suspend fun fetchPoints(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String): Int
 }

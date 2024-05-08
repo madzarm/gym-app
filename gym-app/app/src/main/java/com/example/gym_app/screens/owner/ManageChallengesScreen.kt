@@ -154,7 +154,7 @@ fun ChallengeItem(challenge: ChallengeDto, onClick: (ChallengeDto) -> Unit) {
     ) {
       Box(
         modifier =
-          Modifier.fillMaxWidth() // This ensures the Box fills the space available in the Row
+          Modifier.fillMaxWidth()
       ) {
         Column(
           modifier = Modifier.fillMaxWidth().padding(20.dp),

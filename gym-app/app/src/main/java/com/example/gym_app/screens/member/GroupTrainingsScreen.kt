@@ -110,7 +110,7 @@ fun GroupTrainingsScreen(
   }
 }
 
-fun combineLists(
+private fun combineLists(
   gymClasses: List<GymClassInstanceDto>,
   gymClassReviews: List<GymClassInstanceDto>,
 ): List<ListItem> {

@@ -26,6 +26,7 @@ import com.example.gym_app.common.Role
 import com.example.gym_app.screens.member.GroupTrainingsScreen
 import com.example.gym_app.screens.member.GymClassDetailsScreen
 import com.example.gym_app.screens.member.LiveStatusScreen
+import com.example.gym_app.screens.member.MemberChallengesScreen
 import com.example.gym_app.screens.member.QeCodeScreen
 import com.example.gym_app.screens.member.ReviewGymClassScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
@@ -136,6 +137,9 @@ fun GymHomeScreen(navController: NavController) {
       composable(AppRoutes.CHALLENGE_DETAILS_SCREEN) {
         ChallengeDetailsScreen(navHostController, viewModel)
       }
+      composable(AppRoutes.MEMBER_CHALLENGES_SCREEN) {
+        MemberChallengesScreen(navHostController, viewModel)
+      }
       composable(AppRoutes.CREATE_CHALLENGE_SCREEN) {
         CreateChallengeScreen(navHostController, viewModel)
       }
@@ -175,6 +179,7 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object Statistics : GymScreen(AppRoutes.STATISTICS_SCREEN, "Statistics", Role.ROLE_ADMIN)
 
   object ManageChallenges : GymScreen(AppRoutes.MANAGE_CHALLENGES_SCREEN, "Manage Challenges", Role.ROLE_ADMIN)
+  object MemberChallenges : GymScreen(AppRoutes.MEMBER_CHALLENGES_SCREEN, "Challenges", Role.ROLE_MEMBER)
 }
 
 val gymScreens =
@@ -182,6 +187,7 @@ val gymScreens =
     GymScreen.ManageClasses,
     GymScreen.LiveStatus,
     GymScreen.GroupTrainings,
+    GymScreen.MemberChallenges,
     GymScreen.AccessCode,
     GymScreen.QrCode,
     GymScreen.Statistics,
