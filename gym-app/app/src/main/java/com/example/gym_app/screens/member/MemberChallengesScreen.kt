@@ -1,18 +1,21 @@
 package com.example.gym_app.screens.member
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandIn
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,16 +46,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.gym_app.common.extractDateAndTime
-import com.example.gym_app.common.formatDuration
 import com.example.gym_app.screens.owner.ChallengeItem
 import com.example.gym_app.screens.trainer.CustomBackground
 import com.example.gym_app.viewModels.SharedViewModel
 import kotlinx.coroutines.delay
-import kotlinx.datetime.toLocalDateTime
 import org.gymapp.library.response.ChallengeDto
-import org.gymapp.library.response.GymClassDto
-import org.gymapp.library.response.GymClassInstanceDto
 
 sealed class ChallengeListItem {
   data class ActiveChallengeItem(val challenge: ChallengeDto) : ChallengeListItem()
@@ -106,18 +104,12 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
         items(combinedList) { item ->
           when (item) {
             is ChallengeListItem.UnclaimedChallengeItem -> {
-              UnclaimedChallengeItem(
-                challenge = item.challenge,
-                onClick = {
-
-                }
-              )
+              UnclaimedChallengeItem(challenge = item.challenge, onClick = {
+                viewModel.removeUnclaimedChallenge(item.challenge)
+              })
             }
             is ChallengeListItem.ActiveChallengeItem -> {
-              ChallengeItem(
-                challenge = item.challenge,
-                onClick = {}
-              )
+              ChallengeItem(challenge = item.challenge, onClick = {})
             }
           }
         }
@@ -129,85 +121,102 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
 @Composable
 fun UnclaimedChallengeItem(challenge: ChallengeDto, onClick: (ChallengeDto) -> Unit) {
   var clicked by remember { mutableStateOf(false) }
-  val scale = animateFloatAsState(targetValue = if (clicked) 0.95f else 1.0f,
-    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-    label = ""
-  )
+  var startDecaying by remember { mutableStateOf(false) }
+  var itemVisible by remember { mutableStateOf(true) }
+  var popupVisible by remember { mutableStateOf(false) }
 
   val backgroundColors = listOf(Color(0xFF00d4ff), Color(0xFF0051bf))
-  val animatedColor by animateColorAsState(
-    targetValue = if (clicked) Color(0xFFFFD700) else backgroundColors.first(),
-    animationSpec = tween(durationMillis = 500), label = ""
-  )
-
-  var visible by remember { mutableStateOf(true) }
-
+  val animatedColor by
+    animateColorAsState(
+      targetValue = if (clicked) Color(0xFFFFD700) else backgroundColors.first(),
+      animationSpec = tween(durationMillis = 500),
+      label = "",
+    )
+  val scale =
+    animateFloatAsState(
+      targetValue = if (!startDecaying) 1f else 0.0f,
+        spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+      label = "",
+    )
 
   LaunchedEffect(clicked) {
     if (clicked) {
       delay(500)
-      clicked = false
+      startDecaying = true
+      itemVisible = false
+      popupVisible = true
+      delay(3000)
+      popupVisible = false
     }
   }
-
-  TextButton(
-    onClick = {
-      clicked = true
-      onClick(challenge)
-    },
-    modifier = Modifier
-      .fillMaxWidth(0.84F)
-      .padding(top = 18.dp)
-      .scale(scale.value),
-    shape = RoundedCornerShape(20.dp),
-  ) {
-    Row(
-      verticalAlignment = Alignment.CenterVertically,
-      horizontalArrangement = Arrangement.SpaceBetween,
-      modifier =
-      Modifier.clip(RoundedCornerShape(20.dp)).background(
-        brush = Brush.horizontalGradient(colors = if (clicked) listOf(animatedColor, animatedColor) else backgroundColors)
-      )
-        .fillMaxWidth()
-        .fillMaxSize(),
+    TextButton(
+      onClick = {
+        clicked = true
+        onClick(challenge)
+      },
+      modifier = Modifier.fillMaxWidth(0.84F).padding(top = 18.dp).scale(scale.value),
+      shape = RoundedCornerShape(20.dp),
     ) {
-      Box(
+      Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
         modifier =
-        Modifier.fillMaxWidth()
+          Modifier.clip(RoundedCornerShape(20.dp))
+            .background(
+              brush =
+                Brush.horizontalGradient(
+                  colors = if (clicked) listOf(animatedColor, animatedColor) else backgroundColors
+                )
+            )
+            .fillMaxWidth()
+            .fillMaxSize(),
       ) {
-        Column(
-          modifier = Modifier.fillMaxWidth().padding(20.dp),
-          verticalArrangement = Arrangement.Center,
-          horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-          Text(
-            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp),
-            style = MaterialTheme.typography.titleLarge,
-            color = Color.White,
-            text = challenge.name ?: "Unknown",
-            lineHeight = 30.sp,
-          )
+        Box(modifier = Modifier.fillMaxWidth()) {
+          Column(
+            modifier = Modifier.fillMaxWidth().padding(20.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+          ) {
+            Text(
+              modifier = Modifier.padding(bottom = 8.dp, top = 8.dp),
+              style = MaterialTheme.typography.titleLarge,
+              color = Color.White,
+              text = challenge.name,
+              lineHeight = 30.sp,
+            )
 
+            Text(
+              text = "Click to Claim!",
+              color = Color.White,
+              textAlign = TextAlign.Center,
+              style = MaterialTheme.typography.titleLarge,
+              fontSize = 40.sp,
+            )
+          }
           Text(
-            text = "Click to Claim!",
+            text = "${challenge.pointsValue} points",
             color = Color.White,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.titleLarge,
-            fontSize = 40.sp,
+            modifier = Modifier.align(Alignment.TopEnd).padding(end = 8.dp, top = 8.dp),
           )
         }
-        Text(
-          text = "${challenge.pointsValue} points",
-          color = Color.White,
-          modifier =
-          Modifier.align(Alignment.TopEnd)
-            .padding(end = 8.dp, top = 8.dp),
-        )
       }
     }
+
+  AnimatedVisibility(
+    visible = popupVisible,
+    enter =
+      fadeIn(animationSpec = tween(durationMillis = 300)) + expandIn(expandFrom = Alignment.Center),
+    exit = fadeOut(animationSpec = tween(durationMillis = 300)),
+  ) {
+    Text(
+      "${challenge.pointsValue} points!",
+      modifier = Modifier.padding(16.dp),
+      fontSize = 56.sp,
+      fontWeight = FontWeight.Bold,
+      color = MaterialTheme.colorScheme.primary,
+    )
   }
 }
-
 
 private fun combineLists(
   activeChallenges: List<ChallengeDto>,
@@ -218,5 +227,3 @@ private fun combineLists(
   combinedList.addAll(activeChallenges.map { ChallengeListItem.ActiveChallengeItem(it) })
   return combinedList
 }
-
-

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
@@ -281,5 +282,15 @@ class SharedViewModel : ViewModel() {
                 onError(e.message ?: "An error occurred")
             }
         }
+    }
+
+    fun removeUnclaimedChallenge(challenge: ChallengeDto) {
+        viewModelScope.launch {
+            delay(3500)
+            val updatedUnclaimedChallenges = _unclaimedChallenges.value?.toMutableList()
+            updatedUnclaimedChallenges?.remove(challenge)
+            _unclaimedChallenges.value = updatedUnclaimedChallenges ?: emptyList()
+        }
+
     }
 }
