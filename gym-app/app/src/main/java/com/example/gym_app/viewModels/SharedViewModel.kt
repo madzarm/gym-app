@@ -114,6 +114,19 @@ class SharedViewModel : ViewModel() {
         }
     }
 
+    fun createChallenge(
+        context: Context,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val gymId = _selectedGymUser.value?.gym?.id ?: ""
+        if (_updatableChallenge.value?.type == ChallengeType.TIMED_VISIT_BASED) {
+            createTimeBasedChallenge(context, gymId, onSuccess, onError)
+        } else if (_updatableChallenge.value?.type == ChallengeType.FREQUENCY_BASED) {
+            createFrequencyBasedChallenge(context, gymId, onSuccess, onError)
+        }
+    }
+
     fun createTimeBasedChallenge(
         context: Context,
         gymId: String,

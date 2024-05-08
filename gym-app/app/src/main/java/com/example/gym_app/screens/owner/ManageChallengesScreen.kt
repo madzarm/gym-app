@@ -14,13 +14,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -79,13 +87,27 @@ fun ManageChallengesScreen(navHostController: NavHostController, viewModel: Shar
 
   val challenges = viewModel.challengeDtos.observeAsState()
 
+  val listState = rememberLazyListState()
+  val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
   CustomBackground(title = "Manage Challenges") {
     Scaffold(
       modifier =
-        Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp))
+        Modifier.padding(top = 10.dp).clip(RoundedCornerShape(topStart = 64.dp, topEnd = 64.dp)),
+      floatingActionButton = {
+        ExtendedFloatingActionButton(
+          onClick = {
+            navHostController.navigate(AppRoutes.CREATE_CHALLENGE_SCREEN)
+          },
+          expanded = expandedFab,
+          icon = { Icon(Icons.Filled.Add, "Create a class button") },
+          text = { Text(text = "Create a class") },
+        )
+      },
+      floatingActionButtonPosition = FabPosition.End,
     ) { padding ->
       LazyColumn(
-        state = rememberLazyListState(),
+        state = listState,
         modifier = Modifier.fillMaxSize().padding(padding),
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
