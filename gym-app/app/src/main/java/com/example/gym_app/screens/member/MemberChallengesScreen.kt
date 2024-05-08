@@ -209,7 +209,7 @@ fun UnclaimedChallengeItem(challenge: ChallengeDto, onClick: (ChallengeDto) -> U
     exit = fadeOut(animationSpec = tween(durationMillis = 300)),
   ) {
     Text(
-      "${challenge.pointsValue} points!",
+      "+${challenge.pointsValue}",
       modifier = Modifier.padding(16.dp),
       fontSize = 56.sp,
       fontWeight = FontWeight.Bold,

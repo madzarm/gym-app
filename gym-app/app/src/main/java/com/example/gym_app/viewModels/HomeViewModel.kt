@@ -1,6 +1,8 @@
 package com.example.gym_app.viewModels
 
 import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -25,6 +27,24 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
   private val _currentUser = MutableStateFlow<UserDto?>(null)
   val currentUser: StateFlow<UserDto?> = _currentUser
 
+  private val _updatableUser = MutableLiveData<UserDto>(null)
+    val updatableUser: LiveData<UserDto> = _updatableUser
+
+  private val _isLoading = MutableLiveData(true)
+  val isLoading: LiveData<Boolean> = _isLoading
+
+  fun updateUpdatableUser(update: UserDto.() -> UserDto) {
+    _updatableUser.value = update(_updatableUser.value ?: UserDto(
+        id = null,
+        firstName = "",
+        lastName = "",
+        email = "",
+        profilePicUrl = "",
+        createdAt = "",
+        updatedAt = "",
+        gymUsersIds = emptyList(),
+    ))
+  }
 
   fun updateUserDto(update: UserDto.() -> UserDto) {
     _currentUser.value =
@@ -42,6 +62,30 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
           )
       )
   }
+
+  fun setupProfile(
+    context: Context,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      try {
+        ApiClient.apiService.updateUser(
+          "Bearer ${TokenManager.getAccessToken(context)}",
+          CreateUserRequest(
+            id = null,
+            firstName = _updatableUser.value?.firstName ?: "",
+            lastName = _updatableUser.value?.lastName ?: "",
+            email = null,
+            profilePicUrl = null,
+          ),
+        )
+        onSuccess()
+      } catch (e: HttpException) {
+        val errorMessage = readErrorMessage(e)
+        onError(errorMessage)
+      }
+    }
 
   fun updateUser(context: Context, onSuccess: () -> Unit, onError: (String) -> Unit) =
     viewModelScope.launch {
@@ -170,6 +214,7 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
         try {
           val currentUser = currentUserDeferred.await()
           _currentUser.value = currentUser.body()
+          _isLoading.value = false
         } catch (e: Exception) {
           println("Error fetching current user: ${e.message}")
         }
