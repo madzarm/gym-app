@@ -10,7 +10,7 @@ class GymMember (
     @ManyToMany(mappedBy = "participants")
     val classes: MutableList<GymClassInstance> = mutableListOf(),
 
-    @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
+    @OneToOne(cascade = [CascadeType.PERSIST]) @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
 
     val firstJoined: LocalDate = LocalDate.now(),
 

@@ -59,10 +59,8 @@ class MemberService(
             gym = gym,
             roles = mutableListOf(roleService.findByName(Common.Roles.ROLE_MEMBER.name))
         )
-        gymUserRepository.save(gymUser)
 
         val member = GymMember(gymUser = gymUser)
-        gymUser.gymMember = member
         gymMemberRepository.save(member)
         return gymUserMapper.modelToDto(gymUser)
     }

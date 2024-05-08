@@ -12,7 +12,7 @@ open class GymUser(
         inverseJoinColumns = [JoinColumn(name = "role_id")]
     )
     var roles: MutableList<Role>,
-    @ManyToOne(cascade = [CascadeType.ALL]) var user: User,
+    @ManyToOne var user: User,
     @ManyToOne(cascade = [CascadeType.ALL]) var gym: Gym?,
     @OneToOne(mappedBy = "gymUser") var gymOwner: GymOwner? = null,
     @OneToOne(mappedBy = "gymUser") var gymTrainer: GymTrainer? = null,
