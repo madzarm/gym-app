@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
@@ -29,6 +30,11 @@ class UserController(
     @PostMapping
     fun createUser(@RequestBody request: CreateUserRequest, @AuthenticationPrincipal jwt: Jwt): ResponseEntity<UserDto> {
         return ResponseEntity.ok(userService.createUser(request, jwt))
+    }
+
+    @PutMapping
+    fun updateUser(@RequestBody request: CreateUserRequest, @AuthenticationPrincipal jwt: Jwt): ResponseEntity<*> {
+        return ResponseEntity.ok(userService.updateUser(request, jwt))
     }
 
     @GetMapping

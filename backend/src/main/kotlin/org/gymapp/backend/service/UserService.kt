@@ -13,6 +13,7 @@ import org.gymapp.library.response.UserDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -34,9 +35,28 @@ class UserService(
         }
         request.id = id
 
-        val user = userMapper.requestToUser(request)
+        val user = User(
+            id = request.id,
+            email = request.email,
+            firstName = request.firstName,
+            lastName = request.lastName,
+            createdAt = LocalDateTime.now(),
+            profilePicUrl = request.profilePicUrl,
+            gymUsers = mutableListOf(),
+            updatedAt = null
+        )
         userRepository.save(user)
         return userMapper.modelToDto(user)
+    }
+
+    @Transactional
+    fun updateUser(request: CreateUserRequest, jwt: Jwt): Unit {
+        val id = jwt.getClaimAsString("sub").split("|")[1]
+        val user = userRepository.findById(id).get()
+        request.firstName?.let { user.firstName = it }
+        request.lastName?.let { user.lastName = it }
+        user.updatedAt = LocalDateTime.now()
+        userRepository.save(user)
     }
 
     fun getAllUsers(): List<UserDto> {
@@ -56,40 +76,4 @@ class UserService(
         return userMapper.modelToDto(currentUser)
     }
 
-
-
-//    fun joinGymAsTrainer(currentUser: User, code: String): GymUserDto {
-//        val accessCode = accessCodeService.findAccessCodeByCode(code) ?: throw IllegalArgumentException("Access code not found!")
-//        if (accessCode.expiryDateTime.isBefore(LocalDateTime.now())) {
-//            accessCodeService.deleteAccessCode(accessCode)
-//            throw IllegalArgumentException("Access code expired!")
-//        }
-//
-//        val gym = accessCode.gym
-//        val existingGymUser = currentUser.gymUsers?.find { it.gym?.code == accessCode.gym.code }
-//        if (existingGymUser != null) {
-//            if (existingGymUser.roles.any { it.name == Common.Roles.ROLE_TRAINER.name }) {
-//                throw IllegalArgumentException("User is already a trainer of this gym!")
-//            } else {
-//                val trainerRole = roleService.findByName(Common.Roles.ROLE_TRAINER.name)
-//                existingGymUser.roles.add(trainerRole)
-//                gymRepository.save(gym)
-//                accessCodeService.deleteAccessCode(accessCode)
-//                return gymUserMappper.modelToDto(existingGymUser)
-//            }
-//        }
-//
-//        val roleTrainer = roleService.findByName(Common.Roles.ROLE_TRAINER.name)
-//        val gymUser = GymUser(
-//            id = UUID.randomUUID().toString(),
-//            roles = mutableListOf(roleTrainer),
-//            user = currentUser,
-//            gym = gym
-//        )
-//
-//        gym.trainers.add(gymUser)
-//        gymRepository.save(gym)
-//        accessCodeService.deleteAccessCode(accessCode)
-//        return gymUserMappper.modelToDto(gymUser)
-//    }
 }
