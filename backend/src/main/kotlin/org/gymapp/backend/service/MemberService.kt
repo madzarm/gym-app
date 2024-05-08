@@ -74,8 +74,20 @@ class MemberService(
         val member = gymClass.gym.getMember(currentUser) ?: throw IllegalArgumentException("User is not a member of this gym")
 
         val gymClassInstance =
-            if (gymClass.instances.any { it.dateTime == dateTime }) {
-                gymClass.instances.first { it.dateTime == dateTime}
+            if (gymClass.instances.any {
+                if (it.gymClassModifiedInstance != null) {
+                    it.gymClassModifiedInstance.dateTime == dateTime
+                } else {
+                    it.dateTime == dateTime
+                }
+                }) {
+                gymClass.instances.first {
+                    if (it.gymClassModifiedInstance != null) {
+                        it.gymClassModifiedInstance.dateTime == dateTime
+                    } else {
+                        it.dateTime == dateTime
+                    }
+                }
             } else {
                 GymClassInstance(
                     dateTime = dateTime,
