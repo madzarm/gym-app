@@ -56,8 +56,8 @@ fun ProfileScreen(
         OutlinedTextField(
           modifier = Modifier,
           value = user.value?.lastName ?: "",
-          label = { Text(text = "First name") },
-          onValueChange = { viewModel.updateUserDto { copy(firstName = it) } },
+          label = { Text(text = "Last name") },
+          onValueChange = { viewModel.updateUserDto { copy(lastName = it) } },
         )
 
         Row {
