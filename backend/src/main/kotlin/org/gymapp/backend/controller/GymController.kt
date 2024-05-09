@@ -67,5 +67,13 @@ class GymController(
         return ResponseEntity.ok(gymService.getGymVisits(common.getCurrentUser(jwt), gymId))
     }
 
+    @GetMapping("/{gymId}/gymVisits/heatMap")
+    fun getGymVisitsHeatMap(
+        @PathVariable gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<List<VisitCountByDay>> {
+        return ResponseEntity.ok(gymService.getGymVisitsHeatMapData(common.getCurrentUser(jwt), gymId))
+    }
+
 
 }

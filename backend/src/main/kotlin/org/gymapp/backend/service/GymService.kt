@@ -95,6 +95,19 @@ class GymService(
         return gymMapper.modelsToDtos(gyms)
     }
 
+    fun getGymVisitsHeatMapData(currentUser: User, gymId: String): List<VisitCountByDay> {
+        val visitCounts = gymVisitRepository.findVisitsGroupedByDayAndHour(gymId)
+
+        return visitCounts.groupBy { it.getDayOfWeek() }
+            .map { entry ->
+                VisitCountByDay(
+                    dayOfWeek = entry.key,
+                    hours = entry.value.map { VisitCountByHour(hour = it.getHour(), visitCount = it.getVisitCount()) }
+                )
+            }
+            .sortedBy { it.dayOfWeek }
+    }
+
     fun findGymByCode(code: String): Gym {
         return gymRepository.findByCode(code) ?: throw IllegalArgumentException("Gym not found")
     }
@@ -113,5 +126,7 @@ class GymService(
         val gym = findById(gymId)
         return gymVisitMapper.modelsToDtos(gym.visits)
     }
+
+
 
 }

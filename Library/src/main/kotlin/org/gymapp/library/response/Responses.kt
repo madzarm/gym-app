@@ -181,3 +181,13 @@ enum class CriteriaType {
     TIMED_VISIT_BASED,
     FREQUENCY_BASED
 }
+
+data class VisitCountByDay (
+    val dayOfWeek: Int,
+    val hours: List<VisitCountByHour>
+)
+
+data class VisitCountByHour (
+    val hour: Int,
+    val visitCount: Long
+)
