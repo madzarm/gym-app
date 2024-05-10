@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository
 @Repository
 interface GymMemberRepository: JpaRepository<GymMember, String> {
 
+    fun findByInviteCode(inviteCode: String): GymMember?
+
 }

@@ -29,6 +29,14 @@ fun GymMember.getNumberOfGymVisitsThisMonth(): Int {
     return this.visits.filter { it.date.isAfter(startOfMonth.atStartOfDay()) }.size
 }
 
+fun GymMember.getGym(): Gym {
+    return this.gymUser.gym ?: throw IllegalArgumentException("Member is not associated with a gym!")
+}
+
+fun GymMember.getGymCode(): String {
+    return this.getGym().code
+}
+
 fun GymMember.alreadyCompletedChallenge(challenge: Challenge): Boolean {
     return this.completedChallenges.any { it.challenge.id == challenge.id }
 }

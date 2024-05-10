@@ -3,6 +3,7 @@ package org.gymapp.backend.service
 import jakarta.persistence.EntityManager
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addParticipant
+import org.gymapp.backend.extensions.getGymCode
 import org.gymapp.backend.extensions.getMember
 import org.gymapp.backend.mapper.GymClassInstanceMapper
 import org.gymapp.backend.mapper.GymClassMapper
@@ -63,6 +64,13 @@ class MemberService(
         val member = GymMember(gymUser = gymUser)
         gymMemberRepository.save(member)
         return gymUserMapper.modelToDto(gymUser)
+    }
+
+    fun joinGymWithInvite(currentUser: User, code: String): GymUserDto {
+        val invitingMember = gymMemberRepository.findByInviteCode(code) ?: throw IllegalArgumentException("Invite code is invalid")
+        val result = joinGymAsMember(currentUser, invitingMember.getGymCode())
+        challengeService.checkForInviteChallenge(invitingMember)
+        return result
     }
 
     fun registerToClass(currentUser: User, classId: String, dateTimeString: String): GymMemberDto {

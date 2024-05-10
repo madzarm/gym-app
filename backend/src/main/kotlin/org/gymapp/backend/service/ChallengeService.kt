@@ -28,7 +28,7 @@ class ChallengeService (
     @Autowired private val challengeRepository: ChallengeRepository,
     @Autowired private val frequencyBasedCriteriaRepository: FrequencyBasedCriteriaRepository,
     @Autowired private val challengeMapper: ChallengeMapper,
-    private val memberChallengeRepository: MemberChallengeRepository,
+    @Autowired private val memberChallengeRepository: MemberChallengeRepository,
 ) {
 
 
@@ -123,19 +123,19 @@ class ChallengeService (
         request.expiryDate?.let { challenge.expiryDate = it.toLocalDateTime() }
         request.pointsValue?.let { challenge.pointsValue = it }
 
-        val baseCriteriaId = challenge.criteria.id
+        val baseCriteriaId = challenge.criteria?.id
         when (challenge.type) {
             ChallengeType.TIMED_VISIT_BASED -> {
-                val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId).orElseThrow()
+                val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId ?: "").orElseThrow()
                 request.startTimeCriteria?.let { timeBasedCriteria.startTime = it.toLocalTime() }
                 request.endTimeCriteria?.let { timeBasedCriteria.endTime = it.toLocalTime() }
                 timeBasedCriteriaRepository.save(timeBasedCriteria)
             }
             ChallengeType.FREQUENCY_BASED -> {
-                val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId).orElseThrow()
+                val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(baseCriteriaId ?: "").orElseThrow()
                 request.frequencyCount?.let { frequencyBasedCriteria.frequencyCount = it }
                 frequencyBasedCriteriaRepository.save(frequencyBasedCriteria)
-            }
+            } else -> { }
         }
 
         challengeRepository.save(challenge)
@@ -153,7 +153,7 @@ class ChallengeService (
         for (challenge in challenges) {
             when (challenge.type) {
                 ChallengeType.TIMED_VISIT_BASED -> {
-                    val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria.id).orElseThrow()
+                    val timeBasedCriteria = timeBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria?.id ?: "").orElseThrow()
 
                     val start = timeBasedCriteria.startTime ?: defaultStart
                     val end = timeBasedCriteria.endTime ?: defaultEnd
@@ -166,13 +166,25 @@ class ChallengeService (
                     }
                 }
                 ChallengeType.FREQUENCY_BASED -> {
-                    val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria.id).orElseThrow()
+                    val frequencyBasedCriteria = frequencyBasedCriteriaRepository.findByBaseCriteriaId(challenge.criteria?.id ?: "").orElseThrow()
                     if (numOfVisitsThisMonth >= frequencyBasedCriteria.frequencyCount) {
                         if (!member.alreadyCompletedChallengeThisMonth(challenge)) {
                             completedChallenge(member, challenge, visit)
                         }
                     }
                 }
+                else -> { }
+            }
+        }
+    }
+
+    fun checkForInviteChallenge(member: GymMember) {
+        val gym = member.getGym()
+        val challenges = gym.getActiveChallenges()
+
+        for (challenge in challenges) {
+            if (challenge.type == ChallengeType.INVITE_BASED) {
+                completedChallenge(member, challenge, GymVisit())
             }
         }
     }

@@ -29,7 +29,7 @@ class Challenge (
     val createdAt: LocalDateTime,
 
     @OneToOne(mappedBy = "challenge", cascade = [CascadeType.ALL])
-    var criteria: ChallengeCriteria,
+    var criteria: ChallengeCriteria? = null,
 
     @ManyToOne
     val gym: Gym,

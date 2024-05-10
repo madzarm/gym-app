@@ -14,6 +14,8 @@ class GymMember (
 
     val firstJoined: LocalDate = LocalDate.now(),
 
+    val inviteCode: String = generateRandomInviteCode(),
+
     @OneToMany(mappedBy = "gymMember")
     val visits: MutableList<GymVisit> = mutableListOf(),
 
@@ -26,5 +28,14 @@ class GymMember (
     @OneToMany(mappedBy = "member")
     val completedChallenges: MutableList<MemberChallenge> = mutableListOf()
 ) {
+
+    companion object {
+        fun generateRandomInviteCode(): String {
+            val chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            return (1..6)
+                .map { chars.random() }
+                .joinToString("")
+        }
+    }
 
 }

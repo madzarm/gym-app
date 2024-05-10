@@ -57,6 +57,11 @@ class UserController(
         return ResponseEntity.ok(memberService.joinGymAsMember(common.getCurrentUser(jwt), code))
     }
 
+    @PostMapping("/join-as-member/invite/")
+    fun joinGymWithInvite(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymUserDto> {
+        return ResponseEntity.ok(memberService.joinGymWithInvite(common.getCurrentUser(jwt), code))
+    }
+
     @PostMapping("/join-as-trainer")
     fun joinGymAsTrainer(@AuthenticationPrincipal jwt: Jwt, @RequestParam code: String): ResponseEntity<GymUserDto> {
         return ResponseEntity.ok(trainerService.joinGymAsTrainer(common.getCurrentUser(jwt), code))
