@@ -12,6 +12,7 @@ import org.gymapp.library.response.GymTrainerWithReviewsDto
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.VisitCountByDay
 import java.time.LocalDate
 import kotlin.math.roundToInt
 
@@ -19,6 +20,9 @@ class StatisticsViewModel : ViewModel() {
 
   private val _gymVisits = MutableLiveData<List<GymVisitDto>>()
   val gymVisits: MutableLiveData<List<GymVisitDto>> = _gymVisits
+
+  private val _heatmapData = MutableLiveData<List<VisitCountByDay>>()
+  val heatmapData: MutableLiveData<List<VisitCountByDay>> = _heatmapData
 
   private val _trainersWithReviews = MutableLiveData<List<GymTrainerWithReviewsDto>>()
   val trainersWithReviews: MutableLiveData<List<GymTrainerWithReviewsDto>> = _trainersWithReviews
@@ -37,6 +41,22 @@ class StatisticsViewModel : ViewModel() {
       } catch (e: Exception) {
         e.printStackTrace()
       }
+  }
+
+  suspend fun prepareHeatmapData(
+    context: Context,
+    gymId: String
+  ) {
+    try {
+      val data =
+        ApiClient.apiService.fetchHeatmapData(
+          ("Bearer " + TokenManager.getAccessToken(context)) ?: "",
+          gymId,
+        )
+      _heatmapData.value = data
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
   }
 
   suspend fun fetchGymClassesWithReviews(context: Context, gymId: String) {

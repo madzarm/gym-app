@@ -24,6 +24,7 @@ import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
 import org.gymapp.library.response.UserDto
+import org.gymapp.library.response.VisitCountByDay
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -136,4 +137,7 @@ interface ApiService {
 
     @POST("/challenges/{challengeId}/claim")
     suspend fun claimChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String): Response<Unit>
+
+    @GET("/gyms/{gymId}/gymVisits/heatMap")
+    suspend fun fetchHeatmapData(@Header("Authorization") authHeader: String, @Path("gymId") gymId: String): List<VisitCountByDay>
 }

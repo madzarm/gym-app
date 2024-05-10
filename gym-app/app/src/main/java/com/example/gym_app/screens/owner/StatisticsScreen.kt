@@ -3,20 +3,25 @@ package com.example.gym_app.screens.owner
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.text.Layout
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -51,12 +56,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -103,6 +113,9 @@ import org.gymapp.library.response.GymMemberDto
 import org.gymapp.library.response.GymTrainerReviewDto
 import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.UserDto
+import org.gymapp.library.response.VisitCountByDay
+import org.gymapp.library.response.VisitCountByHour
+import kotlin.random.Random
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd. MM. yyyy.")
 
@@ -175,6 +188,26 @@ val sampleGymClassWithReviewsDto =
       ),
   )
 
+
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewGymVisitHeatmap() {
+  val randomData = List(7) { day ->
+    VisitCountByDay(
+      dayOfWeek = day + 1,  // 1-indexed day of the week
+      hours = List(24) { hour ->
+        VisitCountByHour(
+          hour = hour,
+          visitCount = Random.nextLong(0, 100)  // Random visit count for each hour
+        )
+      }
+    )
+  }
+
+  GymVisitHeatmap(data = randomData)
+}
+
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
   val modelProducerPerHour = remember { CartesianChartModelProducer.build() }
@@ -186,11 +219,13 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
   val gymId = sharedViewModel.selectedGymUser.value?.gym?.id ?: ""
   val trainers = statisticsViewModel.trainersWithReviews.observeAsState()
   val classes = statisticsViewModel.gymClassesWithReviews.observeAsState()
+  val heatmapData = statisticsViewModel.heatmapData.observeAsState()
 
   LaunchedEffect(Unit) {
     statisticsViewModel.fetchTrainersWithReviews(context, gymId)
     statisticsViewModel.fetchGymClassesWithReviews(context, gymId)
     statisticsViewModel.getGymVisits(context, gymId)
+    statisticsViewModel.prepareHeatmapData(context, gymId)
 
     val (xAxisPerHour, yAxisPerHour) = statisticsViewModel.prepareGraphData()
     val (xAxisPerDay, yAxisPerDay) = statisticsViewModel.prepareGraphDataPerDay()
@@ -204,6 +239,14 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
   }
 
   Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+
+    Text(
+      text = "Gym Visit Trends by Day and Hour",
+      style = MaterialTheme.typography.titleMedium,
+      modifier = Modifier.padding(16.dp),
+    )
+    GymVisitHeatmap(heatmapData.value ?: emptyList())
+
     Column {
       Text(
         text = "Gym Visit Trends by Hour",
@@ -226,7 +269,6 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         marker = marker,
       )
     }
-
     Column {
       Text(
         text = "Gym Visit Trends by Day",
@@ -538,6 +580,111 @@ fun TrainerProfileImage(profilePicUrl: String?) {
     modifier = Modifier.clip(CircleShape).size(50.dp),
     contentDescription = "Profile image",
   )
+}
+@Composable
+fun GymVisitHeatmap(data: List<VisitCountByDay>) {
+  val maxVisits = data.flatMap { it.hours.map { it.visitCount } }.maxOrNull() ?: 1
+  val minVisits = data.flatMap { it.hours.map { it.visitCount } }.minOrNull() ?: 0
+
+  val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+  val hoursOfDay = (7..22).map { hour -> "${if (hour < 10) "0$hour" else hour}:00" }
+
+
+  val cellHeight = 40.dp
+  val headerHeight = 30.dp
+  val labelWidth = 50.dp
+
+
+  val startColor = Color(0xFF92ECDD)
+  val endColor = Color(0xFF691FB1)
+
+
+  BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+    val constraints = this.constraints
+    val cellWidth = with(LocalDensity.current) {
+      (((constraints.maxWidth.toDp() - labelWidth) - 8.dp) / 7)
+    }
+
+    Row(modifier = Modifier.align(Alignment.TopStart).offset(x = labelWidth)) {
+      daysOfWeek.forEach { day ->
+        Text(
+          text = day,
+          modifier = Modifier.width(cellWidth).height(headerHeight),
+          textAlign = TextAlign.Center,
+          color = Color.Black
+        )
+      }
+    }
+
+    val localDensity = LocalDensity.current
+
+    Column(modifier = Modifier.align(Alignment.TopStart).padding(top = 7.dp)) {
+      Spacer(modifier = Modifier.height(headerHeight))
+      hoursOfDay.forEach { hour ->
+        Text(
+          text = hour,
+          modifier = Modifier.width(labelWidth).height(cellHeight),
+          textAlign = TextAlign.Center,
+            color = Color.Black
+        )
+      }
+    }
+
+    Canvas(modifier = Modifier.offset(x = labelWidth, y = headerHeight).align(Alignment.TopStart)) {
+      data.forEachIndexed { dayIndex, day ->
+        day.hours.forEachIndexed { hourIndex, hour ->
+          val fraction = if (maxVisits > minVisits) {
+            (hour.visitCount - minVisits).toFloat() / (maxVisits - minVisits).toFloat()
+          } else 0f
+          val rectColor = interpolateColor(fraction, startColor, endColor)
+          val rectTopLeft = Offset(x = dayIndex * cellWidth.toPx(), y = hourIndex * cellHeight.toPx())
+          drawRect(
+            color = rectColor,
+            topLeft = rectTopLeft,
+            size = Size(width = cellWidth.toPx(), height = cellHeight.toPx())
+          )
+
+          val textColor = Color.Black
+          drawIntoCanvas { canvas ->
+            val textPaint = Paint().apply {
+              textSize = with(localDensity) { 14.sp.toPx() }
+              color = textColor.toArgb()
+              textAlign = android.graphics.Paint.Align.CENTER
+            }
+            canvas.nativeCanvas.drawText(
+              hour.visitCount.toString(),
+              rectTopLeft.x + cellWidth.toPx() / 2,
+              rectTopLeft.y + cellHeight.toPx() / 2 - (textPaint.ascent() + textPaint.descent()) / 2,
+              textPaint
+            )
+          }
+        }
+      }
+    }
+  }
+}
+
+private fun interpolateColor(fraction: Float, startValue: Color, endValue: Color): Color {
+  val startA = startValue.alpha
+  val startR = startValue.red
+  val startG = startValue.green
+  val startB = startValue.blue
+
+  val endA = endValue.alpha
+  val endR = endValue.red
+  val endG = endValue.green
+  val endB = endValue.blue
+
+  return Color(
+    alpha = lerp(startA, endA, fraction),
+    red = lerp(startR, endR, fraction),
+    green = lerp(startG, endG, fraction),
+    blue = lerp(startB, endB, fraction)
+  )
+}
+
+private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+  return (1 - fraction) * start + fraction * stop
 }
 
 @Composable
