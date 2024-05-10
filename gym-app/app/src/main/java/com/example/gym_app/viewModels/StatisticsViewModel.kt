@@ -30,6 +30,10 @@ class StatisticsViewModel : ViewModel() {
   private val _gymClassesWithReviews = MutableLiveData<List<GymClassWithReviewsDto>>()
   val gymClassesWithReviews: MutableLiveData<List<GymClassWithReviewsDto>> = _gymClassesWithReviews
 
+  private val _graphData = MutableLiveData<Pair<List<Int>, List<Int>>>()
+  val graphData: MutableLiveData<Pair<List<Int>, List<Int>>> = _graphData
+
+
   suspend fun getGymVisits(context: Context, gymId: String) {
       try {
         val gymVisitDtos =
@@ -114,6 +118,7 @@ class StatisticsViewModel : ViewModel() {
     val hours = averagesPerHour.keys.toList()
     val averages = averagesPerHour.values.toList()
 
+    _graphData.value = Pair(hours, averages)
     return Pair(hours, averages)
   }
 

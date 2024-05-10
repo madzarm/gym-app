@@ -57,7 +57,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -74,8 +73,8 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.gym_app.R
 import com.example.gym_app.common.getCurrentDay
-import com.example.gym_app.common.getCurrentHour
 import com.example.gym_app.common.localDateTimeFromString
+import com.example.gym_app.screens.member.GymVisitsPerHourChart
 import com.example.gym_app.viewModels.SharedViewModel
 import com.example.gym_app.viewModels.StatisticsViewModel
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -84,7 +83,6 @@ import com.patrykandpatrick.vico.compose.chart.CartesianChartHost
 import com.patrykandpatrick.vico.compose.chart.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.chart.layer.rememberLineSpec
 import com.patrykandpatrick.vico.compose.chart.rememberCartesianChart
-import com.patrykandpatrick.vico.compose.chart.zoom.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.component.fixed
 import com.patrykandpatrick.vico.compose.component.rememberLayeredComponent
 import com.patrykandpatrick.vico.compose.component.rememberLineComponent
@@ -106,8 +104,8 @@ import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.lineSeries
-import com.patrykandpatrick.vico.core.zoom.Zoom
 import java.time.format.DateTimeFormatter
+import kotlin.random.Random
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassReviewDto
 import org.gymapp.library.response.GymClassWithReviewsDto
@@ -117,7 +115,6 @@ import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.UserDto
 import org.gymapp.library.response.VisitCountByDay
 import org.gymapp.library.response.VisitCountByHour
-import kotlin.random.Random
 
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd. MM. yyyy.")
 
@@ -149,7 +146,7 @@ val sampleTrainerWithReviewsDto =
               firstName = "Marko",
               lastName = "Markic",
               gymClasses = emptyList(),
-              inviteCode = "ABCDE1"
+              inviteCode = "ABCDE1",
             ),
           date = "Some date",
         )
@@ -184,7 +181,7 @@ val sampleGymClassWithReviewsDto =
               firstName = "Marko",
               lastName = "Markic",
               gymClasses = emptyList(),
-              inviteCode = "ABCD1"
+              inviteCode = "ABCD1",
             ),
           date = "2021-10-10T10:00:00",
           gymClassInstanceId = "Some id",
@@ -192,29 +189,28 @@ val sampleGymClassWithReviewsDto =
       ),
   )
 
-
-
 @Preview(showBackground = true)
 @Composable
 fun PreviewGymVisitHeatmap() {
-  val randomData = List(7) { day ->
-    VisitCountByDay(
-      dayOfWeek = day + 1,  // 1-indexed day of the week
-      hours = List(24) { hour ->
-        VisitCountByHour(
-          hour = hour,
-          visitCount = Random.nextLong(0, 100)  // Random visit count for each hour
-        )
-      }
-    )
-  }
+  val randomData =
+    List(7) { day ->
+      VisitCountByDay(
+        dayOfWeek = day + 1, // 1-indexed day of the week
+        hours =
+          List(24) { hour ->
+            VisitCountByHour(
+              hour = hour,
+              visitCount = Random.nextLong(0, 100), // Random visit count for each hour
+            )
+          },
+      )
+    }
 
   GymVisitHeatmap(data = randomData)
 }
 
 @Composable
 fun StatisticsScreen(sharedViewModel: SharedViewModel) {
-  val modelProducerPerHour = remember { CartesianChartModelProducer.build() }
   val modelProducerPerDay = remember { CartesianChartModelProducer.build() }
 
   val statisticsViewModel: StatisticsViewModel = viewModel()
@@ -231,19 +227,14 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
     statisticsViewModel.getGymVisits(context, gymId)
     statisticsViewModel.prepareHeatmapData(context, gymId)
 
-    val (xAxisPerHour, yAxisPerHour) = statisticsViewModel.prepareGraphData()
     val (xAxisPerDay, yAxisPerDay) = statisticsViewModel.prepareGraphDataPerDay()
 
-    modelProducerPerHour.tryRunTransaction {
-      lineSeries { series(y = yAxisPerHour, x = xAxisPerHour) }
-    }
     modelProducerPerDay.tryRunTransaction {
       lineSeries { series(y = yAxisPerDay, x = xAxisPerDay) }
     }
   }
 
   Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-
     Text(
       text = "Gym Visit Trends by Day and Hour",
       style = MaterialTheme.typography.titleMedium,
@@ -257,25 +248,7 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         style = MaterialTheme.typography.titleMedium,
         modifier = Modifier.padding(16.dp),
       )
-      val marker = rememberMarker()
-      val zoomState = rememberVicoZoomState(
-        initialZoom = Zoom.Content,
-      )
-      CartesianChartHost(
-        zoomState = zoomState,
-        chart = rememberCartesianChart(
-          rememberLineCartesianLayer(
-            listOf(
-              rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary))
-            )
-          ),
-          startAxis = rememberStartAxis(guideline = null),
-          bottomAxis = rememberBottomAxis(),
-          persistentMarkers = mapOf(getCurrentHour() to marker),
-        ),
-        modelProducer = modelProducerPerHour,
-        marker = marker,
-      )
+      GymVisitsPerHourChart(statisticsViewModel = statisticsViewModel, gymId = gymId)
     }
     Column {
       Text(
@@ -387,7 +360,7 @@ fun GymClassItem(gymClass: GymClassWithReviewsDto, averageRating: Float, onClick
       style = MaterialTheme.typography.titleMedium,
     )
     Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
-      Column( horizontalAlignment = Alignment.CenterHorizontally) {
+      Column(horizontalAlignment = Alignment.CenterHorizontally) {
         if (gymClass.reviews?.isNotEmpty() == true) {
           Text(text = String.format("Rating:  %.1f", averageRating))
           RatingBar(rating = averageRating)
@@ -396,7 +369,6 @@ fun GymClassItem(gymClass: GymClassWithReviewsDto, averageRating: Float, onClick
         }
       }
     }
-
   }
 }
 
@@ -589,6 +561,7 @@ fun TrainerProfileImage(profilePicUrl: String?) {
     contentDescription = "Profile image",
   )
 }
+
 @Composable
 fun GymVisitHeatmap(data: List<VisitCountByDay>) {
   val maxVisits = data.flatMap { it.hours.map { it.visitCount } }.maxOrNull() ?: 1
@@ -597,21 +570,17 @@ fun GymVisitHeatmap(data: List<VisitCountByDay>) {
   val daysOfWeek = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
   val hoursOfDay = (7..22).map { hour -> "${if (hour < 10) "0$hour" else hour}:00" }
 
-
   val cellHeight = 40.dp
   val headerHeight = 30.dp
   val labelWidth = 50.dp
 
-
   val startColor = Color(0xFF92ECDD)
   val endColor = Color(0xFF691FB1)
 
-
   BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
     val constraints = this.constraints
-    val cellWidth = with(LocalDensity.current) {
-      (((constraints.maxWidth.toDp() - labelWidth) - 8.dp) / 7)
-    }
+    val cellWidth =
+      with(LocalDensity.current) { (((constraints.maxWidth.toDp() - labelWidth) - 8.dp) / 7) }
 
     Row(modifier = Modifier.align(Alignment.TopStart).offset(x = labelWidth)) {
       daysOfWeek.forEach { day ->
@@ -619,7 +588,7 @@ fun GymVisitHeatmap(data: List<VisitCountByDay>) {
           text = day,
           modifier = Modifier.width(cellWidth).height(headerHeight),
           textAlign = TextAlign.Center,
-          color = Color.Black
+          color = Color.Black,
         )
       }
     }
@@ -633,7 +602,7 @@ fun GymVisitHeatmap(data: List<VisitCountByDay>) {
           text = hour,
           modifier = Modifier.width(labelWidth).height(cellHeight),
           textAlign = TextAlign.Center,
-            color = Color.Black
+          color = Color.Black,
         )
       }
     }
@@ -641,29 +610,33 @@ fun GymVisitHeatmap(data: List<VisitCountByDay>) {
     Canvas(modifier = Modifier.offset(x = labelWidth, y = headerHeight).align(Alignment.TopStart)) {
       data.forEachIndexed { dayIndex, day ->
         day.hours.forEachIndexed { hourIndex, hour ->
-          val fraction = if (maxVisits > minVisits) {
-            (hour.visitCount - minVisits).toFloat() / (maxVisits - minVisits).toFloat()
-          } else 0f
+          val fraction =
+            if (maxVisits > minVisits) {
+              (hour.visitCount - minVisits).toFloat() / (maxVisits - minVisits).toFloat()
+            } else 0f
           val rectColor = interpolateColor(fraction, startColor, endColor)
-          val rectTopLeft = Offset(x = dayIndex * cellWidth.toPx(), y = hourIndex * cellHeight.toPx())
+          val rectTopLeft =
+            Offset(x = dayIndex * cellWidth.toPx(), y = hourIndex * cellHeight.toPx())
           drawRect(
             color = rectColor,
             topLeft = rectTopLeft,
-            size = Size(width = cellWidth.toPx(), height = cellHeight.toPx())
+            size = Size(width = cellWidth.toPx(), height = cellHeight.toPx()),
           )
 
           val textColor = Color.Black
           drawIntoCanvas { canvas ->
-            val textPaint = Paint().apply {
-              textSize = with(localDensity) { 14.sp.toPx() }
-              color = textColor.toArgb()
-              textAlign = android.graphics.Paint.Align.CENTER
-            }
+            val textPaint =
+              Paint().apply {
+                textSize = with(localDensity) { 14.sp.toPx() }
+                color = textColor.toArgb()
+                textAlign = android.graphics.Paint.Align.CENTER
+              }
             canvas.nativeCanvas.drawText(
               hour.visitCount.toString(),
               rectTopLeft.x + cellWidth.toPx() / 2,
-              rectTopLeft.y + cellHeight.toPx() / 2 - (textPaint.ascent() + textPaint.descent()) / 2,
-              textPaint
+              rectTopLeft.y + cellHeight.toPx() / 2 -
+                (textPaint.ascent() + textPaint.descent()) / 2,
+              textPaint,
             )
           }
         }
@@ -687,7 +660,7 @@ private fun interpolateColor(fraction: Float, startValue: Color, endValue: Color
     alpha = lerp(startA, endA, fraction),
     red = lerp(startR, endR, fraction),
     green = lerp(startG, endG, fraction),
-    blue = lerp(startB, endB, fraction)
+    blue = lerp(startB, endB, fraction),
   )
 }
 

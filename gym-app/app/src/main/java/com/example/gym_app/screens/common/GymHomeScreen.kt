@@ -187,7 +187,7 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
   object GroupTrainings :
     GymScreen(AppRoutes.GROUP_TRAININGS_SCREEN, "Group Trainings", Role.ROLE_MEMBER)
 
-  object LiveStatus : GymScreen(AppRoutes.LIVE_STATUS_SCREEN, "Live status", Role.ROLE_MEMBER)
+  object LiveStatus : GymScreen(AppRoutes.LIVE_STATUS_SCREEN, "Live Traffic", Role.ROLE_MEMBER)
 
   object ManageClasses :
     GymScreen(AppRoutes.MANAGE_CLASSES_SCREEN, "Manage classes", Role.ROLE_TRAINER)
