@@ -183,11 +183,11 @@ enum class CriteriaType {
 }
 
 data class VisitCountByDay (
-    val dayOfWeek: Int,
-    val hours: List<VisitCountByHour>
+    var dayOfWeek: Int,
+    var hours: List<VisitCountByHour>
 )
 
 data class VisitCountByHour (
-    val hour: Int,
-    val visitCount: Long
+    var hour: Int,
+    var visitCount: Long
 )

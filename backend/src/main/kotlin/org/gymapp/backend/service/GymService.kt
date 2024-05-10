@@ -105,7 +105,21 @@ class GymService(
                     hours = entry.value.map { VisitCountByHour(hour = it.getHour(), visitCount = it.getVisitCount()) }
                 )
             }
+            .map { entry ->
+                if (entry.dayOfWeek == 1) {
+                    VisitCountByDay(
+                        dayOfWeek = 7,
+                        hours = entry.hours.sortedBy { it.hour }
+                    )
+                } else {
+                    VisitCountByDay(
+                        dayOfWeek = entry.dayOfWeek - 1,
+                        hours = entry.hours.sortedBy { it.hour }
+                    )
+                }
+            }
             .sortedBy { it.dayOfWeek }
+
     }
 
     fun findGymByCode(code: String): Gym {
