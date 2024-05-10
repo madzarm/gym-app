@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gym_app.R
@@ -36,6 +38,7 @@ fun RoleSelectionScreen(
   onMemberSelection: () -> Unit,
   onTrainerSelection: () -> Unit,
   onOwnerSelection: () -> Unit,
+  onFriendCodeSelection: () -> Unit,
 ) {
   Column(
     modifier =
@@ -72,19 +75,21 @@ fun RoleSelectionScreen(
         text = "Gym Owner",
         onClick = onOwnerSelection,
       )
-      SelectionOption(
-        painter = R.drawable.trainer,
-        text = "Trainer",
-        onClick = onTrainerSelection,
-      )
-      SelectionOption(
-        painter = R.drawable.member,
-        text = "Member",
-        onClick = onMemberSelection,
-      )
+      SelectionOption(painter = R.drawable.trainer, text = "Trainer", onClick = onTrainerSelection)
+      SelectionOption(painter = R.drawable.member, text = "Member", onClick = onMemberSelection)
+      Text(text = "OR", color = MaterialTheme.colorScheme.primary, fontSize = 35.sp)
+      Button(onClick = { onFriendCodeSelection() }, modifier = Modifier.padding(top = 8.dp)) {
+        Text(text = "Join using friend's code", color = Color.White)
+      }
       Spacer(modifier = Modifier.weight(1f))
     }
   }
+}
+
+@Preview
+@Composable
+private fun RoleSelectionScreenPreview() {
+  RoleSelectionScreen({}, {}, {}, {})
 }
 
 @Composable

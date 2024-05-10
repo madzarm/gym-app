@@ -2,6 +2,7 @@ package com.example.gym_app.api
 
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateGymRequest
+import org.gymapp.library.request.CreateInviteFriendChallengeRequest
 import org.gymapp.library.request.CreateRecurringClassRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.CreateUserRequest
@@ -50,6 +51,9 @@ interface ApiService {
 
     @POST("/users/join-as-member")
     suspend fun joinGymAsMember(@Header("Authorization") authHeader: String, @Query("code") code: String): GymUserDto
+
+    @POST("/users/join-as-member/invite/")
+    suspend fun joinGymWithFriendCode(@Header("Authorization") authHeader: String, @Query("code") code: String): GymUserDto
 
     @POST("/users/join-as-trainer")
     suspend fun joinGymAsTrainer(@Header("Authorization") authHeader: String, @Query("code") code: String): GymUserDto
@@ -122,6 +126,9 @@ interface ApiService {
 
     @POST("/challenges/frequency-based")
     suspend fun createFrequencyBasedChallenge(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String, @Body request: CreateFrequencyBasedChallengeRequest): Response<Unit>
+
+    @POST("/challenges/invite-based")
+    suspend fun createInviteFriendChallenge(@Header("Authorization") authHeader: String, @Query("gymId") gymId: String, @Body request: CreateInviteFriendChallengeRequest): Response<Unit>
 
     @DELETE("/challenges/{challengeId}")
     suspend fun deleteChallenge(@Header("Authorization") authHeader: String, @Path("challengeId") challengeId: String): Response<Unit>

@@ -10,6 +10,7 @@ import com.example.gym_app.common.TokenManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateInviteFriendChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.AccessCodeDto
@@ -61,8 +62,15 @@ class SharedViewModel : ViewModel() {
     private val _unclaimedChallenges = MutableLiveData<List<ChallengeDto>>()
     val unclaimedChallenges: LiveData<List<ChallengeDto>> = _unclaimedChallenges
 
+    private val _selectedChallenge = MutableLiveData<ChallengeDto>()
+    val selectedChallenge: LiveData<ChallengeDto> = _selectedChallenge
+
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
+    }
+
+    fun setSelectedChallenge(challenge: ChallengeDto) {
+        _selectedChallenge.value = challenge
     }
 
     fun updateSelectedChallenge(update: UpdatableChallenge.() -> UpdatableChallenge) {
@@ -169,6 +177,37 @@ class SharedViewModel : ViewModel() {
             createTimeBasedChallenge(context, gymId, onSuccess, onError)
         } else if (_updatableChallenge.value?.type == ChallengeType.FREQUENCY_BASED) {
             createFrequencyBasedChallenge(context, gymId, onSuccess, onError)
+        } else if (_updatableChallenge.value?.type == ChallengeType.INVITE_BASED) {
+            createInviteFriendChallenge(context, gymId, onSuccess, onError)
+        } else {
+            onError("Invalid challenge type")
+        }
+    }
+
+    fun createInviteFriendChallenge(
+        context: Context,
+        gymId: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val request = CreateInviteFriendChallengeRequest(
+                    name = _updatableChallenge.value?.name ?: "",
+                    description = _updatableChallenge.value?.description ?: "",
+                    expiryDate = _updatableChallenge.value?.expiryDate?.toString() ?: "",
+                    pointsValue = _updatableChallenge.value?.pointsValue?.toInt() ?: 0
+                )
+                val response = ApiClient.apiService.createInviteFriendChallenge("Bearer ${TokenManager.getAccessToken(context)}", gymId, request)
+                val code = response.code()
+                if (code == 201) {
+                    onSuccess()
+                } else {
+                    onError(response.message() ?: "An error occurred")
+                }
+            } catch (e: Exception) {
+                onError(e.message ?: "An error occurred")
+            }
         }
     }
 

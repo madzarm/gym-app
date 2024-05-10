@@ -139,6 +139,38 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
       }
     }
 
+  fun joinGymWithFriendCode (
+    context: Context,
+    code: String,
+    onSuccess: () -> Unit,
+    onError: (String) -> Unit,
+  ) =
+    viewModelScope.launch {
+      try {
+        val gymUserDto: GymUserDto =
+          ApiClient.apiService.joinGymWithFriendCode(
+            "Bearer ${TokenManager.getAccessToken(context)}",
+            code,
+          )
+        val existingList = _gymUserDtos.value ?: listOf()
+
+        val existingIndex = existingList.indexOfFirst { it.id == gymUserDto.id }
+
+        val updatedList =
+          if (existingIndex != -1) {
+            existingList.toMutableList().apply { this[existingIndex] = gymUserDto }
+          } else {
+            existingList.toMutableList().apply { add(gymUserDto) }
+          }
+
+        _gymUserDtos.value = updatedList
+        onSuccess()
+      } catch (e: HttpException) {
+        val errorMessage = readErrorMessage(e)
+        onError(errorMessage)
+      }
+    }
+
   fun joinGymAsMember(
     context: Context,
     code: String,

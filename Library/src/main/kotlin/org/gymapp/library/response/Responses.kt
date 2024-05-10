@@ -80,6 +80,7 @@ data class GymMemberDto (
     val id: String?,
     val firstName: String?,
     val lastName: String?,
+    val inviteCode: String?,
     val gymClasses: List<GymClassInstanceDto>?
 )
 
@@ -174,7 +175,8 @@ data class CriteriaDto (
 
 enum class ChallengeType {
     TIMED_VISIT_BASED,
-    FREQUENCY_BASED
+    FREQUENCY_BASED,
+    INVITE_BASED
 }
 
 enum class CriteriaType {

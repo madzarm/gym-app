@@ -149,6 +149,7 @@ val sampleTrainerWithReviewsDto =
               firstName = "Marko",
               lastName = "Markic",
               gymClasses = emptyList(),
+              inviteCode = "ABCDE1"
             ),
           date = "Some date",
         )
@@ -183,6 +184,7 @@ val sampleGymClassWithReviewsDto =
               firstName = "Marko",
               lastName = "Markic",
               gymClasses = emptyList(),
+              inviteCode = "ABCD1"
             ),
           date = "2021-10-10T10:00:00",
           gymClassInstanceId = "Some id",

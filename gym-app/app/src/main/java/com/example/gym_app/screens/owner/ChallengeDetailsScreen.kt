@@ -69,7 +69,6 @@ fun ChallengeDetailsScreen(navHostController: NavHostController, viewModel: Shar
           label = { Text(text = "Points value") },
           onValueChange = { viewModel.updateSelectedChallenge { copy(pointsValue = it) } },
         )
-
         if (challenge.value?.type == ChallengeType.FREQUENCY_BASED) {
 
           OutlinedTextField(
@@ -78,7 +77,7 @@ fun ChallengeDetailsScreen(navHostController: NavHostController, viewModel: Shar
             label = { Text(text = "Frequency count") },
             onValueChange = { viewModel.updateSelectedChallenge { copy(frequencyCount = it) } },
           )
-        } else {
+        } else if (challenge.value?.type == ChallengeType.TIMED_VISIT_BASED){
 
           TimePicker(
             label = "Start time",

@@ -87,7 +87,7 @@ fun EnterGymCodeScreen(navController: NavHostController, homeViewModel: HomeView
           homeViewModel.joinGymAsMember(context, code, onSuccess = onSubmit, onError = { msg -> errorMessage = msg })
         }
       ) {
-        Text(text = "Create", fontSize = 6.em)
+        Text(text = "Join", fontSize = 6.em)
       }
       Spacer(modifier = Modifier.weight(1f))
     }

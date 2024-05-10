@@ -9,6 +9,7 @@ import org.gymapp.backend.repository.FrequencyBasedCriteriaRepository
 import org.gymapp.backend.repository.MemberChallengeRepository
 import org.gymapp.backend.repository.TimeBasedCriteriaRepository
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateInviteFriendChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.ChallengeDto
@@ -99,6 +100,27 @@ class ChallengeService (
 
         challengeRepository.save(challenge)
         frequencyBasedCriteriaRepository.save(frequencyBasedCriteria)
+    }
+
+    fun createInviteFriendChallenge(request: CreateInviteFriendChallengeRequest, gymId: String, user: User) {
+        val gym = gymService.findById(gymId)
+
+        val challenge = Challenge(
+            id = UUID.randomUUID().toString(),
+            name = request.name,
+            description = request.description,
+            expiryDate = request.expiryDate.toLocalDateTime(),
+            pointsValue = request.pointsValue,
+            isDeleted = false,
+            type = ChallengeType.INVITE_BASED,
+            createdAt = LocalDateTime.now(),
+            criteria = null,
+            gym = gym,
+        )
+
+        gym.challenges.add(challenge)
+
+        challengeRepository.save(challenge)
     }
 
     fun deleteChallenge(challengeId: String, user: User) {

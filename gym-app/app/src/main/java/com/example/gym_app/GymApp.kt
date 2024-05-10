@@ -27,6 +27,7 @@ import com.example.gym_app.screens.common.ProfileSetupScreen
 import com.example.gym_app.screens.common.RoleSelectionScreen
 import com.example.gym_app.screens.common.SignupRoleSelectionScreen
 import com.example.gym_app.screens.common.WelcomeScreen
+import com.example.gym_app.screens.member.EnterFriendCodeScreen
 import com.example.gym_app.screens.member.EnterGymCodeScreen
 import com.example.gym_app.screens.owner.CreateGymScreen
 import com.example.gym_app.screens.trainer.EnterTrainerAccessCodeScreen
@@ -118,10 +119,22 @@ fun GymApp(
               navController.navigate(AppRoutes.ENTER_TRAINER_ACCESS_CODE_SCREEN)
             },
             onOwnerSelection = { navController.navigate(AppRoutes.CREATE_GYM_SCREEN) },
+            onFriendCodeSelection = { navController.navigate(AppRoutes.ENTER_FRIEND_CODE_SCREEN) },
           )
         }
         composable(AppRoutes.ENTER_GYM_CODE_SCREEN) {
           EnterGymCodeScreen(
+            navController = navController,
+            homeViewModel = homeViewModel,
+            onSubmit = {
+              navController.navigate(AppRoutes.HOME_SCREEN) {
+                popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }
+              }
+            },
+          )
+        }
+        composable(AppRoutes.ENTER_FRIEND_CODE_SCREEN) {
+          EnterFriendCodeScreen(
             navController = navController,
             homeViewModel = homeViewModel,
             onSubmit = {

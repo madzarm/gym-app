@@ -45,11 +45,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.screens.owner.ChallengeItem
 import com.example.gym_app.screens.trainer.CustomBackground
 import com.example.gym_app.viewModels.SharedViewModel
 import kotlinx.coroutines.delay
 import org.gymapp.library.response.ChallengeDto
+import org.gymapp.library.response.ChallengeType
 
 sealed class ChallengeListItem {
   data class ActiveChallengeItem(val challenge: ChallengeDto) : ChallengeListItem()
@@ -109,7 +111,12 @@ fun MemberChallengesScreen(navHostController: NavHostController, viewModel: Shar
               })
             }
             is ChallengeListItem.ActiveChallengeItem -> {
-              ChallengeItem(challenge = item.challenge, onClick = {})
+              ChallengeItem(challenge = item.challenge, onClick = {
+                if (item.challenge.type == ChallengeType.INVITE_BASED.name) {
+                  viewModel.setSelectedChallenge(item.challenge)
+                  navHostController.navigate(AppRoutes.INVITE_CHALLENGE_SCREEN)
+                }
+              })
             }
           }
         }
