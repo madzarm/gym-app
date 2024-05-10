@@ -84,6 +84,7 @@ import com.patrykandpatrick.vico.compose.chart.CartesianChartHost
 import com.patrykandpatrick.vico.compose.chart.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.chart.layer.rememberLineSpec
 import com.patrykandpatrick.vico.compose.chart.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.chart.zoom.rememberVicoZoomState
 import com.patrykandpatrick.vico.compose.component.fixed
 import com.patrykandpatrick.vico.compose.component.rememberLayeredComponent
 import com.patrykandpatrick.vico.compose.component.rememberLineComponent
@@ -105,6 +106,7 @@ import com.patrykandpatrick.vico.core.extension.copyColor
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.lineSeries
+import com.patrykandpatrick.vico.core.zoom.Zoom
 import java.time.format.DateTimeFormatter
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassReviewDto
@@ -254,8 +256,12 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
         modifier = Modifier.padding(16.dp),
       )
       val marker = rememberMarker()
+      val zoomState = rememberVicoZoomState(
+        initialZoom = Zoom.Content,
+      )
       CartesianChartHost(
-        rememberCartesianChart(
+        zoomState = zoomState,
+        chart = rememberCartesianChart(
           rememberLineCartesianLayer(
             listOf(
               rememberLineSpec(shader = DynamicShaders.color(MaterialTheme.colorScheme.primary))
@@ -265,7 +271,7 @@ fun StatisticsScreen(sharedViewModel: SharedViewModel) {
           bottomAxis = rememberBottomAxis(),
           persistentMarkers = mapOf(getCurrentHour() to marker),
         ),
-        modelProducerPerHour,
+        modelProducer = modelProducerPerHour,
         marker = marker,
       )
     }
