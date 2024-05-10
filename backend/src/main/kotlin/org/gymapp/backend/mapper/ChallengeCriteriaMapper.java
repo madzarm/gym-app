@@ -18,6 +18,9 @@ public abstract class ChallengeCriteriaMapper {
     private TimeBasedCriteriaRepository timeBasedCriteriaRepository;
 
      CriteriaDto modelToDto(ChallengeCriteria challengeCriteria) {
+         if (challengeCriteria == null) {
+             return null;
+         }
         var type = challengeCriteria.getType();
         CriteriaDto criteriaDto = new CriteriaDto(challengeCriteria.getId(), type.name(), null, null, null);
         if (CriteriaType.TIMED_VISIT_BASED.equals(type)) {

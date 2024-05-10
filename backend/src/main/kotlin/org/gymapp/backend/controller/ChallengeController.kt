@@ -4,6 +4,7 @@ import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.ChallengeService
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
+import org.gymapp.library.request.CreateInviteFriendChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
 import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.response.ChallengeDto
@@ -45,6 +46,16 @@ class ChallengeController (
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<Void> {
         challengeService.createFrequencyBasedChallenge(request, gymId, common.getCurrentUser(jwt))
+        return ResponseEntity.status(201).build()
+    }
+
+    @PostMapping("/invite-based")
+    fun createInviteFriendChallenge(
+        @RequestBody request: CreateInviteFriendChallengeRequest,
+        @PathParam("gymId") gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): ResponseEntity<Void> {
+        challengeService.createInviteFriendChallenge(request, gymId, common.getCurrentUser(jwt))
         return ResponseEntity.status(201).build()
     }
 

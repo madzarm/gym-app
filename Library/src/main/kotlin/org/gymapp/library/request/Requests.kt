@@ -70,6 +70,13 @@ data class CreateFrequencyBasedChallengeRequest(
     val frequencyCount: Int
 )
 
+data class CreateInviteFriendChallengeRequest(
+    val name: String,
+    val description: String,
+    val expiryDate: String,
+    val pointsValue: Int,
+)
+
 data class CreateTimedVisitBasedChallengeRequest(
     val name: String,
     val description: String,
