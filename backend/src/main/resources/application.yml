@@ -21,3 +21,6 @@ logging:
 
 firebase:
   apiKey_path: ${FIREBASE_API_KEY_PATH}
+
+stripe:
+  api_key: ${STRIPE_API_KEY}
