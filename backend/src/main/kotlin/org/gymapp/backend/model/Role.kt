@@ -5,8 +5,9 @@ import jakarta.persistence.Id
 
 @Entity(name = "roles")
 class Role(
-    @Id val id: String,
-    var name: String
 
-) {
-}
+    @Id
+    val id: String,
+
+    var name: String
+)

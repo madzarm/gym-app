@@ -7,6 +7,7 @@ import java.time.LocalTime
 
 @Entity
 class TimeBasedCriteria (
+
     @Id
     val id: String,
 
@@ -16,6 +17,4 @@ class TimeBasedCriteria (
 
     @OneToOne
     val baseCriteria: ChallengeCriteria,
-) {
-
-}
+)

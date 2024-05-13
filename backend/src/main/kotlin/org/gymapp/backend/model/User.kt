@@ -7,15 +7,26 @@ import java.time.LocalDateTime
 
 @Entity(name = "users")
 class User(
-    @Id var id: String?,
+
+    @Id
+    var id: String?,
+
     var email: String?,
+
     var firstName: String?,
+
     var lastName: String?,
+
     var profilePicUrl: String?,
+
     var createdAt: LocalDateTime?,
+
     var updatedAt: LocalDateTime?,
+
     var fcmToken: String? = null,
-    @OneToMany(mappedBy = "user") val gymUsers: MutableList<GymUser> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val gymUsers: MutableList<GymUser> = mutableListOf()
 ) {
 
     fun getGymUser(gymCode: String): GymUser? {

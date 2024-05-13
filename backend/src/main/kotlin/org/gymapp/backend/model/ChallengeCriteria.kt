@@ -7,6 +7,7 @@ import java.util.UUID
 
 @Entity
 class ChallengeCriteria (
+
     @Id
     val id: String = UUID.randomUUID().toString(),
 

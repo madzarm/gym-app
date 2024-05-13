@@ -1,7 +1,9 @@
 package org.gymapp.backend.controller
 
+import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
+import org.gymapp.backend.service.StripeService
 import org.gymapp.library.request.CreateGymRequest
 import org.gymapp.library.response.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -14,7 +16,8 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/gyms")
 class GymController(
     @Autowired private val gymService: GymService,
-    @Autowired private val common: Common
+    @Autowired private val common: Common,
+    @Autowired private val stripeService: StripeService
 ) {
 
     @PostMapping
@@ -73,6 +76,23 @@ class GymController(
         @AuthenticationPrincipal jwt: Jwt
     ): ResponseEntity<List<VisitCountByDay>> {
         return ResponseEntity.ok(gymService.getGymVisitsHeatMapData(common.getCurrentUser(jwt), gymId))
+    }
+
+    @GetMapping("/payment-sheet")
+    fun createPaymentSheet(
+        @PathParam("gymId") gymId: String,
+        @AuthenticationPrincipal jwt: Jwt
+    ): PaymentSheetResponse {
+        val customer = stripeService.createStripeCustomer()
+        val ephemeralKey = stripeService.createEphemeralKey(customer.id)
+        val paymentIntent = stripeService.createPaymentIntent(customer.id)
+
+        return PaymentSheetResponse(
+            paymentIntent = paymentIntent.clientSecret,
+            ephemeralKey = ephemeralKey.secret,
+            customer = customer.id,
+            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe"
+        )
     }
 
 

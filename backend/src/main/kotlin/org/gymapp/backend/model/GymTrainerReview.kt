@@ -8,6 +8,7 @@ import java.util.*
 
 @Entity
 class GymTrainerReview (
+
     @Id
     val id: String = UUID.randomUUID().toString(),
 

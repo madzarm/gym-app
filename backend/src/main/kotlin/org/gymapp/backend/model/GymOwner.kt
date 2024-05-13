@@ -4,8 +4,14 @@ import jakarta.persistence.*
 
 @Entity(name = "gym_owners")
 class GymOwner (
-    @Id val id: String? = null,
-    @OneToOne @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
+
+    @Id
+    val id: String? = null,
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "id")
+    val gymUser: GymUser,
 ) {
     companion object {
         fun fromGymUser(gymUser: GymUser): GymOwner {

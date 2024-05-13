@@ -7,10 +7,16 @@ import java.time.LocalDateTime
 
 @Entity
 class AccessCode (
-    @Id var id: String,
+
+    @Id
+    var id: String,
+
     var code: String,
+
     var expiryDateTime: LocalDateTime,
-    @ManyToOne var gym: Gym
+
+    @ManyToOne
+    var gym: Gym
 ){
 
 

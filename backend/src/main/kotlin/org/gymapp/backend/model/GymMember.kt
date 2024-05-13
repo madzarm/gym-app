@@ -5,12 +5,17 @@ import java.time.LocalDate
 
 @Entity(name = "gym_members")
 class GymMember (
-    @Id val id: String? = null,
+
+    @Id
+    val id: String? = null,
 
     @ManyToMany(mappedBy = "participants")
     val classes: MutableList<GymClassInstance> = mutableListOf(),
 
-    @OneToOne(cascade = [CascadeType.PERSIST]) @MapsId @JoinColumn(name = "id") val gymUser: GymUser,
+    @MapsId
+    @OneToOne(cascade = [CascadeType.PERSIST])
+    @JoinColumn(name = "id")
+    val gymUser: GymUser,
 
     val firstJoined: LocalDate = LocalDate.now(),
 

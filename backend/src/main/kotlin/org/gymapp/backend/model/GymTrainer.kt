@@ -4,9 +4,13 @@ import jakarta.persistence.*
 
 @Entity(name = "gym_trainers")
 class GymTrainer (
-    @Id val id: String? = null,
 
-    @OneToOne @MapsId @JoinColumn(name = "id")
+    @Id
+    val id: String? = null,
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "id")
     val gymUser: GymUser,
 
     @OneToMany(mappedBy = "trainer")

@@ -6,6 +6,7 @@ import jakarta.persistence.ManyToMany
 
 @Entity
 class DayOfWeek (
+
     @Id
     val id: String,
 
