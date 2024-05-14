@@ -11,6 +11,12 @@ class Gym(
 
     var code: String,
 
+    var subscriptionFee: Long,
+
+    var stripeAccountId: String,
+
+    var subscriptionPriceId: String?,
+
     @Column(columnDefinition = "LONGTEXT")
     var picture: String?,
 
