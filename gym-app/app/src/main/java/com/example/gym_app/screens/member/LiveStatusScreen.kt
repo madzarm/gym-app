@@ -6,12 +6,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +41,10 @@ import com.patrykandpatrick.vico.core.component.shape.shader.DynamicShaders
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.lineSeries
 import com.patrykandpatrick.vico.core.zoom.Zoom
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.rememberPaymentSheet
 
 @Composable
 fun LiveStatusScreen(viewModel: SharedViewModel) {
@@ -49,10 +57,43 @@ fun LiveStatusScreen(viewModel: SharedViewModel) {
     statisticsViewModel.graphData.observeAsState().value?.second?.get(getCurrentHour().toInt() - 7)
       ?: 0
 
+  val paymentSheetResponse = viewModel.paymentSheet.observeAsState()
+
+  val paymentSheet = rememberPaymentSheet(::onPaymentSheetResult)
+  var customerConfig by remember { mutableStateOf<PaymentSheet.CustomerConfiguration?>(null) }
+  var paymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
+
+  LaunchedEffect(context) {
+    //viewModel.getPaymentSheet(context, "someId")
+  }
+
+  if (paymentSheetResponse.value != null) {
+    val respose = paymentSheetResponse.value
+    paymentIntentClientSecret = respose?.paymentIntent
+    customerConfig = PaymentSheet.CustomerConfiguration(respose?.customer ?: "", respose?.ephemeralKey ?: "")
+    val publishableKey = respose?.publishableKey
+    println("publishableKey: $publishableKey")
+    PaymentConfiguration.init(context, publishableKey ?: "")
+  }
+
+
+
   LaunchedEffect(true) { viewModel.getLiveStatus(context) }
 
   Column(modifier = Modifier.fillMaxSize(1f), horizontalAlignment = Alignment.CenterHorizontally) {
     Column() {
+      Button(
+        onClick = {
+          val currentConfig = customerConfig
+          val currentClientSecret = paymentIntentClientSecret
+
+          if (currentConfig != null && currentClientSecret != null) {
+            presentPaymentSheet(paymentSheet, currentConfig, currentClientSecret)
+          }
+        }
+      ) {
+        Text("Checkout")
+      }
       Text(
         text = "Usual Traffic",
         style = MaterialTheme.typography.titleLarge,
@@ -142,4 +183,37 @@ fun GymVisitsPerHourChart(statisticsViewModel: StatisticsViewModel, gymId: Strin
     modelProducer = modelProducerPerHour,
     marker = marker,
   )
+}
+
+
+private fun presentPaymentSheet(
+  paymentSheet: PaymentSheet,
+  customerConfig: PaymentSheet.CustomerConfiguration,
+  paymentIntentClientSecret: String,
+) {
+  paymentSheet.presentWithPaymentIntent(
+    paymentIntentClientSecret,
+    PaymentSheet.Configuration(
+      merchantDisplayName = "My merchant name",
+      customer = customerConfig,
+      // Set `allowsDelayedPaymentMethods` to true if your business handles
+      // delayed notification payment methods like US bank accounts.
+      allowsDelayedPaymentMethods = false,
+    ),
+  )
+}
+
+private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
+  when (paymentSheetResult) {
+    is PaymentSheetResult.Canceled -> {
+      print("Canceled")
+    }
+    is PaymentSheetResult.Failed -> {
+      print("Error: ${paymentSheetResult.error}")
+    }
+    is PaymentSheetResult.Completed -> {
+      // Display for example, an order confirmation screen
+      print("Completed")
+    }
+  }
 }

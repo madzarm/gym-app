@@ -40,6 +40,7 @@ fun CreateGymScreen(
   onSubmit: () -> Unit,
 ) {
   var name by remember { mutableStateOf("") }
+  var subscriptionFee by remember { mutableStateOf("") }
   var imageUri by remember { mutableStateOf<Uri?>(null) }
   var errorMessage by remember { mutableStateOf("") }
   val context = LocalContext.current
@@ -91,6 +92,11 @@ fun CreateGymScreen(
           }
         },
       )
+      OutlinedTextField(
+        value = subscriptionFee,
+        onValueChange = { subscriptionFee = it },
+        label = { Text("Subscription fee") },
+      )
       Button(onClick = { galleryLauncher.launch("image/*") }) { Text("Pick Image") }
       Button(
         onClick = {
@@ -98,6 +104,7 @@ fun CreateGymScreen(
           homeViewModel.createGym(
             context = context,
             name = name,
+            subscriptionFee = subscriptionFee,
             imageBase64 = base64Image,
             onSuccess = onSubmit,
             onError = { msg -> errorMessage = msg },

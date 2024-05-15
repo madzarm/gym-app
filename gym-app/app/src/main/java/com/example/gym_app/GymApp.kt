@@ -1,20 +1,27 @@
 package com.example.gym_app
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
+import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.NotificationPermissionScreen
 import com.example.gym_app.common.TokenManager
@@ -36,6 +43,10 @@ import com.example.gym_app.viewModels.HomeViewModel
 import com.example.gym_app.viewModels.HomeViewModelFactory
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.firebase.messaging.FirebaseMessaging
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
+import com.stripe.android.paymentsheet.rememberPaymentSheet
 import org.gymapp.library.response.UserDto
 
 @Composable
@@ -43,11 +54,14 @@ fun GymApp(
   navController: NavHostController = rememberNavController(),
   viewModel: AuthViewModel,
   onLoginWithAuthClicked: () -> Unit,
+  initialIntent: Intent?,
 ) {
 
   val context = LocalContext.current
+
   val homeViewModel: HomeViewModel = viewModel(factory = HomeViewModelFactory(LocalContext.current))
   val currentUser = homeViewModel.currentUser.collectAsState()
+
 
   LaunchedEffect(Unit) { homeViewModel.loadItems(TokenManager.getAccessToken(context) ?: "") }
 
@@ -178,6 +192,9 @@ fun GymApp(
         }
       }
     }
+    LaunchedEffect(key1 = initialIntent) {
+      handleDeepLink(navController, initialIntent)
+    }
   }
 }
 
@@ -194,5 +211,13 @@ fun determineStartDestination(
     else AppRoutes.HOME
   } else {
     return AppRoutes.WELCOME_SCREEN
+  }
+}
+
+private fun handleDeepLink(navController: NavController, intent: Intent?) {
+  intent?.data?.let { uri ->
+    if (uri.scheme == "gym-app" && uri.host == "stripe-return") {
+      navController.navigate(AppRoutes.HOME)
+    }
   }
 }

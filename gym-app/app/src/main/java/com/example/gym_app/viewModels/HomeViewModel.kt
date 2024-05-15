@@ -206,6 +206,7 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
   fun createGym(
     context: Context,
     name: String,
+    subscriptionFee: String,
     imageBase64: String,
     onSuccess: () -> Unit,
     onError: (String) -> Unit,
@@ -215,7 +216,7 @@ class HomeViewModel(private val accessToken: String) : ViewModel() {
         val gymUserDto: GymUserDto =
           ApiClient.apiService.createGym(
             "Bearer ${TokenManager.getAccessToken(context)}",
-            CreateGymRequest(name, imageBase64),
+            CreateGymRequest(name, imageBase64, subscriptionFee),
           )
         val updatedList = _gymUserDtos.value.toMutableList().apply { add(gymUserDto) }
         _gymUserDtos.value = updatedList

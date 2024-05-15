@@ -12,6 +12,8 @@ import org.gymapp.library.request.UpdateChallengeRequest
 import org.gymapp.library.request.UpdateClassRequest
 import org.gymapp.library.request.UpdateGymClassInstanceRequest
 import org.gymapp.library.response.AccessCodeDto
+import org.gymapp.library.response.AccountCompletedDto
+import org.gymapp.library.response.AccountLinkDto
 import org.gymapp.library.response.ChallengeDto
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
@@ -24,6 +26,7 @@ import org.gymapp.library.response.GymTrainerReviewDto
 import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
+import org.gymapp.library.response.PaymentSheetResponse
 import org.gymapp.library.response.UserDto
 import org.gymapp.library.response.VisitCountByDay
 import retrofit2.Response
@@ -262,4 +265,24 @@ interface ApiService {
     @Header("Authorization") authHeader: String,
     @Path("gymId") gymId: String,
   ): List<VisitCountByDay>
+
+  @GET("/gyms/payment-sheet")
+  suspend fun getPaymentSheet(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+  ): PaymentSheetResponse
+
+  @GET("/gyms/create-account-link")
+  suspend fun createAccountLink(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+    @Query("returnUrl") returnUrl: String,
+    @Query("refreshUrl") refreshUrl: String
+  ): AccountLinkDto
+
+  @GET("/gyms/stripe-connect-account-completed")
+  suspend fun isStripeConnectAccountCompleted(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+  ): AccountCompletedDto
 }

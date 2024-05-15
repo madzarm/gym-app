@@ -7,8 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.gym_app.api.ApiClient
 import com.example.gym_app.common.TokenManager
+import com.stripe.android.PaymentConfiguration
+import com.stripe.android.paymentsheet.PaymentSheet
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.gymapp.library.request.CreateFrequencyBasedChallengeRequest
 import org.gymapp.library.request.CreateInviteFriendChallengeRequest
 import org.gymapp.library.request.CreateTimedVisitBasedChallengeRequest
@@ -19,6 +23,7 @@ import org.gymapp.library.response.ChallengeType
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 import org.gymapp.library.response.GymUserDto
+import org.gymapp.library.response.PaymentSheetResponse
 import java.time.LocalDateTime
 import java.time.LocalTime
 
@@ -64,6 +69,12 @@ class SharedViewModel : ViewModel() {
 
     private val _selectedChallenge = MutableLiveData<ChallengeDto>()
     val selectedChallenge: LiveData<ChallengeDto> = _selectedChallenge
+
+    private val _paymentSheet = MutableLiveData<PaymentSheetResponse>()
+    val paymentSheet: LiveData<PaymentSheetResponse> = _paymentSheet
+
+    private val _stripeAccCompleted = MutableLiveData<Boolean>()
+    val stripeAccCompleted: LiveData<Boolean> = _stripeAccCompleted
 
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
@@ -340,4 +351,49 @@ class SharedViewModel : ViewModel() {
         }
 
     }
+
+    fun getPaymentSheet(
+        context: Context,
+        gymId: String,
+    ) {
+        viewModelScope.launch {
+            val paymentSheetResponse = ApiClient.apiService.getPaymentSheet("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            println("Payment sheet response: $paymentSheetResponse")
+
+            _paymentSheet.value = paymentSheetResponse
+        }
+    }
+
+    suspend fun isStripeConnectAccountCompleted(context: Context): Boolean {
+        val gymId = _selectedGymUser.value?.gym?.id ?: ""
+        return withContext(Dispatchers.IO) {
+            val response = ApiClient.apiService.isStripeConnectAccountCompleted("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            response.accountCompleted
+        }
+    }
+
+
+//    fun createAccountLink(
+//        context: Context,
+//        gymId: String,
+//        returnUri: String,
+//        refreshUri: String,
+//        onSuccess: () -> Unit,
+//        onError: (String) -> Unit
+//    ) {
+//        viewModelScope.launch {
+//            try {
+//                val auth = "Bearer ${TokenManager.getAccessToken(context)}"
+//                val response = ApiClient.apiService.createAccountLink(auth, gymId, returnUri, refreshUri)
+//                val code = response.code()
+//                if (code == 200) {
+//                    onSuccess()
+//                } else {
+//                    onError(response.message() ?: "An error occurred")
+//                }
+//            } catch (e: Exception) {
+//                onError(e.message ?: "An error occurred")
+//            }
+//        }
+//    }
 }

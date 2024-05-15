@@ -1,5 +1,6 @@
 package com.example.gym_app
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.findNavController
 import com.auth0.android.Auth0
 import com.auth0.android.authentication.AuthenticationException
 import com.auth0.android.callback.Callback
@@ -16,6 +22,7 @@ import com.auth0.android.jwt.JWT
 import com.auth0.android.provider.WebAuthProvider
 import com.auth0.android.result.Credentials
 import com.example.gym_app.api.ApiClient
+import com.example.gym_app.common.AppRoutes
 import com.example.gym_app.common.TokenManager
 import com.example.gym_app.ui.theme.GymappTheme
 import com.example.gym_app.viewModels.AuthViewModel
@@ -29,6 +36,10 @@ class MainActivity : ComponentActivity() {
 
   private lateinit var account: Auth0
 
+  private lateinit var navController: NavHostController
+
+  private val _intentState = mutableStateOf<Intent?>(null)
+
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     account = Auth0("Ro2WqbNVwQMZIIYVNVX5POPqHK0EIcGH", "dev-jj2awpllib7dacna.us.auth0.com")
@@ -37,15 +48,26 @@ class MainActivity : ComponentActivity() {
     setContent {
       GymappTheme {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+          navController = rememberNavController()
           GymApp(
+            navController = navController,
             onLoginWithAuthClicked = { loginWithBrowser(authViewModel)
                                      },
             viewModel = authViewModel,
+            initialIntent = _intentState.value
           )
+          _intentState.value = intent
         }
       }
     }
   }
+
+  override fun onNewIntent(intent: Intent?) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    _intentState.value = intent
+  }
+
 
   private fun loginWithBrowser(authViewModel: AuthViewModel) {
     WebAuthProvider.login(account)

@@ -3,6 +3,7 @@ package com.example.gym_app.screens.common
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryScrollableTabRow
@@ -11,9 +12,13 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -34,13 +39,13 @@ import com.example.gym_app.screens.owner.AccessCodeScreen
 import com.example.gym_app.screens.owner.ChallengeDetailsScreen
 import com.example.gym_app.screens.owner.CreateChallengeScreen
 import com.example.gym_app.screens.owner.ManageChallengesScreen
+import com.example.gym_app.screens.owner.OnboardGymOwner
 import com.example.gym_app.screens.owner.StatisticsScreen
 import com.example.gym_app.screens.trainer.CalendarScreen
 import com.example.gym_app.screens.trainer.CreateClassScreen
 import com.example.gym_app.screens.trainer.ManageClassesScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassInstanceScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
-import com.example.gym_app.viewModels.GymClassInstanceModel
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
 import org.gymapp.library.response.GymClassDto
@@ -56,131 +61,150 @@ fun GymHomeScreen(navController: NavController) {
   val gymClassViewModel: GymClassViewModel = viewModel()
   val navHostController: NavHostController = rememberNavController()
   val (selectedTabIndex, setSelectedTabIndex) = remember { mutableStateOf(0) }
-  Scaffold(
-    topBar = {
-      PrimaryScrollableTabRow(
-        selectedTabIndex = selectedTabIndex,
-        edgePadding = 0.dp,
-        contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer),
-        modifier = Modifier.height(48.dp),
-      ) {
-        gymScreens
-          .filter { viewModel.selectedGymUser.value?.roles?.contains(it.role.name) ?: false }
-          .forEachIndexed { index, screen ->
-            Tab(
-              text = { Text(screen.label) },
-              selected = selectedTabIndex == index,
-              onClick = {
-                setSelectedTabIndex(index)
-                navHostController.navigate(screen.route)
-              },
-            )
-          }
-      }
-    }
-  ) { innerPadding ->
-    val roles = viewModel.selectedGymUser.value?.roles ?: emptyList()
-    NavHost(
-      navController = navHostController,
-      startDestination = AppRoutes.LIVE_STATUS_SCREEN,
-      modifier = Modifier.padding(innerPadding),
-    ) {
-      composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
-        GroupTrainingsScreen(
-          navHostController = navHostController,
-          sharedViewModel = viewModel,
-          onGymClassClick = { gymClassInstanceDto: GymClassInstanceDto, gymClassDto: GymClassDto ->
-            gymClassViewModel.setSelectedGymClass(gymClassDto)
-            gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
-            navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
-          },
-        ) { gymClassInstanceDto: GymClassInstanceDto ->
-          gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
-          navHostController.navigate(AppRoutes.REVIEW_GYM_CLASS_SCREEN)
-        }
-      }
-      composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(viewModel) }
-      composable(AppRoutes.MANAGE_CLASSES_SCREEN) {
-        ManageClassesScreen(
-          navHostController,
-          viewModel,
-          { navHostController.navigate(AppRoutes.CREATE_CLASS_SCREEN) },
+  val startDestination = determineStartDestination(viewModel)
+
+  if (startDestination.isEmpty()) {
+    CircularProgressIndicator()
+  } else {
+    println("Start dest -> $startDestination")
+    Scaffold(
+      topBar = {
+        PrimaryScrollableTabRow(
+          selectedTabIndex = selectedTabIndex,
+          edgePadding = 0.dp,
+          contentColor = contentColorFor(MaterialTheme.colorScheme.primaryContainer),
+          modifier = Modifier.height(48.dp),
         ) {
-          gymClassViewModel.setSelectedGymClass(it)
-          if (!it.isRecurring) {
-            val instance = it.instances?.firstOrNull()
-            gymClassViewModel.updateInstance {
-              copy(
-                name = instance?.name ?: "",
-                description = instance?.description ?: "",
-                duration = instance?.duration ?: "",
-                maxParticipants = instance?.maxParticipants ?: "",
-                dateTime = instance?.dateTime ?: "",
-                participantsIds = instance?.participantsIds ?: emptyList()
+          gymScreens
+            .filter { viewModel.selectedGymUser.value?.roles?.contains(it.role.name) ?: false }
+            .forEachIndexed { index, screen ->
+              Tab(
+                text = { Text(screen.label) },
+                selected = selectedTabIndex == index,
+                onClick = {
+                  setSelectedTabIndex(index)
+                  navHostController.navigate(screen.route)
+                },
               )
             }
-            navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
-          } else {
-            navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+        }
+      }
+    ) { innerPadding ->
+
+      NavHost(
+        navController = navHostController,
+        startDestination = startDestination,
+        modifier = Modifier.padding(innerPadding),
+      ) {
+        composable(AppRoutes.STRIPE_ONBOARD_SCREEN) { OnboardGymOwner(viewModel) }
+        composable(AppRoutes.GROUP_TRAININGS_SCREEN) {
+          GroupTrainingsScreen(
+            navHostController = navHostController,
+            sharedViewModel = viewModel,
+            onGymClassClick = { gymClassInstanceDto: GymClassInstanceDto, gymClassDto: GymClassDto ->
+              gymClassViewModel.setSelectedGymClass(gymClassDto)
+              gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
+              navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+            },
+          ) { gymClassInstanceDto: GymClassInstanceDto ->
+            gymClassViewModel.setSelectedInstanceDto(gymClassInstanceDto)
+            navHostController.navigate(AppRoutes.REVIEW_GYM_CLASS_SCREEN)
           }
         }
-      }
-      composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
-        TrainerGymClassScreen(navHostController, gymClassViewModel)
-      }
-      composable(AppRoutes.CALENDAR_SCREEN) {
-        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel)
-      }
-      composable(AppRoutes.CALENDAR_SCREEN_MEMBER) {
-        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel) {
-          navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        composable(AppRoutes.LIVE_STATUS_SCREEN) { LiveStatusScreen(viewModel) }
+        composable(AppRoutes.MANAGE_CLASSES_SCREEN) {
+          ManageClassesScreen(
+            navHostController,
+            viewModel,
+            { navHostController.navigate(AppRoutes.CREATE_CLASS_SCREEN) },
+          ) {
+            gymClassViewModel.setSelectedGymClass(it)
+            if (!it.isRecurring) {
+              val instance = it.instances?.firstOrNull()
+              gymClassViewModel.updateInstance {
+                copy(
+                  name = instance?.name ?: "",
+                  description = instance?.description ?: "",
+                  duration = instance?.duration ?: "",
+                  maxParticipants = instance?.maxParticipants ?: "",
+                  dateTime = instance?.dateTime ?: "",
+                  participantsIds = instance?.participantsIds ?: emptyList(),
+                )
+              }
+              navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+            } else {
+              navHostController.navigate(AppRoutes.TRAINER_GYM_CLASS_SCREEN)
+            }
+          }
         }
-      }
-      composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_MEMBER) {
-        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel,
-          sharedViewModel = viewModel, shouldUseAllData = true) {
-          navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+        composable(AppRoutes.TRAINER_GYM_CLASS_SCREEN) {
+          TrainerGymClassScreen(navHostController, gymClassViewModel)
         }
-      }
-      composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) {
-        CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel,
-          sharedViewModel = viewModel, shouldUseAllData = true) {
-          navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+        composable(AppRoutes.CALENDAR_SCREEN) {
+          CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel)
         }
+        composable(AppRoutes.CALENDAR_SCREEN_MEMBER) {
+          CalendarScreen(navHostController = navHostController, viewModel = gymClassViewModel) {
+            navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+          }
+        }
+        composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_MEMBER) {
+          CalendarScreen(
+            navHostController = navHostController,
+            viewModel = gymClassViewModel,
+            sharedViewModel = viewModel,
+            shouldUseAllData = true,
+          ) {
+            navHostController.navigate(AppRoutes.GYM_CLASS_DETAILS_SCREEN)
+          }
+        }
+        composable(AppRoutes.CALENDAR_SCREEN_ALL_CLASSES_TRAINER) {
+          CalendarScreen(
+            navHostController = navHostController,
+            viewModel = gymClassViewModel,
+            sharedViewModel = viewModel,
+            shouldUseAllData = true,
+          ) {
+            navHostController.navigate(AppRoutes.GYM_CLASS_INSTANCE_SCREEN)
+          }
+        }
+        composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
+          ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
+        }
+        composable(AppRoutes.CHALLENGE_DETAILS_SCREEN) {
+          ChallengeDetailsScreen(navHostController, viewModel)
+        }
+        composable(AppRoutes.INVITE_CHALLENGE_SCREEN) {
+          InviteChallengeScreen(navHostController, viewModel)
+        }
+        composable(AppRoutes.MEMBER_CHALLENGES_SCREEN) {
+          MemberChallengesScreen(navHostController, viewModel)
+        }
+        composable(AppRoutes.CREATE_CHALLENGE_SCREEN) {
+          CreateChallengeScreen(navHostController, viewModel)
+        }
+        composable(AppRoutes.MANAGE_CHALLENGES_SCREEN) {
+          ManageChallengesScreen(navHostController, viewModel)
+        }
+        composable(AppRoutes.GYM_CLASS_INSTANCE_SCREEN) {
+          TrainerGymClassInstanceScreen(
+            navHostController = navHostController,
+            viewModel = gymClassViewModel,
+          )
+        }
+        composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
+        composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
+        composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) {
+          GymClassDetailsScreen(navHostController, gymClassViewModel, viewModel)
+        }
+        composable(AppRoutes.QR_CODE_SCREEN) { QeCodeScreen(sharedViewModel = viewModel) }
+        composable(AppRoutes.STATISTICS_SCREEN) { StatisticsScreen(viewModel) }
       }
-      composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
-        ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
-      }
-      composable(AppRoutes.CHALLENGE_DETAILS_SCREEN) {
-        ChallengeDetailsScreen(navHostController, viewModel)
-      }
-      composable(AppRoutes.INVITE_CHALLENGE_SCREEN) {
-        InviteChallengeScreen(navHostController, viewModel)
-      }
-      composable(AppRoutes.MEMBER_CHALLENGES_SCREEN) {
-        MemberChallengesScreen(navHostController, viewModel)
-      }
-      composable(AppRoutes.CREATE_CHALLENGE_SCREEN) {
-        CreateChallengeScreen(navHostController, viewModel)
-      }
-      composable(AppRoutes.MANAGE_CHALLENGES_SCREEN) {
-        ManageChallengesScreen(navHostController, viewModel)
-      }
-      composable(AppRoutes.GYM_CLASS_INSTANCE_SCREEN) {
-        TrainerGymClassInstanceScreen(
-          navHostController = navHostController,
-          viewModel = gymClassViewModel,
-        )
-      }
-      composable(AppRoutes.CREATE_CLASS_SCREEN) { CreateClassScreen(navHostController, viewModel) }
-      composable(AppRoutes.ACCESS_CODE_SCREEN) { AccessCodeScreen(navHostController, viewModel) }
-      composable(AppRoutes.GYM_CLASS_DETAILS_SCREEN) {
-        GymClassDetailsScreen(navHostController, gymClassViewModel, viewModel)
-      }
-      composable(AppRoutes.QR_CODE_SCREEN) { QeCodeScreen(sharedViewModel = viewModel) }
-      composable(AppRoutes.STATISTICS_SCREEN) { StatisticsScreen(viewModel) }
     }
   }
+
+
+
 }
 
 sealed class GymScreen(val route: String, val label: String, val role: Role) {
@@ -198,8 +222,11 @@ sealed class GymScreen(val route: String, val label: String, val role: Role) {
 
   object Statistics : GymScreen(AppRoutes.STATISTICS_SCREEN, "Statistics", Role.ROLE_ADMIN)
 
-  object ManageChallenges : GymScreen(AppRoutes.MANAGE_CHALLENGES_SCREEN, "Manage Challenges", Role.ROLE_ADMIN)
-  object MemberChallenges : GymScreen(AppRoutes.MEMBER_CHALLENGES_SCREEN, "Challenges", Role.ROLE_MEMBER)
+  object ManageChallenges :
+    GymScreen(AppRoutes.MANAGE_CHALLENGES_SCREEN, "Manage Challenges", Role.ROLE_ADMIN)
+
+  object MemberChallenges :
+    GymScreen(AppRoutes.MEMBER_CHALLENGES_SCREEN, "Challenges", Role.ROLE_MEMBER)
 }
 
 val gymScreens =
@@ -211,5 +238,29 @@ val gymScreens =
     GymScreen.AccessCode,
     GymScreen.QrCode,
     GymScreen.Statistics,
-    GymScreen.ManageChallenges
+    GymScreen.ManageChallenges,
   )
+
+@Composable
+fun determineStartDestination(viewModel: SharedViewModel = viewModel()): String {
+  val context = LocalContext.current
+  var startDestination by remember { mutableStateOf<String?>(null) }
+  var isLoading by remember { mutableStateOf(true) }
+
+  LaunchedEffect(Unit) {
+    val isCompleted = viewModel.isStripeConnectAccountCompleted(context)
+    startDestination =
+      if (!isCompleted) {
+        AppRoutes.STRIPE_ONBOARD_SCREEN
+      } else {
+        AppRoutes.LIVE_STATUS_SCREEN
+      }
+    isLoading = false
+  }
+
+  return if (isLoading) {
+    ""
+  } else {
+    startDestination ?: ""
+  }
+}
