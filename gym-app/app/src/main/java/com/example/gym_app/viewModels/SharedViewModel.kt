@@ -73,8 +73,17 @@ class SharedViewModel : ViewModel() {
     private val _paymentSheet = MutableLiveData<PaymentSheetResponse>()
     val paymentSheet: LiveData<PaymentSheetResponse> = _paymentSheet
 
+    private val _setupPaymentSheet = MutableLiveData<PaymentSheetResponse>()
+    val setupPaymentSheet: LiveData<PaymentSheetResponse> = _setupPaymentSheet
+
     private val _stripeAccCompleted = MutableLiveData<Boolean>()
     val stripeAccCompleted: LiveData<Boolean> = _stripeAccCompleted
+
+    private val _isSetupCompleted = MutableLiveData<Boolean>(false)
+    val isSetupCompleted: LiveData<Boolean> = _isSetupCompleted
+
+    private val _subscriptionStatus = MutableLiveData<Boolean>(false)
+    val subscriptionStatus: LiveData<Boolean> = _subscriptionStatus
 
     fun selectGym(gymUserDto: GymUserDto) {
         _selectedGymUser.value = gymUserDto
@@ -354,13 +363,46 @@ class SharedViewModel : ViewModel() {
 
     fun getPaymentSheet(
         context: Context,
-        gymId: String,
     ) {
+        val gymId = _selectedGymUser.value?.gym?.id ?: ""
         viewModelScope.launch {
             val paymentSheetResponse = ApiClient.apiService.getPaymentSheet("Bearer ${TokenManager.getAccessToken(context)}", gymId)
             println("Payment sheet response: $paymentSheetResponse")
 
             _paymentSheet.value = paymentSheetResponse
+        }
+    }
+
+    fun getSetupIntent(
+        context: Context,
+    ) {
+        viewModelScope.launch {
+
+            val gymId = _selectedGymUser.value?.gym?.id ?: ""
+            val response = ApiClient.apiService.createSetupIntent("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+
+            _setupPaymentSheet.value = response
+        }
+    }
+
+    fun confirmSetupIntent(
+        context: Context,
+    ) {
+        viewModelScope.launch {
+            val setupIntentId = _setupPaymentSheet.value?.paymentIntent ?: ""
+            val gymId = _selectedGymUser.value?.gym?.id ?: ""
+            val response = ApiClient.apiService.confirmSetupIntent("Bearer ${TokenManager.getAccessToken(context)}", gymId, setupIntentId)
+            _isSetupCompleted.value = response.isSuccessful
+        }
+    }
+
+    fun getSubscriptionStatus(
+        context: Context,
+    ) {
+        viewModelScope.launch {
+            val gymId = _selectedGymUser.value?.gym?.id ?: ""
+            val response = ApiClient.apiService.getSubscriptionStatus("Bearer ${TokenManager.getAccessToken(context)}", gymId)
+            _subscriptionStatus.value = response.subscribed
         }
     }
 

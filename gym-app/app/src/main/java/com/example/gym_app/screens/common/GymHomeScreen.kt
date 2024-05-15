@@ -14,6 +14,7 @@ import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -246,15 +247,17 @@ fun determineStartDestination(viewModel: SharedViewModel = viewModel()): String 
   val context = LocalContext.current
   var startDestination by remember { mutableStateOf<String?>(null) }
   var isLoading by remember { mutableStateOf(true) }
+  val isUserSubscribed by viewModel.subscriptionStatus.observeAsState()
 
   LaunchedEffect(Unit) {
+    viewModel.getSubscriptionStatus(context)
     val isCompleted = viewModel.isStripeConnectAccountCompleted(context)
-    startDestination =
-      if (!isCompleted) {
-        AppRoutes.STRIPE_ONBOARD_SCREEN
-      } else {
-        AppRoutes.LIVE_STATUS_SCREEN
-      }
+
+    startDestination = when {
+      !isCompleted -> AppRoutes.STRIPE_ONBOARD_SCREEN
+      isUserSubscribed == false -> AppRoutes.SUBSCRIPTION_SCREEN
+      else -> AppRoutes.STATISTICS_SCREEN
+    }
     isLoading = false
   }
 

@@ -27,6 +27,7 @@ import org.gymapp.library.response.GymTrainerWithReviewsDto
 import org.gymapp.library.response.GymUserDto
 import org.gymapp.library.response.GymVisitDto
 import org.gymapp.library.response.PaymentSheetResponse
+import org.gymapp.library.response.SubscriptionStatusDto
 import org.gymapp.library.response.UserDto
 import org.gymapp.library.response.VisitCountByDay
 import retrofit2.Response
@@ -271,6 +272,26 @@ interface ApiService {
     @Header("Authorization") authHeader: String,
     @Query("gymId") gymId: String,
   ): PaymentSheetResponse
+
+  @GET("/gyms/setup-intent")
+  suspend fun createSetupIntent(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+  ): PaymentSheetResponse
+
+  @GET("/gyms/confirm-setup-intent")
+  suspend fun confirmSetupIntent(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+    @Query("setupIntentId") setupIntentId: String,
+  ): Response<Unit>
+
+  @GET("/gyms/subscription-status")
+  suspend fun getSubscriptionStatus(
+    @Header("Authorization") authHeader: String,
+    @Query("gymId") gymId: String,
+  ): SubscriptionStatusDto
+
 
   @GET("/gyms/create-account-link")
   suspend fun createAccountLink(
