@@ -10,7 +10,8 @@ data class CreateUserRequest(
 
 data class CreateGymRequest(
     var name: String,
-    var picture: String?
+    var picture: String? = null,
+    var subscriptionFee: String? = null,
 ) 
 
 class CreateClassRequest {

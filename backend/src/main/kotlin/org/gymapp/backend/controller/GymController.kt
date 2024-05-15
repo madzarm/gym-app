@@ -1,5 +1,6 @@
 package org.gymapp.backend.controller
 
+import jakarta.servlet.http.HttpServletResponse
 import jakarta.websocket.server.PathParam
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.service.GymService
@@ -78,22 +79,86 @@ class GymController(
         return ResponseEntity.ok(gymService.getGymVisitsHeatMapData(common.getCurrentUser(jwt), gymId))
     }
 
+//    @GetMapping("/payment-sheet")
+//    fun createPaymentSheet(
+//        @PathParam("gymId") gymId: String,
+//        @AuthenticationPrincipal jwt: Jwt
+//    ): PaymentSheetResponse {
+//        val customer = stripeService.createStripeCustomer()
+//        val ephemeralKey = stripeService.createEphemeralKey(customer.id)
+//        val paymentIntent = stripeService.createPaymentIntent(customer.id, gymId)
+//
+//        return PaymentSheetResponse (
+//            paymentIntent = paymentIntent.clientSecret,
+//            ephemeralKey = ephemeralKey.secret,
+//            customer = customer.id,
+//            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe"
+//        )
+//    }
+
     @GetMapping("/payment-sheet")
-    fun createPaymentSheet(
+    fun createPaymentSheet (
         @PathParam("gymId") gymId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): PaymentSheetResponse {
-        val customer = stripeService.createStripeCustomer()
-        val ephemeralKey = stripeService.createEphemeralKey(customer.id)
-        val paymentIntent = stripeService.createPaymentIntent(customer.id)
+        // Assume the customer ID is stored and retrieved from the user's profile
+        val customerId = stripeService.getOrCreateCustomerId(common.getCurrentUser(jwt), gymId)
+
+        // Check if there's an active subscription first
+        val activeSubscription = stripeService.getActiveSubscription(customerId, gymId)
+        val subscription = if (activeSubscription != null) {
+            activeSubscription
+        } else {
+            // Create a new subscription if there is no active one
+            stripeService.createSubscription(customerId, gymId)
+        }
+
+        // Ephemeral key for customer session
+        val ephemeralKey = stripeService.createEphemeralKey(customerId)
+
+        // Retrieve the client secret from the latest invoice payment intent of the subscription
+        val paymentIntent = stripeService.createPaymentIntent(customerId, gymId)
 
         return PaymentSheetResponse(
             paymentIntent = paymentIntent.clientSecret,
             ephemeralKey = ephemeralKey.secret,
-            customer = customer.id,
+            customer = customerId,
             publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe"
         )
     }
+
+    @GetMapping("/stripe-connect-account-completed")
+    fun isStripeConnectAccountCompleted(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam gymId: String
+    ): ResponseEntity<AccountCompletedDto> {
+        val acc = stripeService.retrieveAccount(common.getCurrentUser(jwt), gymId)
+        val isCompleted = acc != null && acc.detailsSubmitted
+        return ResponseEntity.ok(AccountCompletedDto(isCompleted))
+    }
+
+
+    @GetMapping("/create-account-link")
+    fun createAccountLink(
+        @RequestParam gymId: String,
+        @RequestParam returnUrl: String,
+        @RequestParam refreshUrl: String
+    ): ResponseEntity<AccountLinkDto> {
+        val connectedAccountId = stripeService.getConnectedAccountId(gymId)
+        val accountLinkUrl = stripeService.createAccountLink(connectedAccountId, returnUrl, refreshUrl)
+        return ResponseEntity.ok(AccountLinkDto(accountLinkUrl))
+    }
+
+    @GetMapping("/stripe-return")
+    fun handleStripeReturn(response: HttpServletResponse) {
+        response.sendRedirect("gym-app://stripe-return")
+    }
+
+    @GetMapping("/stripe-refresh")
+    fun handleStripeRefresh(response: HttpServletResponse) {
+        response.sendRedirect("gym-app://refresh")
+    }
+
 
 
 }

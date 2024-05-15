@@ -193,3 +193,18 @@ data class VisitCountByHour (
     var hour: Int,
     var visitCount: Long
 )
+
+data class PaymentSheetResponse(
+    val paymentIntent: String,
+    val ephemeralKey: String,
+    val customer: String,
+    val publishableKey: String
+)
+
+data class AccountLinkDto (
+    val accountLinkUrl: String
+)
+
+data class AccountCompletedDto (
+    val accountCompleted: Boolean
+)

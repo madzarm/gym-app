@@ -21,6 +21,8 @@ class GymMember (
 
     val inviteCode: String = generateRandomInviteCode(),
 
+    val customerId: String,
+
     @OneToMany(mappedBy = "gymMember")
     val visits: MutableList<GymVisit> = mutableListOf(),
 

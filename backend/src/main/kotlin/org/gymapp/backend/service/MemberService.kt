@@ -35,11 +35,12 @@ class MemberService(
     @Autowired private val gymClassInstanceRepository: GymClassInstanceRepository,
     @Autowired private val gymClassInstanceMapper: GymClassInstanceMapper,
     @Autowired private val challengeService: ChallengeService,
+    @Autowired private val stripeService: StripeService,
 ) {
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
         val gym = gymService.findGymByCode(code)
-
+        val customerId = stripeService.createStripeCustomer().id
         var gymUser = currentUser.getGymUser(gym.code)
         if (gymUser != null) {
             if (gymUser.hasRole(Common.Roles.ROLE_MEMBER.name)) {
@@ -48,7 +49,9 @@ class MemberService(
 
             gymUser.roles.add(roleService.findByName(Common.Roles.ROLE_MEMBER.name))
             gymUserRepository.save(gymUser)
-            val member = GymMember(gymUser = gymUser)
+
+
+            val member = GymMember(gymUser = gymUser, customerId = customerId)
             gymUser.gymMember = member
             gymMemberRepository.save(member)
             return gymUserMapper.modelToDto(gymUser)
@@ -61,7 +64,7 @@ class MemberService(
             roles = mutableListOf(roleService.findByName(Common.Roles.ROLE_MEMBER.name))
         )
 
-        val member = GymMember(gymUser = gymUser)
+        val member = GymMember(gymUser = gymUser, customerId = customerId)
         gymMemberRepository.save(member)
         return gymUserMapper.modelToDto(gymUser)
     }

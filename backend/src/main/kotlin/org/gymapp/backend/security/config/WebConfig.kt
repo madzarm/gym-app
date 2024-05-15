@@ -29,7 +29,8 @@ class WebConfig(
                 authorize("/owners/**", authenticated)
                 authorize("/trainers/**", authenticated)
                 authorize("/members/**", authenticated)
-                authorize("/gyms/**", authenticated)
+                authorize("/gyms/**", permitAll)
+                authorize("/gyms/stripe-return", permitAll)
                 authorize("/users/current**", authenticated)
                 authorize("/users/gyms**", authenticated)
             }

@@ -26,14 +26,27 @@ class GymService(
     @Autowired private val gymMemberMapper: GymMemberMapper,
     @Autowired private val gymVisitRepository: GymVisitRepository,
     @Autowired private val gymVisitMapper: GymVisitMapper,
+    @Autowired private val stripeService: StripeService,
 ) {
 
     @Transactional
     fun createGym(request: CreateGymRequest, currentUser: User): GymUserDto {
+        val ownerEmail = currentUser.email
+        val connectedAccount = stripeService.createStripeConnectedAccount(ownerEmail!!)
+
+        val priceId = stripeService.createStripeProductAndPrice(
+            gymName = request.name,
+            subscriptionFee = request.subscriptionFee?.toLong() ?: 0L,
+            connectedAccountId = connectedAccount.id
+        )
+
         val gym = Gym(
             UUID.randomUUID().toString(),
             request.name,
             common.generateRandomCode(),
+            request.subscriptionFee?.toLong() ?: 0L,
+            connectedAccount.id,
+            priceId,
             request.picture,
             mutableListOf(),
             null
