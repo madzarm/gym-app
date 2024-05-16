@@ -36,6 +36,7 @@ import com.example.gym_app.screens.member.LiveStatusScreen
 import com.example.gym_app.screens.member.MemberChallengesScreen
 import com.example.gym_app.screens.member.QeCodeScreen
 import com.example.gym_app.screens.member.ReviewGymClassScreen
+import com.example.gym_app.screens.member.SubscriptionScreen
 import com.example.gym_app.screens.owner.AccessCodeScreen
 import com.example.gym_app.screens.owner.ChallengeDetailsScreen
 import com.example.gym_app.screens.owner.CreateChallengeScreen
@@ -49,6 +50,7 @@ import com.example.gym_app.screens.trainer.TrainerGymClassInstanceScreen
 import com.example.gym_app.screens.trainer.TrainerGymClassScreen
 import com.example.gym_app.viewModels.GymClassViewModel
 import com.example.gym_app.viewModels.SharedViewModel
+import kotlinx.coroutines.isActive
 import org.gymapp.library.response.GymClassDto
 import org.gymapp.library.response.GymClassInstanceDto
 
@@ -172,6 +174,9 @@ fun GymHomeScreen(navController: NavController) {
         composable(AppRoutes.REVIEW_GYM_CLASS_SCREEN) {
           ReviewGymClassScreen(gymClassViewModel, viewModel, navHostController)
         }
+        composable(AppRoutes.SUBSCRIPTION_SCREEN) {
+          SubscriptionScreen(viewModel, navHostController)
+        }
         composable(AppRoutes.CHALLENGE_DETAILS_SCREEN) {
           ChallengeDetailsScreen(navHostController, viewModel)
         }
@@ -247,15 +252,27 @@ fun determineStartDestination(viewModel: SharedViewModel = viewModel()): String 
   val context = LocalContext.current
   var startDestination by remember { mutableStateOf<String?>(null) }
   var isLoading by remember { mutableStateOf(true) }
-  val isUserSubscribed by viewModel.subscriptionStatus.observeAsState()
+  val subscriptionStatus by viewModel.subscriptionStatus.observeAsState()
 
-  LaunchedEffect(Unit) {
-    viewModel.getSubscriptionStatus(context)
-    val isCompleted = viewModel.isStripeConnectAccountCompleted(context)
+  LaunchedEffect(subscriptionStatus) {
+    val isAdmin = viewModel.selectedGymUser.value?.roles?.contains(Role.ROLE_ADMIN.name) ?: false
+    val isMember = viewModel.selectedGymUser.value?.roles?.contains(Role.ROLE_MEMBER.name) ?: false
+    val isTrainer = viewModel.selectedGymUser.value?.roles?.contains(Role.ROLE_TRAINER.name) ?: false
+    var isCompleted = true;
+    if (isAdmin) {
+      isCompleted = viewModel.isStripeConnectAccountCompleted(context)
+    }
+    if (isMember) {
+      viewModel.getSubscriptionStatus(context)
+    }
 
+    val loading = subscriptionStatus?.loading
+    val isUserSubscribed = subscriptionStatus?.subscribed
     startDestination = when {
       !isCompleted -> AppRoutes.STRIPE_ONBOARD_SCREEN
-      isUserSubscribed == false -> AppRoutes.SUBSCRIPTION_SCREEN
+      isMember && (isUserSubscribed == false) && (loading == false) -> AppRoutes.SUBSCRIPTION_SCREEN
+      isMember -> AppRoutes.LIVE_STATUS_SCREEN
+      isTrainer -> AppRoutes.MANAGE_CLASSES_SCREEN
       else -> AppRoutes.STATISTICS_SCREEN
     }
     isLoading = false

@@ -55,82 +55,14 @@ fun LiveStatusScreen(viewModel: SharedViewModel) {
   val gymId = viewModel.selectedGymUser.value?.gym?.id ?: ""
   val liveStatus = viewModel.liveStatus.value
   val usualTraffic =
-    statisticsViewModel.graphData.observeAsState().value?.second?.get(getCurrentHour().toInt() - 10)
+    statisticsViewModel.graphData.observeAsState().value?.second?.get(getCurrentHour().toInt() + 5)
       ?: 0
 
-  val paymentSheetResponse = viewModel.paymentSheet.observeAsState()
-  val setupPaymentSheetResponse = viewModel.setupPaymentSheet.observeAsState()
-
-  val paymentSheet = rememberPaymentSheet { result -> onPaymentSheetResult(result) }
-  val setupPaymentSheet = rememberPaymentSheet { result ->
-    onSetupPaymentSheetResult(result, viewModel, context)
-  }
-
-  var customerConfig by remember { mutableStateOf<PaymentSheet.CustomerConfiguration?>(null) }
-  var paymentIntentClientSecret by remember { mutableStateOf<String?>(null) }
-  var setupIntentClientSecret by remember { mutableStateOf<String?>(null) }
-  val isSetupCompleted = viewModel.isSetupCompleted.observeAsState().value
-
-  LaunchedEffect(Unit) { viewModel.getSetupIntent(context) }
-
-  LaunchedEffect(isSetupCompleted) {
-    if (isSetupCompleted == true) {
-      viewModel.getPaymentSheet(context)
-    }
-  }
-
-  LaunchedEffect(setupPaymentSheetResponse.value) {
-    setupPaymentSheetResponse.value?.let { response ->
-      setupIntentClientSecret = response.paymentIntent
-      customerConfig =
-        PaymentSheet.CustomerConfiguration(response.customer ?: "", response.ephemeralKey ?: "")
-      val publishableKey = response.publishableKey
-      println("StripeAcc: ${response.stripeAccountId}")
-      PaymentConfiguration.init(context, publishableKey ?: "", response.stripeAccountId ?: "")
-    }
-  }
-
-  // Run this effect only when `paymentSheetResponse` changes
-  LaunchedEffect(paymentSheetResponse.value) {
-    paymentSheetResponse.value?.let { response ->
-      paymentIntentClientSecret = response.paymentIntent
-      customerConfig =
-        PaymentSheet.CustomerConfiguration(response.customer ?: "", response.ephemeralKey ?: "")
-      val publishableKey = response.publishableKey
-      println("StripeAcc: ${response.stripeAccountId}")
-      PaymentConfiguration.init(context, publishableKey ?: "", response.stripeAccountId ?: "")
-    }
-  }
 
   LaunchedEffect(true) { viewModel.getLiveStatus(context) }
 
   Column(modifier = Modifier.fillMaxSize(1f), horizontalAlignment = Alignment.CenterHorizontally) {
     Column() {
-      Button(
-        onClick = {
-          val currentConfig = customerConfig
-          val currentClientSecret = setupIntentClientSecret
-
-          println(currentConfig != null && currentClientSecret != null)
-          if (currentConfig != null && currentClientSecret != null) {
-            presentSetupPaymentSheet(setupPaymentSheet, currentConfig, currentClientSecret)
-          }
-        }
-      ) {
-        Text("Setup")
-      }
-      Button(
-        onClick = {
-          val currentConfig = customerConfig
-          val currentClientSecret = paymentIntentClientSecret
-
-          if (currentConfig != null && currentClientSecret != null) {
-            presentPaymentSheet(paymentSheet, currentConfig, currentClientSecret)
-          }
-        }
-      ) {
-        Text("Checkout")
-      }
       Text(
         text = "Usual Traffic",
         style = MaterialTheme.typography.titleLarge,
@@ -222,73 +154,3 @@ fun GymVisitsPerHourChart(statisticsViewModel: StatisticsViewModel, gymId: Strin
   )
 }
 
-private fun presentPaymentSheet(
-  paymentSheet: PaymentSheet,
-  customerConfig: PaymentSheet.CustomerConfiguration,
-  paymentIntentClientSecret: String,
-) {
-  paymentSheet.presentWithPaymentIntent(
-    paymentIntentClientSecret,
-    PaymentSheet.Configuration(
-      merchantDisplayName = "My merchant name",
-      customer = customerConfig,
-      // Set `allowsDelayedPaymentMethods` to true if your business handles
-      // delayed notification payment methods like US bank accounts.
-      allowsDelayedPaymentMethods = false,
-    ),
-  )
-}
-
-private fun presentSetupPaymentSheet(
-  paymentSheet: PaymentSheet,
-  customerConfig: PaymentSheet.CustomerConfiguration,
-  setupIntentClientSecret: String,
-) {
-  paymentSheet.presentWithSetupIntent(
-    setupIntentClientSecret,
-    PaymentSheet.Configuration(
-      merchantDisplayName = "My merchant name",
-      customer = customerConfig,
-      // Set `allowsDelayedPaymentMethods` to true if your business handles
-      // delayed notification payment methods like US bank accounts.
-      allowsDelayedPaymentMethods = false,
-    ),
-  )
-}
-
-private fun onPaymentSheetResult(paymentSheetResult: PaymentSheetResult) {
-  when (paymentSheetResult) {
-    is PaymentSheetResult.Canceled -> {
-      print("Canceled")
-    }
-    is PaymentSheetResult.Failed -> {
-      print("Error: ${paymentSheetResult.error}")
-    }
-    is PaymentSheetResult.Completed -> {
-      print("Completed")
-    }
-  }
-}
-
-private fun onSetupPaymentSheetResult(
-  paymentSheetResult: PaymentSheetResult,
-  viewModel: SharedViewModel,
-  context: Context,
-) {
-  when (paymentSheetResult) {
-    is PaymentSheetResult.Canceled -> {
-      print("Canceled")
-    }
-    is PaymentSheetResult.Failed -> {
-      print("Error: ${paymentSheetResult.error}")
-    }
-    is PaymentSheetResult.Completed -> {
-      print("Completed")
-      confirmSetupIntent(viewModel, context)
-    }
-  }
-}
-
-private fun confirmSetupIntent(viewModel: SharedViewModel, context: Context) {
-  viewModel.confirmSetupIntent(context)
-}
