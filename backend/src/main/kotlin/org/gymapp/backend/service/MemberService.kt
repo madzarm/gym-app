@@ -40,7 +40,7 @@ class MemberService(
 
     fun joinGymAsMember(currentUser: User, code: String): GymUserDto {
         val gym = gymService.findGymByCode(code)
-        val customerId = stripeService.createStripeCustomer().id
+        val customerId = stripeService.createStripeCustomer(currentUser.email ?: "", gym.stripeAccountId).id
         var gymUser = currentUser.getGymUser(gym.code)
         if (gymUser != null) {
             if (gymUser.hasRole(Common.Roles.ROLE_MEMBER.name)) {

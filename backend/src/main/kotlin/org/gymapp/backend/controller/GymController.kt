@@ -79,52 +79,72 @@ class GymController(
         return ResponseEntity.ok(gymService.getGymVisitsHeatMapData(common.getCurrentUser(jwt), gymId))
     }
 
-//    @GetMapping("/payment-sheet")
-//    fun createPaymentSheet(
-//        @PathParam("gymId") gymId: String,
-//        @AuthenticationPrincipal jwt: Jwt
-//    ): PaymentSheetResponse {
-//        val customer = stripeService.createStripeCustomer()
-//        val ephemeralKey = stripeService.createEphemeralKey(customer.id)
-//        val paymentIntent = stripeService.createPaymentIntent(customer.id, gymId)
-//
-//        return PaymentSheetResponse (
-//            paymentIntent = paymentIntent.clientSecret,
-//            ephemeralKey = ephemeralKey.secret,
-//            customer = customer.id,
-//            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe"
-//        )
-//    }
-
     @GetMapping("/payment-sheet")
     fun createPaymentSheet (
         @PathParam("gymId") gymId: String,
         @AuthenticationPrincipal jwt: Jwt
     ): PaymentSheetResponse {
-        // Assume the customer ID is stored and retrieved from the user's profile
-        val customerId = stripeService.getOrCreateCustomerId(common.getCurrentUser(jwt), gymId)
+        val connectedAccountId = stripeService.getConnectedAccountId(gymId)
+        val customerId = stripeService.getCustomerId(common.getCurrentUser(jwt), gymId)
 
-        // Check if there's an active subscription first
-        val activeSubscription = stripeService.getActiveSubscription(customerId, gymId)
-        val subscription = if (activeSubscription != null) {
-            activeSubscription
-        } else {
-            // Create a new subscription if there is no active one
-            stripeService.createSubscription(customerId, gymId)
-        }
+        stripeService.createSubscription(customerId, gymId)
 
-        // Ephemeral key for customer session
-        val ephemeralKey = stripeService.createEphemeralKey(customerId)
+        val ephemeralKey = stripeService.createEphemeralKey(customerId, connectedAccountId)
 
-        // Retrieve the client secret from the latest invoice payment intent of the subscription
         val paymentIntent = stripeService.createPaymentIntent(customerId, gymId)
 
         return PaymentSheetResponse(
             paymentIntent = paymentIntent.clientSecret,
             ephemeralKey = ephemeralKey.secret,
             customer = customerId,
-            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe"
+            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe",
+            stripeAccountId = connectedAccountId
         )
+    }
+
+    @GetMapping("/setup-intent")
+    fun createSetupIntent(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam gymId: String,
+    ): PaymentSheetResponse {
+        val connectedAccountId = stripeService.getConnectedAccountId(gymId)
+
+        val customerId = stripeService.getCustomerId(common.getCurrentUser(jwt), gymId)
+
+        val setupIntent = stripeService.createSetupIntent(customerId, gymId)
+
+        val ephemeralKey = stripeService.createEphemeralKey(customerId, connectedAccountId)
+
+        return PaymentSheetResponse(
+            paymentIntent = setupIntent.clientSecret,
+            ephemeralKey = ephemeralKey.secret,
+            customer = customerId,
+            publishableKey = "pk_test_51PExcdRqxY1WlypugPzrovZ9449kgR1egezShfTpaaPow4xCnrvbS9mECcjt9ndTyylrsPEpOkVvYcuWISfrMgTR00LMw0rIpe",
+            stripeAccountId = connectedAccountId
+        )
+    }
+
+    @GetMapping("/confirm-setup-intent")
+    fun confirmSetupIntent(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam gymId: String,
+        @RequestParam setupIntentId: String,
+    ) {
+        val connectedAccountId = stripeService.getConnectedAccountId(gymId)
+        val customerId = stripeService.getCustomerId(common.getCurrentUser(jwt), gymId)
+        val paymentMethod = stripeService.getPaymentMethod(setupIntentId, connectedAccountId)
+        stripeService.attachPaymentMethod(paymentMethod.id, customerId, connectedAccountId)
+    }
+
+    @GetMapping("/subscription-status")
+    fun getS(
+        @AuthenticationPrincipal jwt: Jwt,
+        @RequestParam gymId: String
+    ): ResponseEntity<SubscriptionStatusDto> {
+        val customerId = stripeService.getCustomerId(common.getCurrentUser(jwt), gymId)
+        val accountId = stripeService.getConnectedAccountId(gymId)
+        val hasValidSubscription = stripeService.hasValidSubscription(customerId, accountId)
+        return ResponseEntity.ok(SubscriptionStatusDto(hasValidSubscription))
     }
 
     @GetMapping("/stripe-connect-account-completed")

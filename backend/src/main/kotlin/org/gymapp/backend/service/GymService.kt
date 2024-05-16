@@ -41,15 +41,15 @@ class GymService(
         )
 
         val gym = Gym(
-            UUID.randomUUID().toString(),
-            request.name,
-            common.generateRandomCode(),
-            request.subscriptionFee?.toLong() ?: 0L,
-            connectedAccount.id,
-            priceId,
-            request.picture,
-            mutableListOf(),
-            null
+            id = UUID.randomUUID().toString(),
+            name = request.name,
+            code = common.generateRandomCode(),
+            subscriptionFee = request.subscriptionFee?.toLong() ?: 0L,
+            stripeAccountId = connectedAccount.id,
+            subscriptionPriceId = priceId,
+            picture = request.picture,
+            gymUsers = mutableListOf(),
+            owner = null
         )
 
 

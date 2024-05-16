@@ -10,7 +10,7 @@ import org.gymapp.backend.repository.GymRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import org.springframework.web.ErrorResponse
+
 
 
 @Service
@@ -21,30 +21,55 @@ class StripeService (
     @Value("\${stripe.api_key}")
     private lateinit var apiKey: String
 
+
     @PostConstruct
     fun init() {
         Stripe.apiKey = apiKey
     }
 
-    fun createStripeCustomer(): Customer {
+    fun createStripeCustomer(email: String, connectedAccountId: String): Customer {
         val customerParams = CustomerCreateParams.builder()
+            .setEmail(email)
             .build()
-        return Customer.create(customerParams)
+
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(connectedAccountId)
+            .build()
+        return Customer.create(customerParams, requestOptions)
     }
 
-    fun createEphemeralKey(customerId: String): EphemeralKey {
+    fun hasValidSubscription(customerId: String, accountId: String): Boolean {
+        val params = SubscriptionListParams.builder()
+            .setCustomer(customerId)
+            .setStatus(SubscriptionListParams.Status.ACTIVE)
+            .build()
+
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(accountId)
+            .build()
+
+        val subscriptions = Subscription.list(params, requestOptions).data
+        return subscriptions.isNotEmpty()
+    }
+
+    fun createEphemeralKey(customerId: String, connectedAccountId: String): EphemeralKey {
         val ephemeralKeyParams = EphemeralKeyCreateParams.builder()
             .setCustomer(customerId)
             .setStripeVersion("2024-04-10")
             .build()
-        return EphemeralKey.create(ephemeralKeyParams)
+
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(connectedAccountId)
+            .build()
+
+        return EphemeralKey.create(ephemeralKeyParams, requestOptions)
     }
 
     fun createPaymentIntent(customerId: String, gymId: String): PaymentIntent {
         val gym = gymRepository.findById(gymId).orElseThrow { throw Exception("Gym not found")}
         val amount = gym.subscriptionFee
         val paymentIntentParams = PaymentIntentCreateParams.builder()
-            .setAmount(amount)
+            .setAmount(amount*100)
             .setCurrency("eur")
             .setCustomer(customerId)
             .setAutomaticPaymentMethods(PaymentIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build())
@@ -58,11 +83,72 @@ class StripeService (
         return PaymentIntent.create(paymentIntentParams, requestOptions)
     }
 
-    fun getOrCreateCustomerId(user: User, gymId: String): String {
+    fun createSetupIntent(customerId: String, gymId: String): SetupIntent {
+        val gym = gymRepository.findById(gymId).orElseThrow { throw Exception("Gym not found")}
+        val params = SetupIntentCreateParams.builder()
+            .setCustomer(customerId)
+            .setAutomaticPaymentMethods(SetupIntentCreateParams.AutomaticPaymentMethods.builder().setEnabled(true).build())
+            .setUsage(SetupIntentCreateParams.Usage.OFF_SESSION) // Indicates intended usage
+            .build()
+
+        val connectedAccountId = gym.stripeAccountId
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(connectedAccountId)
+            .build()
+
+        return SetupIntent.create(params, requestOptions)
+    }
+
+    fun getCustomerId(user: User, gymId: String): String {
         val gymMember = user.getMember(gymId)
 
         val customerId = gymMember.customerId
         return customerId
+    }
+
+    fun getPaymentMethod(setupIntentId: String, connectedAccountId: String): PaymentMethod {
+        val actualSetupIntentId = setupIntentId.split("_secret_").first()
+        // Create request options with the connected account ID
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(connectedAccountId)
+            .build()
+
+        // Retrieve the SetupIntent object
+        val setupIntent = SetupIntent.retrieve(actualSetupIntentId, requestOptions)
+
+        println(setupIntent)
+        // Extract the payment method ID
+        val paymentMethodId = setupIntent.paymentMethod
+            ?: throw IllegalArgumentException("Payment method not found in SetupIntent")
+
+        println(requestOptions)
+        // Retrieve the PaymentMethod object
+        return PaymentMethod.retrieve(paymentMethodId, requestOptions)
+    }
+
+    fun attachPaymentMethod(paymentMethodId: String, customerId: String, connectedAccountId: String) {
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(connectedAccountId)
+            .build()
+
+        val paymentMethod = PaymentMethod.retrieve(paymentMethodId, requestOptions)
+
+        val params = PaymentMethodAttachParams.builder()
+            .setCustomer(customerId)
+            .build()
+
+
+        // Attach the payment method to the customer
+        paymentMethod.attach(params, requestOptions)
+
+        val customerUpdateParams = CustomerUpdateParams.builder()
+            .setInvoiceSettings(CustomerUpdateParams.InvoiceSettings.builder()
+                .setDefaultPaymentMethod(paymentMethodId)
+                .build())
+            .build()
+
+        val customer = Customer.retrieve(customerId, requestOptions)
+        customer.update(customerUpdateParams, requestOptions)
     }
 
     fun getActiveSubscription(customerId: String, gymId: String): Subscription? {
@@ -77,15 +163,23 @@ class StripeService (
     fun createSubscription(customerId: String, gymId: String): Subscription {
         val gym = gymRepository.findById(gymId).orElseThrow { NoSuchElementException("Gym not found") }
         val priceId = gym.subscriptionPriceId
+        val stripeAccountId = gym.stripeAccountId
 
         val subscriptionParams = SubscriptionCreateParams.builder()
             .setCustomer(customerId)
             .addItem(SubscriptionCreateParams.Item.builder()
                 .setPrice(priceId)
                 .build())
+            .setPaymentSettings(SubscriptionCreateParams.PaymentSettings.builder()
+                .addPaymentMethodType(SubscriptionCreateParams.PaymentSettings.PaymentMethodType.CARD)
+                .build())
             .build()
 
-        return Subscription.create(subscriptionParams)
+        val requestOptions = RequestOptions.builder()
+            .setStripeAccount(stripeAccountId)
+            .build()
+
+        return Subscription.create(subscriptionParams, requestOptions)
     }
 
     fun hasActiveSubscription(customerId: String): Boolean {
@@ -121,7 +215,7 @@ class StripeService (
 
         // Create Price for the Product under the connected account
         val priceParams = PriceCreateParams.builder()
-            .setUnitAmount(subscriptionFee)  // Subscription fee in cents
+            .setUnitAmount(subscriptionFee * 100)  // Subscription fee in cents
             .setCurrency("eur")  // or any other currency
             .setRecurring(PriceCreateParams.Recurring.builder()
                 .setInterval(PriceCreateParams.Recurring.Interval.MONTH)  // Monthly billing
@@ -161,4 +255,6 @@ class StripeService (
         val accountLink = AccountLink.create(accountLinkParams)
         return accountLink.url
     }
+
+
 }

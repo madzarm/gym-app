@@ -198,7 +198,8 @@ data class PaymentSheetResponse(
     val paymentIntent: String,
     val ephemeralKey: String,
     val customer: String,
-    val publishableKey: String
+    val publishableKey: String,
+    val stripeAccountId: String,
 )
 
 data class AccountLinkDto (
@@ -207,4 +208,8 @@ data class AccountLinkDto (
 
 data class AccountCompletedDto (
     val accountCompleted: Boolean
+)
+
+data class SubscriptionStatusDto (
+    val subscribed: Boolean
 )
