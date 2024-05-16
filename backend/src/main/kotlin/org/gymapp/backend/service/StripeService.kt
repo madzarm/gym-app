@@ -108,21 +108,17 @@ class StripeService (
 
     fun getPaymentMethod(setupIntentId: String, connectedAccountId: String): PaymentMethod {
         val actualSetupIntentId = setupIntentId.split("_secret_").first()
-        // Create request options with the connected account ID
         val requestOptions = RequestOptions.builder()
             .setStripeAccount(connectedAccountId)
             .build()
 
-        // Retrieve the SetupIntent object
         val setupIntent = SetupIntent.retrieve(actualSetupIntentId, requestOptions)
 
         println(setupIntent)
-        // Extract the payment method ID
         val paymentMethodId = setupIntent.paymentMethod
             ?: throw IllegalArgumentException("Payment method not found in SetupIntent")
 
         println(requestOptions)
-        // Retrieve the PaymentMethod object
         return PaymentMethod.retrieve(paymentMethodId, requestOptions)
     }
 
@@ -137,8 +133,6 @@ class StripeService (
             .setCustomer(customerId)
             .build()
 
-
-        // Attach the payment method to the customer
         paymentMethod.attach(params, requestOptions)
 
         val customerUpdateParams = CustomerUpdateParams.builder()
@@ -202,36 +196,34 @@ class StripeService (
     }
 
     fun createStripeProductAndPrice(gymName: String, subscriptionFee: Long, connectedAccountId: String): String {
-        // Create Product for Gym under the connected account
         val productParams = ProductCreateParams.builder()
             .setName("$gymName Membership")
             .build()
 
         val requestOptions = RequestOptions.builder()
-            .setStripeAccount(connectedAccountId)  // Specify the connected account ID here
+            .setStripeAccount(connectedAccountId)
             .build()
 
         val product = Product.create(productParams, requestOptions)
 
-        // Create Price for the Product under the connected account
         val priceParams = PriceCreateParams.builder()
-            .setUnitAmount(subscriptionFee * 100)  // Subscription fee in cents
-            .setCurrency("eur")  // or any other currency
+            .setUnitAmount(subscriptionFee * 100)
+            .setCurrency("eur")
             .setRecurring(PriceCreateParams.Recurring.builder()
-                .setInterval(PriceCreateParams.Recurring.Interval.MONTH)  // Monthly billing
+                .setInterval(PriceCreateParams.Recurring.Interval.MONTH)
                 .build())
             .setProduct(product.id)
             .build()
 
         val price = Price.create(priceParams, requestOptions)
 
-        return price.id  // This is the Price ID to be used when creating subscriptions
+        return price.id
     }
 
 
     fun createStripeConnectedAccount(ownerEmail: String): Account {
         val accountParams = AccountCreateParams.builder()
-            .setType(AccountCreateParams.Type.STANDARD)  // Or CUSTOM based on your need
+            .setType(AccountCreateParams.Type.STANDARD)
             .setEmail(ownerEmail)
             .build()
 
