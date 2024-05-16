@@ -55,7 +55,7 @@ fun LiveStatusScreen(viewModel: SharedViewModel) {
   val gymId = viewModel.selectedGymUser.value?.gym?.id ?: ""
   val liveStatus = viewModel.liveStatus.value
   val usualTraffic =
-    statisticsViewModel.graphData.observeAsState().value?.second?.get(getCurrentHour().toInt() + 5)
+    statisticsViewModel.graphData.observeAsState().value?.second?.get(getCurrentHour().toInt() - 7)
       ?: 0
 
 
