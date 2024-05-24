@@ -2,10 +2,8 @@ package com.example.gym_app.common
 
 import android.content.Context
 import android.content.SharedPreferences
-import androidx.compose.ui.platform.LocalContext
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
-import java.util.Date
 
 object TokenManager {
     private const val PREFS_FILE_NAME = "encrypted_prefs"
