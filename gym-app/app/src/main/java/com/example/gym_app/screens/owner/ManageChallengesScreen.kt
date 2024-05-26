@@ -100,8 +100,8 @@ fun ManageChallengesScreen(navHostController: NavHostController, viewModel: Shar
             navHostController.navigate(AppRoutes.CREATE_CHALLENGE_SCREEN)
           },
           expanded = expandedFab,
-          icon = { Icon(Icons.Filled.Add, "Create a class button") },
-          text = { Text(text = "Create a class") },
+          icon = { Icon(Icons.Filled.Add, "Create a challenge button") },
+          text = { Text(text = "Create a challenge") },
         )
       },
       floatingActionButtonPosition = FabPosition.End,
