@@ -383,7 +383,7 @@ fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float, onClick
   Row(
     modifier = Modifier.padding(16.dp).clickable(onClick = onClick),
     verticalAlignment = Alignment.CenterVertically,
-    horizontalArrangement = Arrangement.Start,
+    horizontalArrangement = Arrangement.SpaceBetween,
   ) {
     TrainerProfileImage(trainer.user.profilePicUrl)
     Text(
@@ -391,7 +391,7 @@ fun TrainerItem(trainer: GymTrainerWithReviewsDto, averageRating: Float, onClick
       text = "${trainer.user.firstName} ${trainer.user.lastName}",
     )
 
-    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
       Text(text = String.format("Rating:  %.1f", averageRating))
       RatingBar(rating = averageRating)
     }
