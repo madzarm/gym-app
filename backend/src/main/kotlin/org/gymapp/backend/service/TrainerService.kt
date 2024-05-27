@@ -3,7 +3,6 @@ package org.gymapp.backend.service
 import org.gymapp.backend.common.Common
 import org.gymapp.backend.extensions.addClass
 import org.gymapp.backend.extensions.getGym
-import org.gymapp.backend.extensions.getParticipantsFcmTokens
 import org.gymapp.backend.extensions.getUpcomingClasses
 import org.gymapp.backend.mapper.GymTrainerMapper
 import org.gymapp.backend.mapper.GymUserMapper
@@ -19,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
 
@@ -71,7 +69,7 @@ class TrainerService(
             gym = gym
         )
 
-        gymUserRepository.save(gymUser)
+        //gymUserRepository.save(gymUser)
         accessCodeService.deleteAccessCode(accessCode)
 
         val trainer = GymTrainer.fromGymUser(gymUser)
