@@ -116,8 +116,8 @@ private fun combineLists(
   gymClassReviews: List<GymClassInstanceDto>,
 ): List<ListItem> {
   val combinedList = mutableListOf<ListItem>()
-  combinedList.addAll(gymClasses.map { ListItem.GymClassItem(it) })
   combinedList.addAll(gymClassReviews.map { ListItem.GymClassReviewItem(it) })
+  combinedList.addAll(gymClasses.map { ListItem.GymClassItem(it) })
   return combinedList
 }
 
