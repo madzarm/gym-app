@@ -252,6 +252,8 @@ class TrainerService(
 
             val gymClassModifiedInstance = createCanceledModifiedClassInstance(gymClassInstance)
 
+            notificationService.notifyParticipants(gymClassInstance.participants, "Class Canceled", "The class ${gymClass.name} has been canceled!")
+
             gymClassModifiedInstanceRepository.save(gymClassModifiedInstance)
             return gymTrainerMapper.modelToDto(trainer)
         }
